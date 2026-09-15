@@ -1,0 +1,751 @@
+---
+import ContentLayout from "astro-theme-university/layouts/ContentLayout.astro";
+import { withBase } from "astro-theme-university/url";
+import ProvenanceTag from "../../components/ProvenanceTag.astro";
+import { courseMeta } from "../../course-config";
+import { siteConfig } from "../../site-config";
+
+// The canonical definition of the event. Every week and every assessment
+// resolves against this page instead of restating the definition (CLAUDE.md §4).
+//
+// The eyebrow reads the course code from src/course-config.ts rather than
+// hardcoding it. README.md:126-128 says the course record feeds the home page,
+// navigation and the API, "so do not restate those facts" — a second literal
+// copy of the code on a page is exactly that. While the starter record is still
+// in place this renders the starter's code; it will read SLOP6246 the moment
+// the record is replaced, with no edit needed here.
+//
+// Evidence discipline on this page (CLAUDE.md §6): every figure is either a
+// boundary the course chose (`defined`) or a value the course material records
+// about the synthetic teaching trace (`synthetic`). Provenance is tagged where
+// each value is formally specified — the definition rows, the reference-data
+// rows, and the operative-rule paragraph — and later prose refers back to those
+// established values rather than repeating a badge in every sentence. No
+// `sourced` tag appears, because no structured source record exists here. The
+// trace itself is not published alongside this page, so no property of it is
+// inferred; only what the course material states is reported.
+//
+// `title` and `description` are passed before {...siteConfig} deliberately:
+// siteConfig carries name/links/licence/socialImage/socialImageAlt plus the four
+// slopBranding keys, and neither `title` nor `description`, so page props cannot
+// be clobbered by the spread.
+
+/** The operative definition: six modelling choices plus a version row. The
+ *  status row is course metadata, so it carries no provenance tag. */
+const DEFINITION = [
+  {
+    term: "Region",
+    value: "One synchronous area, modelled as a single node",
+    kind: "defined",
+  },
+  {
+    term: "Sources counted",
+    value: "Wind and solar, summed",
+    kind: "defined",
+  },
+  {
+    term: "Threshold",
+    value: "Combined wind and solar output below 12% of their combined installed capacity",
+    kind: "defined",
+  },
+  {
+    term: "Minimum duration",
+    value: "An event span of at least 48 hours, measured under the recovery rule below",
+    kind: "defined",
+  },
+  {
+    term: "Recovery rule",
+    value:
+      "A recovery above the threshold ends the event only if it lasts more than 3 hours; shorter recoveries fall inside the event",
+    kind: "defined",
+  },
+  {
+    term: "Season",
+    value: "Winter half-year",
+    kind: "defined",
+  },
+  {
+    term: "Status",
+    value: "Course definition · version 1.2 · operative from Week 1",
+    kind: null,
+  },
+] as const;
+
+/** How the qualifying set responds when the boundary moves. Directions of
+ *  effect only: each row follows from the definition itself, so none of it
+ *  depends on measurements or on how a particular trace happens to look. */
+const SENSITIVITY = [
+  {
+    move: "Threshold lower (stricter)",
+    effect: "Fewer periods qualify; each must reach a lower combined-output level",
+  },
+  {
+    move: "Threshold higher (looser)",
+    effect: "More periods qualify; shallower periods also qualify",
+  },
+  {
+    move: "Duration longer",
+    effect: "Short lows are excluded, however far output falls",
+  },
+  {
+    move: "Duration shorter",
+    effect: "Near-misses become events, and the count can rise",
+  },
+] as const;
+
+/** Schematic of the recovery rule, built only from the course-defined 3-hour
+ *  allowance. `width` values are presentational: they set the order of states
+ *  and make the second recovery visibly the longer one. They encode no
+ *  durations and no depth, and no hour counts are shown to the reader. */
+const RECOVERY_CASES = [
+  {
+    name: "Short recovery — the event continues",
+    recovery: "3 hours or less",
+    reading: "One event, measured end to end",
+    segments: [
+      { state: "below", width: 5 },
+      { state: "above", width: 1 },
+      { state: "below", width: 5 },
+    ],
+  },
+  {
+    name: "Long recovery — the event is split",
+    recovery: "More than 3 hours",
+    reading: "Two separate lows, each measured on its own",
+    segments: [
+      { state: "below", width: 5 },
+      { state: "above", width: 3 },
+      { state: "below", width: 5 },
+    ],
+  },
+] as const;
+
+/** What each assessment does with the definition. Text only for now: the
+ *  assessment routes do not yet exist under their final slugs, and a link to a
+ *  route that has not been built fails the build's link checker. */
+const LADDER = [
+  {
+    id: "A1",
+    title: "Define the Drought",
+    does: "Moves the boundary and defends the move.",
+  },
+  {
+    id: "A2",
+    title: "Site Against Failure",
+    does: "Uses the chosen event to judge how far output at different sites falls together.",
+  },
+  {
+    id: "A3",
+    title: "The 72-Hour Dispatch",
+    does: "Tests whether a system survives the event hour by hour, not on average.",
+  },
+  {
+    id: "A4",
+    title: "Design for the Worst Week",
+    does: "States both the event the system survives and the event that defeats it.",
+  },
+] as const;
+---
+
+<ContentLayout
+  title="The Event"
+  description="You cannot design against an event until you have defined it. This page fixes what this course means by a renewable-energy drought — the threshold, the duration and the recovery rule that every week and every assessment resolves against."
+  {...siteConfig}
+>
+  <p class="ev-eyebrow">{courseMeta.code} · Canonical definition</p>
+
+  <p>
+    A system described by its annual averages can look comfortable. The average
+    hides the week the weather stops, and the system still has to operate
+    through it. The first question here is therefore not how much wind and solar
+    a system has, but what happens across the worst stretch it will actually
+    meet — and that stays unanswerable until the stretch itself has a
+    definition.
+  </p>
+
+  <p>
+    <i lang="de">Dunkelflaute</i> names a period of simultaneously low wind and
+    solar availability. The word is enough to recognise the problem and not
+    enough to design against it: on its own it supplies no threshold, no minimum
+    duration, and no rule for what counts as the weather recovering. What follows
+    supplies all three, as an <strong>operative definition</strong> — a small set
+    of explicit choices that can be applied to a trace, argued with, and moved.
+  </p>
+
+  <p>
+    Every week and every assessment in this course resolves against this page.
+    When a brief says <em>the event</em>, it means the definition below, not a
+    new one introduced quietly in passing. Two kinds of number appear, and the
+    specification and reference-data rows identify which kind each value is: a
+    {" "}<ProvenanceTag kind="defined" /> value is a boundary this course chose,
+    and a <ProvenanceTag kind="synthetic" /> value is something the course
+    material records about the teaching trace that was generated for this course.
+    Later sections refer back to those established values without repeating the
+    tag. Nothing on this page is drawn from measured data, and no real
+    electricity system is being described.
+  </p>
+
+  <section aria-labelledby="definition">
+    <h2 id="definition">The operative definition</h2>
+
+    <p>
+      Six modelling choices form the test below. The final row records the
+      version of that shared course definition. A candidate period is evaluated
+      under all six choices.
+    </p>
+
+    <dl class="ev-spec">
+      {
+        DEFINITION.map((row) => (
+          <div class="ev-spec-row">
+            <dt>{row.term}</dt>
+            <dd>
+              <span>{row.value}</span>
+              {row.kind && <ProvenanceTag kind={row.kind} />}
+            </dd>
+          </div>
+        ))
+      }
+    </dl>
+
+    <p>
+      Writing the rows down is the whole point. An undocumented threshold cannot
+      be disagreed with, and so cannot be defended either — a definition nobody
+      is able to attack is not a strong one, merely an unexamined one.
+    </p>
+  </section>
+
+  <section aria-labelledby="sensitivity">
+    <h2 id="sensitivity">The line changes the answer</h2>
+
+    <p>
+      None of those numbers is a natural constant. 12% and 48 hours are lines
+      drawn by this course, and moving either one changes which periods qualify.
+    </p>
+
+    <div class="at-table-wrap">
+      <table>
+        <caption class="ev-caption">
+          Direction of effect when the boundary moves. Directions only — how
+          large each effect is depends on the trace the definition is applied to.
+        </caption>
+        <thead>
+          <tr>
+            <th scope="col">Move the boundary</th>
+            <th scope="col">What happens to the qualifying set</th>
+          </tr>
+        </thead>
+        <tbody>
+          {
+            SENSITIVITY.map((row) => (
+              <tr>
+                <th scope="row" class="ev-move">
+                  {row.move}
+                </th>
+                <td>{row.effect}</td>
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <p>
+      The two interact, and both directions fail in their own way. A boundary can
+      be tightened until this teaching trace contains no qualifying event. That
+      does not prove the system safe; it may simply make the definition
+      uninformative for this exercise. It can equally be loosened until so many
+      periods qualify that <em>the event</em> no longer distinguishes a
+      manageable lull from an emergency. A defensible boundary is one that still
+      selects the periods you would have to survive.
+    </p>
+
+    <p class="ev-forward">
+      Later in the course this page gains a control for moving the threshold and
+      the duration and watching the qualifying set change. The relationship above
+      is the thing to hold onto until then: the definition is an instrument
+      setting, and the answer you get out depends on where you set it.
+    </p>
+  </section>
+
+  <section aria-labelledby="reference">
+    <h2 id="reference">The reference event</h2>
+
+    <p>
+      The course uses one period from the shared teaching trace as its reference
+      event, so that worked examples across the weeks are discussing the same
+      stretch of weather rather than each inventing their own.
+    </p>
+
+    <aside class="ev-disclosure" aria-labelledby="disclosure-title">
+      <h3 id="disclosure-title" class="ev-disclosure-title">
+        The teaching trace is synthetic
+      </h3>
+      <p>
+        It was generated for this course. The position and depth below are
+        properties of that generated series and of nothing else. They are not
+        measurements, there is no reanalysis or historical dataset behind them,
+        and no named grid is being described. They are here so that everyone
+        works the same example, not as evidence about the world.
+      </p>
+    </aside>
+
+    <dl class="ev-spec ev-spec--compact">
+      <div class="ev-spec-row">
+        <dt>Position in trace</dt>
+        <dd><span>Day 8 to day 10</span><ProvenanceTag kind="synthetic" /></dd>
+      </div>
+      <div class="ev-spec-row">
+        <dt>Hours below threshold</dt>
+        <dd><span>61 hours</span><ProvenanceTag kind="synthetic" /></dd>
+      </div>
+      <div class="ev-spec-row">
+        <dt>Minimum combined output</dt>
+        <dd>
+          <span>4.1% of combined installed wind and solar capacity</span>
+          <ProvenanceTag kind="synthetic" />
+        </dd>
+      </div>
+      <div class="ev-spec-row">
+        <dt>Status in this course</dt>
+        <dd>
+          <span>Designated reference event in the synthetic teaching trace</span>
+          <ProvenanceTag kind="synthetic" />
+        </dd>
+      </div>
+    </dl>
+
+    <p>
+      Under the operative definition, a qualifying event must span at least
+      48 hours, and a recovery above the threshold longer than 3 hours breaks
+      the event. <ProvenanceTag kind="defined" />
+    </p>
+
+    <p>
+      The course material records 61 hours below threshold for this reference
+      period. The trace itself is not published alongside this page, so nothing
+      here infers its internal recovery pattern from that count.
+    </p>
+  </section>
+
+  <section aria-labelledby="exclusions">
+    <h2 id="exclusions">What the definition excludes</h2>
+
+    <p>A definition earns its keep by what it refuses. This one refuses three things.</p>
+
+    <dl class="ev-excludes">
+      <dt>Anything shorter than the minimum duration</dt>
+      <dd>
+        A period can fall much further below the threshold and still fail to
+        qualify if its span does not reach 48 hours. The definition is about
+        endurance rather than depth: riding out one hard day and riding out a
+        long week are different problems, and this definition is about the
+        second.
+      </dd>
+
+      <dt>One technology failing on its own</dt>
+      <dd>
+        The threshold applies to wind and solar combined. A still, bright spell
+        or a dark, windy one can hold the combined figure above the threshold and
+        so fall outside the definition, however alarming either series looks
+        alone.
+      </dd>
+
+      <dt>A low that recovers for long enough</dt>
+      <dd>
+        A recovery above the threshold lasting more than 3 hours ends the event.
+        That single rule decides whether a long spell of bad weather is read as
+        one event or as two shorter ones.
+      </dd>
+    </dl>
+
+    <figure class="ev-figure">
+      <p class="ev-figure-kicker">Course-defined rule</p>
+
+      <div class="ev-cases">
+        {
+          RECOVERY_CASES.map((example) => (
+            <div class="ev-case">
+              <h3 class="ev-case-name">{example.name}</h3>
+              <div class="ev-strip" aria-hidden="true">
+                {example.segments.map((segment) => (
+                  <span
+                    class:list={["ev-seg", `ev-seg--${segment.state}`]}
+                    style={`--w:${segment.width}`}
+                  />
+                ))}
+              </div>
+              <dl class="ev-case-readout">
+                <dt>Recovery</dt>
+                <dd>{example.recovery}</dd>
+                <dt>Read as</dt>
+                <dd>{example.reading}</dd>
+              </dl>
+            </div>
+          ))
+        }
+      </div>
+
+      <p class="ev-key">
+        <span class="ev-key-item">
+          <span class="ev-swatch ev-seg--below" aria-hidden="true"></span> below the
+          12% threshold
+        </span>
+        <span class="ev-key-item">
+          <span class="ev-swatch ev-seg--above" aria-hidden="true"></span> above the
+          12% threshold
+        </span>
+      </p>
+
+      <figcaption>
+        Schematic, not trace data. The 3-hour allowance, the 48-hour minimum and
+        the 12% threshold shown here are all values of the operative definition
+        above. The bars show the order of the states and which recovery is the
+        longer of the two; they encode no durations and no depth. Under the
+        3-hour allowance the first recovery is ignored and the low is measured
+        end to end. In the second the event is split, and each resulting low must
+        then reach 48 hours on its own to qualify — so the recovery rule changes
+        how the same weather spell is segmented into events.
+      </figcaption>
+    </figure>
+  </section>
+
+  <section aria-labelledby="rationale">
+    <h2 id="rationale">Why this definition exists</h2>
+
+    <p>
+      The boundary is contestable on purpose. This course does not treat 12% and
+      48 hours as a universally correct definition of a renewable-energy drought.
+      The useful boundary depends on the system being studied and on the purpose
+      of the analysis.
+    </p>
+
+    <p>
+      What a course needs is not the true definition but a shared one. Fixing 12%
+      and 48 hours here means that when two students disagree about whether a
+      portfolio survives, they are disagreeing about the portfolio and not about
+      the vocabulary.
+    </p>
+
+    <p>
+      So the sequence is deliberate. The course fixes a baseline first, then asks
+      you to attack it. In the first assessment the boundary moves: you choose a
+      threshold, a duration and a recovery rule for a system you have specified,
+      and defend those choices against the consequences they produce. Reaching a
+      different definition from the one on this page is not a failure. Reaching
+      an undefended one is.
+    </p>
+  </section>
+
+  <section aria-labelledby="ladder">
+    <h2 id="ladder">Where this goes in the course</h2>
+
+    <p>
+      Each piece of <a href={withBase("/assessments/")}>assessed work</a> takes
+      the definition one step further out, from naming the event to surviving it
+      to admitting what would still break it.
+    </p>
+
+    <ol class="ev-ladder">
+      {
+        LADDER.map((rung) => (
+          <li>
+            <span class="ev-ladder-id">{rung.id}</span>
+            <span class="ev-ladder-body">
+              <strong>{rung.title}</strong>
+              <span>{rung.does}</span>
+            </span>
+          </li>
+        ))
+      }
+    </ol>
+
+    <p>
+      The last of those is the course's real test. A design that names only what
+      it survives has answered half the question.
+    </p>
+  </section>
+</ContentLayout>
+
+<style>
+  /* Page-specific styling only. Every colour comes from a theme token, so the
+     page follows the Slop palette and both colour schemes without restating a
+     single value (DESIGN.md §1, §4). There are no transitions or animations
+     here; the theme's own prefers-reduced-motion block covers what it inherits. */
+
+  /* Sits above the layout's <h1> visually while staying after it in the DOM,
+     so assistive technology still meets the heading first. `.at-main` is a
+     grid, so `order` is enough — no positioning tricks. */
+  .ev-eyebrow {
+    order: -1;
+    margin-block: 0 var(--at-spacing-xs);
+    font-family: var(--at-font-mono);
+    font-size: var(--at-font-size-xs);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--at-text-muted);
+  }
+
+  /* Instrument rows. Claims the inset column so the specification reads a
+     little wider than the prose measure; on narrow viewports the theme
+     collapses that inset to zero, so this is a no-op there rather than an
+     overflow risk (DESIGN.md §6). */
+  .ev-spec {
+    grid-column: inset-start / content-end;
+    margin-block: var(--at-spacing-lg) var(--at-spacing-xl);
+    border-block-start: 1px solid var(--at-border);
+    font-size: var(--at-font-size-sm);
+  }
+
+  .ev-spec-row {
+    display: grid;
+    grid-template-columns: minmax(9rem, 14rem) 1fr;
+    gap: 0 var(--at-spacing-md);
+    padding-block: var(--at-spacing-sm);
+    border-block-end: 1px solid var(--at-divider);
+  }
+
+  .ev-spec dt {
+    font-family: var(--at-font-mono);
+    font-size: var(--at-font-size-xs);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--at-text-muted);
+    padding-block-start: 0.15em;
+  }
+
+  .ev-spec dd {
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--at-spacing-xs) var(--at-spacing-sm);
+    align-items: baseline;
+    color: var(--at-text);
+  }
+
+  .ev-spec--compact {
+    margin-block: var(--at-spacing-md) var(--at-spacing-lg);
+  }
+
+  .ev-caption,
+  .ev-figure figcaption {
+    margin-block-start: var(--at-spacing-sm);
+    font-size: var(--at-font-size-sm);
+    line-height: var(--at-line-height);
+    color: var(--at-text-secondary);
+    text-align: start;
+  }
+
+  .ev-move {
+    font-weight: 600;
+    white-space: normal;
+  }
+
+  /* The forward reference to the interaction that arrives later. A quiet left
+     rule marks it as an aside about the course rather than part of the
+     argument. */
+  .ev-forward {
+    border-inline-start: 2px solid var(--at-divider);
+    padding-inline-start: var(--at-spacing-md);
+    color: var(--at-text-secondary);
+  }
+
+  /* The synthetic-data disclosure. Deliberately the most prominent block on the
+     page after the definition itself: a reader who takes one thing away should
+     take away that these numbers are not measurements. */
+  .ev-disclosure {
+    grid-column: inset-start / content-end;
+    margin-block: var(--at-spacing-lg);
+    padding: var(--at-spacing-md) var(--at-spacing-lg);
+    border: 1px dashed var(--at-text-muted);
+    border-inline-start-width: 4px;
+    background: var(--at-bg-alt);
+  }
+
+  .ev-disclosure-title {
+    margin-block: 0 var(--at-spacing-xs);
+    font-family: var(--at-font-mono);
+    font-size: var(--at-font-size-sm);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--at-text);
+  }
+
+  .ev-disclosure p {
+    margin-block: 0;
+    font-size: var(--at-font-size-sm);
+    color: var(--at-text-secondary);
+  }
+
+  .ev-figure {
+    grid-column: inset-start / content-end;
+    margin-block: var(--at-spacing-xl);
+  }
+
+  /* Names the figure's values as the definition's own, so the schematic does
+     not read as an independent source of numbers. */
+  .ev-figure-kicker {
+    margin-block: 0 var(--at-spacing-sm);
+    font-family: var(--at-font-mono);
+    font-size: var(--at-font-size-xs);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--at-text-muted);
+  }
+
+  .ev-excludes {
+    margin-block: var(--at-spacing-md) var(--at-spacing-xl);
+  }
+
+  .ev-excludes dt {
+    margin-block-start: var(--at-spacing-md);
+    font-weight: 600;
+    color: var(--at-heading);
+  }
+
+  .ev-excludes dd {
+    margin-inline-start: 0;
+    padding-inline-start: var(--at-spacing-md);
+    border-inline-start: 1px solid var(--at-divider);
+    color: var(--at-text-secondary);
+  }
+
+  /* Recovery-rule schematic: two state strips side by side on wide viewports,
+     stacked on narrow. */
+  .ev-cases {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+    gap: var(--at-spacing-lg);
+  }
+
+  .ev-case-name {
+    margin-block: 0 var(--at-spacing-sm);
+    font-size: var(--at-font-size-sm);
+    font-weight: 600;
+    color: var(--at-text);
+  }
+
+  .ev-strip {
+    display: flex;
+    height: 2.5rem;
+    border: 1px solid var(--at-border);
+  }
+
+  .ev-seg {
+    flex: var(--w) 1 0;
+    min-width: 0;
+  }
+
+  .ev-seg + .ev-seg {
+    border-inline-start: 1px solid var(--at-border);
+  }
+
+  /* Below threshold — the event. Hatch plus tint, so the two states differ by
+     pattern and not only by colour. */
+  .ev-seg--below {
+    background:
+      repeating-linear-gradient(
+        135deg,
+        transparent 0 4px,
+        rgb(from var(--at-text) r g b / 12%) 4px 5px
+      ),
+      var(--at-accent-soft);
+  }
+
+  .ev-seg--above {
+    background: var(--at-bg-alt);
+  }
+
+  .ev-case-readout {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: var(--at-spacing-xs) var(--at-spacing-sm);
+    margin-block-start: var(--at-spacing-sm);
+    font-size: var(--at-font-size-sm);
+  }
+
+  .ev-case-readout dt {
+    font-family: var(--at-font-mono);
+    font-size: var(--at-font-size-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--at-text-muted);
+    padding-block-start: 0.2em;
+  }
+
+  .ev-case-readout dd {
+    margin: 0;
+    color: var(--at-text-secondary);
+  }
+
+  .ev-key {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--at-spacing-sm) var(--at-spacing-lg);
+    margin-block-start: var(--at-spacing-md);
+    font-family: var(--at-font-mono);
+    font-size: var(--at-font-size-xs);
+    color: var(--at-text-secondary);
+  }
+
+  .ev-key-item {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--at-spacing-xs);
+  }
+
+  .ev-swatch {
+    display: inline-block;
+    width: 1.5rem;
+    height: 0.75rem;
+    border: 1px solid var(--at-border);
+  }
+
+  /* The ladder. Numbered because the order is the argument. */
+  .ev-ladder {
+    margin-block: var(--at-spacing-md) var(--at-spacing-lg);
+    padding: 0;
+    list-style: none;
+  }
+
+  .ev-ladder li {
+    display: grid;
+    grid-template-columns: 2.5rem 1fr;
+    gap: var(--at-spacing-sm);
+    padding-block: var(--at-spacing-sm);
+    border-block-start: 1px solid var(--at-divider);
+  }
+
+  .ev-ladder-id {
+    font-family: var(--at-font-mono);
+    font-size: var(--at-font-size-sm);
+    color: var(--at-accent);
+  }
+
+  .ev-ladder-body {
+    display: grid;
+    gap: 0.15rem;
+  }
+
+  .ev-ladder-body span {
+    color: var(--at-text-secondary);
+  }
+
+  /* Phone. Label-above-value for every instrument row, so nothing is squeezed
+     into a two-column grid at 390px (DESIGN.md §8). */
+  @media (width < 34rem) {
+    .ev-spec-row,
+    .ev-case-readout {
+      grid-template-columns: 1fr;
+    }
+
+    .ev-disclosure {
+      padding-inline: var(--at-spacing-md);
+    }
+
+    .ev-ladder li {
+      grid-template-columns: 1fr;
+      gap: 0.15rem;
+    }
+  }
+</style>

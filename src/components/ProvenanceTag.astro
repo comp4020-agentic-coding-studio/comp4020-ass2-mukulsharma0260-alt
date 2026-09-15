@@ -1,0 +1,79 @@
+---
+// Marks where a technical figure came from, per CLAUDE.md §6.
+//
+// Three kinds, because these are three different sorts of claim:
+//
+//   defined    a modelling boundary this course chose. Not a measurement, and
+//              contestable by design.
+//   synthetic  a value produced by, or describing, the synthetic teaching
+//              trace. Not an observation of any real system.
+//   sourced    an empirical or technical value that resolves to an explicit
+//              local structured source record carrying source and provenance.
+//
+// §6 admits an empirical or technical number in only two forms: `sourced`,
+// backed by a provenance record, or `synthetic`, visibly labelled as not real.
+// `defined` covers the course's own chosen boundaries, which are neither
+// measurement nor trace output and must not be presented as either. Course
+// metadata — week numbers, dates, marks, assessment percentages, UI labels —
+// is exempt from the evidence rule and needs no tag.
+//
+// Colour is never the only carrier: each tag names its kind in words, and the
+// three differ in border treatment as well as hue, so the distinction survives
+// greyscale, either colour scheme, and colour-blind readers.
+
+interface Props {
+  kind: "defined" | "synthetic" | "sourced";
+  /** Override the default wording where a row needs to be more specific. */
+  label?: string;
+}
+
+const DEFAULT_LABEL: Record<Props["kind"], string> = {
+  defined: "Course-defined",
+  synthetic: "Synthetic trace",
+  sourced: "Sourced evidence",
+};
+
+const { kind, label } = Astro.props;
+const text = label ?? DEFAULT_LABEL[kind];
+---
+
+<span class:list={["prov", `prov--${kind}`]}>{text}</span>
+
+<style>
+  .prov {
+    display: inline-block;
+    padding: 0.1em 0.45em;
+    border-radius: var(--at-border-radius);
+    font-family: var(--at-font-mono);
+    font-size: var(--at-font-size-xs);
+    line-height: 1.5;
+    white-space: nowrap;
+    vertical-align: 0.1em;
+  }
+
+  /* A boundary the course chose: thin solid edge, brand accent. */
+  .prov--defined {
+    border: 1px solid var(--at-accent);
+    background: var(--at-accent-soft);
+    color: var(--at-text);
+  }
+
+  /* An output of the synthetic trace: dashed edge, quieter than the accent so
+     it can never read as an authoritative measurement. */
+  .prov--synthetic {
+    border: 1px dashed var(--at-text-muted);
+    background: var(--at-bg-alt);
+    color: var(--at-text-secondary);
+  }
+
+  /* An empirical value with a provenance record behind it: solid edge with a
+     thickened leading rule, borrowing the citation-bar idiom. The heavier
+     inline-start edge is the non-colour cue that separates it from both
+     `defined` (uniform thin) and `synthetic` (dashed). */
+  .prov--sourced {
+    border: 1px solid var(--at-info);
+    border-inline-start-width: 3px;
+    background: var(--at-info-soft);
+    color: var(--at-text);
+  }
+</style>
