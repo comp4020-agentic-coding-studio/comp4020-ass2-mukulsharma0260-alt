@@ -35,7 +35,10 @@ const sparkEvX = sx(EVENT_START_HOUR);
 const sparkEvW = sx(EVENT_START_HOUR + EVENT_LENGTH_HOURS) - sparkEvX;
 ---
 
-<section class="hero">
+<!-- Named, because this section is rendered into BaseLayout's hero slot and so
+     sits outside <main>. A bare <section> there is not a landmark, and axe's
+     `region` rule fails the page for content belonging to none. -->
+<section class="hero" aria-label="Course title, over a synthetic wind farm">
   <canvas class="hero-canvas" aria-hidden="true"></canvas>
   <div class="hero-scrim" aria-hidden="true"></div>
 
@@ -96,6 +99,10 @@ const sparkEvW = sx(EVENT_START_HOUR + EVENT_LENGTH_HOURS) - sparkEvX;
       let s = 20260914;
       return () => ((s = (s * 1664525 + 1013904223) % 4294967296), s / 4294967296);
     })();
+
+    /** Turbine scale is relative to the drawn height, so the farm keeps its
+     *  proportions instead of shrinking to a smudge on a short phone hero. */
+    const scaleFor = (base: number) => base * Math.max(0.78, Math.min(1.5, h / 380));
 
     interface Turbine { gx: number; depth: number; sc: number; phase: number; om: number; yaw: number }
     const farm: Turbine[] = [];
@@ -225,14 +232,18 @@ const sparkEvW = sx(EVENT_START_HOUR + EVENT_LENGTH_HOURS) - sparkEvX;
       const inEvent = i >= EVENT_START_HOUR && i < EVENT_END;
 
       const sky = c.createLinearGradient(0, 0, 0, h);
+      // Near-black is confined to the top third: the dark stop lands at 0.30,
+      // so the glow occupies the band the turbines stand in.
       sky.addColorStop(0, "#0b0a07");
-      sky.addColorStop(0.46, "#231a09");
-      sky.addColorStop(0.8, inEvent ? "#5c4515" : "#7d5d1c");
+      sky.addColorStop(0.3, "#2b2009");
+      sky.addColorStop(0.62, inEvent ? "#5c4515" : "#8a681f");
       sky.addColorStop(1, "#0a0906");
       c.fillStyle = sky;
       c.fillRect(0, 0, w, h);
 
-      const horizon = h * 0.86;
+      // Raised from 0.72: the turbines sit in the lower third with sky above
+      // them, rather than filling a frame.
+      const horizon = h * 0.66;
       const haze = c.createLinearGradient(0, horizon - h * 0.3, 0, horizon);
       haze.addColorStop(0, "rgba(200,151,47,0)");
       haze.addColorStop(1, inEvent ? "rgba(200,151,47,.16)" : "rgba(200,151,47,.30)");
@@ -279,8 +290,11 @@ const sparkEvW = sx(EVENT_START_HOUR + EVENT_LENGTH_HOURS) - sparkEvX;
       for (const t of farm) {
         t.om += (target * (0.82 + t.sc * 0.3) - t.om) * (playing ? Math.min(1, dt * 1.6) : 1);
         if (playing) t.phase += t.om * dt * 60 * 0.055;
-        const gy = horizon - (1 - t.depth) * h * 0.16 + t.sc * 2;
-        turbine((0.13 + t.gx * 0.95) * w, gy, t.sc, t.phase, 0.3 + t.depth * 0.7, t.yaw, t.om);
+        const gy = horizon - (1 - t.depth) * h * 0.2 + t.sc * 2;
+        // Was (0.13 + gx * 0.95): that mapped the field to 0.25w--1.07w, which
+        // emptied the left third and ran the last turbine off the right edge.
+        // This spans the full band with a little overhang at both ends.
+        turbine((t.gx * 1.06 - 0.03) * w, gy, scaleFor(t.sc), t.phase, 0.3 + t.depth * 0.7, t.yaw, t.om);
       }
 
       const day = Math.floor(i / 24) + 1;
@@ -306,10 +320,14 @@ const sparkEvW = sx(EVENT_START_HOUR + EVENT_LENGTH_HOURS) - sparkEvX;
       toggle();
     });
     canvas.addEventListener("click", toggle);
-    addEventListener("resize", () => {
+    // A resize listener misses the box changing for any other reason — the
+    // webfonts landing reflowed the hero and left the backing store 61 device
+    // pixels short on a phone. Observe the element instead of the window.
+    const ro = new ResizeObserver(() => {
       size();
       if (!playing) draw(performance.now());
     });
+    ro.observe(canvas);
     if (reduced) pause.textContent = "▶ PLAY";
     requestAnimationFrame(draw);
   }
@@ -317,17 +335,29 @@ const sparkEvW = sx(EVENT_START_HOUR + EVENT_LENGTH_HOURS) - sparkEvX;
 
 <style>
   .hero {
-    order: -1;
-    /* .at-main's subgrid spans inset-start/content-end only, so `full` is not
-       a line it can resolve and silently falls back to the content column.
-       This is the widest span actually available here. */
-    grid-column: inset-start / content-end;
+    /* Rendered into BaseLayout's `hero` slot, which emits it as a direct child
+       of body — the grid that actually defines the `full` line. Inside
+       .at-main's subgrid `full` does not resolve and silently collapses to the
+       content column, which is what made this a box in a column twice. A 100vw
+       escape was the other option and it fought the scrollbar: 18px off centre
+       and 18px of horizontal scroll at 1440. This asks the right grid instead. */
+    grid-column: full;
     position: relative;
+    /* body::after paints the gold content rule after body's children, so it
+       crossed the hero. The hero is positioned, so a z-index lifts it clear —
+       a full-bleed header should have no column rule running down it. */
+    z-index: 1;
     isolation: isolate;
-    min-height: clamp(300px, 44vw, 470px);
+    /* A fixed height, not a min-height: at 470px tall this read as an embedded
+       widget rather than a masthead. ~5:1 at desktop is the proportion that
+       reads as a header. It has to be `height` rather than `min-height`
+       because the masthead's own four lines were what pushed the box past the
+       band on a phone. */
+    height: clamp(260px, 26vw, 360px);
     display: grid;
     align-content: end;
-    margin-block-end: var(--at-spacing-xl);
+    overflow: hidden;
+    margin-block: 0;
     background: #0b0a07;
   }
 
@@ -359,7 +389,7 @@ const sparkEvW = sx(EVENT_START_HOUR + EVENT_LENGTH_HOURS) - sparkEvX;
   .hero-body {
     position: relative;
     z-index: 2;
-    padding: var(--at-spacing-xl) var(--at-gutter) var(--at-spacing-lg);
+    padding: var(--at-spacing-lg) var(--at-gutter) calc(var(--at-spacing-lg) + 1.4rem);
     max-width: calc(var(--at-content-width) + var(--at-content-inset));
     margin-inline: auto;
     width: 100%;
@@ -386,8 +416,11 @@ const sparkEvW = sx(EVENT_START_HOUR + EVENT_LENGTH_HOURS) - sparkEvX;
     color: rgb(246 239 221 / 88%);
   }
 
+  /* Absolute, so the readout cannot add its own height to a fixed band. */
   .hero-hud {
-    position: relative;
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0;
     z-index: 2;
     display: flex;
     flex-wrap: wrap;
@@ -438,6 +471,32 @@ const sparkEvW = sx(EVENT_START_HOUR + EVENT_LENGTH_HOURS) - sparkEvX;
 
     .hero-spark {
       width: 130px;
+    }
+
+    /* The band is 260px here and the masthead is four lines, two of which
+       wrap. These overrides are what make it fit without clipping — measured
+       at 390x844, not guessed. */
+    /* The hud wraps to two rows at this width — readout, then sparkline and
+       button — so the masthead has to clear ~4.7rem, not one row's worth. It
+       collided with the eyebrow line at 2.1rem. */
+    .hero-body {
+      padding: var(--at-spacing-sm) var(--at-gutter) 4.7rem;
+    }
+
+    .hero-body :global(.hm-kicker),
+    .hero-body :global(.hm-eyebrow) {
+      font-size: 0.66rem;
+      line-height: 1.35;
+    }
+
+    .hero-body :global(.hm-title) {
+      font-size: 2rem;
+      line-height: 1.05;
+    }
+
+    .hero-body :global(.hm-subtitle) {
+      font-size: 0.95rem;
+      line-height: 1.25;
     }
   }
 </style>

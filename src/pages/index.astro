@@ -69,14 +69,25 @@ const LADDER = [
   description="A renewable grid is not designed by its average. It is designed by the event it must survive — twelve weeks on one failure condition."
   {...siteConfig}
 >
-  <CourseChrome />
-
-  <HeroFarm>
+  <HeroFarm slot="hero">
     <p class="hm-kicker">{courseMeta.code} · School of Continuous Improvement</p>
     <h1 class="hm-title">{courseName}</h1>
     <p class="hm-subtitle">{courseSubtitle}</p>
     <p class="hm-eyebrow">{courseMeta.session} {courseMeta.year} · Level {courseLevelLabel} · Postgraduate coursework</p>
   </HeroFarm>
+
+  <CourseChrome strip={false} />
+
+  <!-- The theme draws the gold content rule as body::after, spanning the whole
+       body height, so it ran down the hero and continued above and below it.
+       On a page whose masthead is full bleed there is no content column for it
+       to mark, so it is suppressed here — on this page only. Week and
+       assessment pages keep it. -->
+  <style is:global>
+    body::after {
+      display: none;
+    }
+  </style>
 
   <ul class="course-tags" aria-label="Course tags">
     {courseMeta.tags.map((tag) => <li>{tag}</li>)}

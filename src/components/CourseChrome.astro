@@ -1,4 +1,12 @@
 ---
+interface Props {
+  /** The homepage renders the full hero, which IS the trace — a miniature of
+   *  it immediately above would be redundant and is what made the hero read as
+   *  bolted on. Every other page keeps the strip. */
+  strip?: boolean;
+}
+
+const { strip = true } = Astro.props;
 // The course layer's own chrome, added as a component rather than by re-routing
 // every page through one layout.
 //
@@ -38,6 +46,7 @@ const evX = gx(EVENT_START_HOUR);
 const evW = gx(EVENT_START_HOUR + EVENT_LENGTH_HOURS) - evX;
 ---
 
+{strip && (
 <div class="cc-strip">
   <svg
     viewBox={`0 0 ${W} ${H}`}
@@ -50,6 +59,7 @@ const evW = gx(EVENT_START_HOUR + EVENT_LENGTH_HOURS) - evX;
     <line x1="0" x2={W} y1={gy(THRESHOLD_PCT)} y2={gy(THRESHOLD_PCT)} class="cc-thr" />
   </svg>
 </div>
+)}
 
 <link
   rel="stylesheet"
@@ -71,13 +81,17 @@ const evW = gx(EVENT_START_HOUR + EVENT_LENGTH_HOURS) - evX;
   }
 
   /* Argument: all reading prose. */
-  .at-main :is(p, li, dd, blockquote, figcaption) {
+  .at-main :is(p, li, dd, blockquote, figcaption),
+  .hero .hm-subtitle {
     font-family: var(--serif);
   }
 
-  /* Display: headings, and the claims that behave like headings. */
+  /* Display: headings, and the claims that behave like headings. The hero is
+     rendered into BaseLayout's hero slot, so it sits outside .at-main and has
+     to be named explicitly — it lost the display face when it moved. */
   .at-main :is(h1, h2, h3, h4),
   .at-main .wk-claim,
+  .hero .hm-title,
   .ab-head {
     font-family: var(--disp);
     font-optical-sizing: auto;
