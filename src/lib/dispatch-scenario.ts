@@ -15,12 +15,18 @@ import { DEMAND_PCT, WINDOW_HOURS, WINDOW_START_HOUR, windowProfile } from "./st
 
 export { DEMAND_PCT, WINDOW_HOURS, WINDOW_START_HOUR };
 
-/** Storage fleet. SYNTHETIC. */
-export const STORAGE_POWER_PCT = 20;
-export const STORAGE_ENERGY_PCTH = 700;
+/** Storage fleet. SYNTHETIC. Tuned so discharge power alone can meet the
+ *  window's ~39% peak deficit — power is deliberately NOT the binding
+ *  constraint here, because a power shortfall bites instantly and teaches
+ *  nothing. Energy is what runs out, slowly and foreseeably. */
+export const STORAGE_POWER_PCT = 40;
+export const STORAGE_ENERGY_PCTH = 1050;
 
-/** Reserve plant: firm, but it cannot appear instantly. SYNTHETIC. */
-export const RESERVE_POWER_PCT = 26;
+/** Reserve plant: firm, but it cannot appear instantly, and it cannot cover the
+ *  deficit alone. Both matter: the lead time is the only irreversible thing an
+ *  operator controls, and the shortfall in cover is what drains the store.
+ *  SYNTHETIC. */
+export const RESERVE_POWER_PCT = 24;
 export const RESERVE_LEAD_HOURS = 6;
 
 /** Voluntary demand reduction available once called. SYNTHETIC. */
@@ -49,8 +55,34 @@ export interface Decisions {
 export const DEFAULT_DECISIONS: Decisions = {
   reserveStartHour: 24,
   shedFromHour: null,
-  storagePolicy: "balanced",
+  storagePolicy: "full",
 };
+
+/** The three decisions worth putting in front of a student, named for the
+ *  choice rather than the outcome — the point is that the operator cannot tell
+ *  which is which at the time. All three discharge at full power: the
+ *  irreversibility on offer is the reserve's lead time, not a discharge rate.
+ *
+ *  spec/dispatch-contract.test.ts holds these to the property that makes them
+ *  teachable — at least one survives, at least one fails, and every failure
+ *  becomes unrecoverable at least twelve hours before anything visibly breaks. */
+export const PRESETS: { id: string; label: string; decisions: Decisions }[] = [
+  {
+    id: "now",
+    label: "Start the reserve now",
+    decisions: { reserveStartHour: 0, shedFromHour: 0, storagePolicy: "full" },
+  },
+  {
+    id: "day-two",
+    label: "Start it on day two",
+    decisions: { reserveStartHour: 24, shedFromHour: null, storagePolicy: "full" },
+  },
+  {
+    id: "wait",
+    label: "Wait and see",
+    decisions: { reserveStartHour: 36, shedFromHour: null, storagePolicy: "full" },
+  },
+];
 
 export interface DispatchRow {
   hour: number;

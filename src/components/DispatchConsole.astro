@@ -15,6 +15,7 @@ import ProvenanceTag from "./ProvenanceTag.astro";
 import "../styles/instrument.css";
 import {
   DEFAULT_DECISIONS,
+  PRESETS,
   DEMAND_PCT,
   RESERVE_LEAD_HOURS,
   RESERVE_POWER_PCT,
@@ -69,6 +70,21 @@ const POLICIES = [
       Stored energy remaining on the same time axis, plotted on its own scale
       because stored energy and hourly output are different measurements.
     </p>
+  </div>
+
+  <div class="instr-ctrls dc-presets">
+    <fieldset class="instr-ctl instr-ctl--seg">
+      <legend>Take a decision</legend>
+      <div class="instr-seg" id="dc-preset">
+        {
+          PRESETS.map((p) => (
+            <button type="button" data-preset={p.id} data-res={p.decisions.reserveStartHour} data-shed={p.decisions.shedFromHour ?? -1}>
+              {p.label}
+            </button>
+          ))
+        }
+      </div>
+    </fieldset>
   </div>
 
   <div class="instr-ctrls">
@@ -126,6 +142,11 @@ const POLICIES = [
     type StoragePolicy,
   } from "../lib/dispatch-scenario";
 
+  const WORDS = ["zero","one","two","three","four","five","six","seven","eight","nine","ten",
+    "eleven","twelve","thirteen","fourteen","fifteen","sixteen","seventeen","eighteen",
+    "nineteen","twenty","twenty-one","twenty-two","twenty-three","twenty-four"];
+  const inWords = (n: number) => WORDS[n] ?? String(n);
+
   const root = document.querySelector<HTMLElement>(".dc");
   if (root) {
     const host = root;
@@ -148,7 +169,7 @@ const POLICIES = [
     const $ = <T extends Element>(s: string) => host.querySelector<T>(s)!;
     const res = $<HTMLInputElement>("#dc-res");
     const shed = $<HTMLInputElement>("#dc-shed");
-    let policy: StoragePolicy = "balanced";
+    let policy: StoragePolicy = "full";
 
     const seg = (x: number, yTop: number, h: number, cls: string) => {
       const r = document.createElementNS(NS, "rect");
@@ -248,13 +269,13 @@ const POLICIES = [
           `have survived, so these were hours you had the resources to cover and throttled away. The policy ` +
           `lost this run, not the scenario.`;
       } else {
+        const gap = run.shortfallHour! - run.unrecoverableHour;
         verdict =
-          `Shortfall began at hour ${run.shortfallHour}, but the run became unrecoverable at hour ` +
-          `${run.unrecoverableHour} — ${run.shortfallHour! - run.unrecoverableHour} hours earlier. From that ` +
-          `point no remaining decision avoided a shortfall: the reserve was committed at hour ` +
-          `${decisions.reserveStartHour} and could not carry load until hour ${online}, and storage could not ` +
-          `bridge to it. ${run.totalUnservedPctH.toFixed(0)} %·h went unserved. Committing the reserve earlier ` +
-          `is the counterfactual worth testing.`;
+          `This became unrecoverable at hour ${run.unrecoverableHour}. The lights went out at hour ` +
+          `${run.shortfallHour}. For ${inWords(gap)} hours nothing on the dashboard looked wrong. ` +
+          `From hour ${run.unrecoverableHour} no remaining decision avoided a shortfall: the reserve was ` +
+          `committed at hour ${decisions.reserveStartHour} and could not carry load until hour ${online}, ` +
+          `and the store could not bridge to it. ${run.totalUnservedPctH.toFixed(0)} %·h went unserved.`;
       }
       $("#dc-verdict").textContent = verdict;
       $("[data-live-alt]").textContent = run.survived
@@ -272,13 +293,28 @@ const POLICIES = [
       }
       render();
     });
+    $("#dc-preset").addEventListener("click", (e) => {
+      const b = (e.target as HTMLElement).closest<HTMLButtonElement>("button[data-preset]");
+      if (!b) return;
+      res.value = b.dataset.res!;
+      shed.value = b.dataset.shed!;
+      policy = "full";
+      for (const x of host.querySelectorAll<HTMLButtonElement>("#dc-pol button"))
+        x.setAttribute("aria-pressed", String(x.dataset.pol === "full"));
+      for (const x of host.querySelectorAll<HTMLButtonElement>("#dc-preset button"))
+        x.setAttribute("aria-pressed", String(x === b));
+      render();
+    });
+
     $("#dc-reset").addEventListener("click", () => {
       res.value = "24";
       shed.value = "-1";
-      policy = "balanced";
+      policy = "full";
       for (const x of host.querySelectorAll<HTMLButtonElement>("#dc-pol button")) {
-        x.setAttribute("aria-pressed", String(x.dataset.pol === "balanced"));
+        x.setAttribute("aria-pressed", String(x.dataset.pol === "full"));
       }
+      for (const x of host.querySelectorAll<HTMLButtonElement>("#dc-preset button"))
+        x.setAttribute("aria-pressed", "false");
       render();
     });
     render();
@@ -286,6 +322,10 @@ const POLICIES = [
 </script>
 
 <style>
+  .dc-presets {
+    border-block-end: 1px solid var(--at-border);
+  }
+
   .dc-panel-label {
     margin-block: var(--at-spacing-sm) var(--at-spacing-xs);
     font-family: var(--at-font-mono);
