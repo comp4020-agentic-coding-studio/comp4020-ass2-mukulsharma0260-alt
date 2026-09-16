@@ -65,8 +65,12 @@ const dayTicks = [0, 2, 4, 6, 8, 10, 12].map((d) => ({ day: d + 1, at: x(d * 24)
     <path d={area} class="tf-area" />
     <line x1={PAD.l} x2={W - PAD.r} y1={y(THRESHOLD_PCT)} y2={y(THRESHOLD_PCT)} class="tf-thr" />
     <line x1={PAD.l} x2={W - PAD.r} y1={y(0)} y2={y(0)} class="tf-axis" />
+    <text x={PAD.l - 6} y={y(0) + 3} class="tf-lbl tf-lbl--end">0%</text>
     <text x={PAD.l - 6} y={y(THRESHOLD_PCT) + 3} class="tf-lbl tf-lbl--end">{THRESHOLD_PCT}%</text>
     <text x={PAD.l - 6} y={y(MAX) + 8} class="tf-lbl tf-lbl--end">{MAX}%</text>
+    <text x={eventX + eventW / 2} y={PAD.t + 12} class="tf-evlbl">
+      {`${EVENT_LENGTH_HOURS} HOURS BELOW ${THRESHOLD_PCT}%`}
+    </text>
     {dayTicks.map((t) => <text x={t.at} y={H - 6} class="tf-lbl">{`d${t.day}`}</text>)}
   </svg>
   <p class="tf-key">
@@ -117,12 +121,20 @@ const dayTicks = [0, 2, 4, 6, 8, 10, 12].map((d) => ({ day: d + 1, at: x(d * 24)
     stroke-width: 1;
   }
 
-  /* Hatched, so the event band is distinguishable without relying on colour. */
+  /* A translucent wash, not an opaque fill. This band sits behind the series
+     and the whole point of the figure is the shape of the data inside it, so
+     anything opaque here erases the course's central image and makes the
+     61-hour trough read as missing data. Ink-on-paper in light, paper-on-ink
+     in dark, both well under 10% so the area fill survives underneath. */
   .tf-event {
-    fill: var(--at-bg-elevated);
+    fill: rgb(26 22 17 / 8.5%);
     stroke: var(--at-text-muted);
     stroke-width: 1;
     stroke-dasharray: 3 3;
+  }
+
+  :root[data-theme="dark"] .tf-event {
+    fill: rgb(255 246 225 / 7%);
   }
 
   .tf-lbl {
@@ -134,6 +146,18 @@ const dayTicks = [0, 2, 4, 6, 8, 10, 12].map((d) => ({ day: d + 1, at: x(d * 24)
 
   .tf-lbl--end {
     text-anchor: end;
+  }
+
+  /* Names the region in the chart itself, so the figure states its own finding
+     rather than depending on a caption a reader may not reach. Takes its colour
+     from a theme token, never from a series colour. */
+  .tf-evlbl {
+    font-family: var(--at-font-mono);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    fill: var(--at-text);
+    text-anchor: middle;
   }
 
   .tf-key {
