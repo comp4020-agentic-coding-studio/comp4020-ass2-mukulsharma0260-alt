@@ -157,6 +157,10 @@ const canonical = CANONICAL_DEFINITION;
     const gx = (hour: number) => PAD.l + (hour / (TRACE_HOURS - 1)) * plotW;
     const gy = (pct: number) => PAD.t + plotH - (Math.min(pct, SCALE_MAX) / SCALE_MAX) * plotH;
 
+    const WORDS = ["No", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight",
+      "Nine", "Ten", "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen",
+      "Seventeen", "Eighteen", "Nineteen", "Twenty"];
+
     const $ = <T extends Element>(sel: string) => host.querySelector<T>(sel);
     const thrIn = $<HTMLInputElement>("#dial-thr-in")!;
     const durIn = $<HTMLInputElement>("#dial-dur-in")!;
@@ -222,26 +226,35 @@ const canonical = CANONICAL_DEFINITION;
       $("#dial-dur-v")!.textContent = `${def.minSpanHours} h`;
       $("#dial-rec-v")!.textContent = `${def.recoveryAllowanceHours} h`;
       $("#dial-n")!.textContent = String(c.events.length);
-      $("#dial-long")!.textContent = c.worst ? `${c.worst.span} h` : "—";
+      $("#dial-long")!.textContent = c.worst ? `${c.worst.span} h` : "none";
       $("#dial-start")!.textContent = c.worst ? `day ${Math.floor(c.worst.start / 24) + 1}` : "—";
       $("#dial-min")!.textContent = c.worst ? `${c.worst.minPct.toFixed(1)}%` : "—";
       $("#dial-near")!.textContent = String(c.nearMisses.length);
 
       const srcWord = mix === "combined" ? "wind and solar together" : mix === "wind" ? "wind alone" : "solar alone";
       let verdict: string;
+      // Every state gets a sentence, including the zero state — which is the
+      // most interesting one and used to show four dashes. All figures come
+      // from the live classification; none is written in.
+      const near = c.nearMisses.length;
+      const nearPhrase = `${WORDS[near] ?? near} ${near === 1 ? "was" : "were"}`;
       if (c.events.length === 0) {
         verdict =
-          `Nothing qualifies. Counting ${srcWord}, no period stays below ${def.thresholdPct}% ` +
-          `for ${def.minSpanHours} hours — and ${c.nearMisses.length} low periods were rejected for being ` +
-          `too short. A definition that admits no events has not made the system safe; it has stopped ` +
-          `describing anything you could design against.`;
-      } else if (c.worst) {
-        const alt = `${c.nearMisses.length} low period${c.nearMisses.length === 1 ? "" : "s"} rejected as too short`;
+          `No period in this fortnight qualifies under this definition. ${nearPhrase} low enough ` +
+          `but not long enough. The weather did not change; the definition did.`;
+      } else if (c.events.length === 1 && c.worst) {
         verdict =
-          `${c.events.length} period${c.events.length === 1 ? "" : "s"} qualify, the worst running ` +
-          `${c.worst.span} hours from day ${Math.floor(c.worst.start / 24) + 1} and bottoming out at ` +
-          `${c.worst.minPct.toFixed(1)}% of capacity. Counting ${srcWord}, that is ${c.totalEventHours} ` +
-          `hours of the fortnight inside an event, with ${alt}. Your system would have to survive this one.`;
+          `One period qualifies: ${c.worst.span} hours from day ${Math.floor(c.worst.start / 24) + 1}, ` +
+          `bottoming out at ${c.worst.minPct.toFixed(1)}% of capacity. Counting ${srcWord}, ` +
+          `${nearPhrase.toLowerCase()} rejected for being too short. Your system would have to ` +
+          `survive this one.`;
+      } else if (c.worst) {
+        verdict =
+          `${WORDS[c.events.length] ?? c.events.length} periods now qualify, ${c.totalEventHours} hours ` +
+          `of the fortnight in total, the longest ${c.worst.span} hours from day ` +
+          `${Math.floor(c.worst.start / 24) + 1}. Counting ${srcWord}, this grid has just acquired a ` +
+          `history of failure it did not have a moment ago — and every one of them is now something a ` +
+          `design has to answer for.`;
       } else {
         verdict = "—";
       }
