@@ -147,7 +147,10 @@ const evW = gx(EVENT_START_HOUR + EVENT_LENGTH_HOURS) - evX;
      still puts the heading first for assistive technology. */
   .cc-strip {
     order: -1;
-    grid-column: full;
+    /* .at-main's subgrid spans inset-start/content-end only, so `full` is not
+       a line it can resolve and silently falls back to the content column.
+       This is the widest span actually available here. */
+    grid-column: inset-start / content-end;
     margin-block: 0 var(--at-spacing-lg);
     border-block-end: 1px solid var(--at-divider);
     background: var(--at-bg-alt);

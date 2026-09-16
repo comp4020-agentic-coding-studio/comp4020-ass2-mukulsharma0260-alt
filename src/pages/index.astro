@@ -5,6 +5,7 @@ import BaseLayout from "astro-theme-university/layouts/BaseLayout.astro";
 import { withBase } from "astro-theme-university/url";
 import ProvenanceTag from "../components/ProvenanceTag.astro";
 import CourseChrome from "../components/CourseChrome.astro";
+import HeroFarm from "../components/HeroFarm.astro";
 import ArgumentBand from "../components/ArgumentBand.astro";
 import TraceFigure from "../components/TraceFigure.astro";
 import { courseLevelLabel, courseMeta, courseName, courseSubtitle } from "../course-config";
@@ -70,10 +71,12 @@ const LADDER = [
 >
   <CourseChrome />
 
-  <p class="hm-kicker">{courseMeta.code} · School of Continuous Improvement</p>
-  <h1 class="hm-title">{courseName}</h1>
-  <p class="hm-subtitle">{courseSubtitle}</p>
-  <p class="hm-eyebrow">{courseMeta.session} {courseMeta.year} · Level {courseLevelLabel} · Postgraduate coursework</p>
+  <HeroFarm>
+    <p class="hm-kicker">{courseMeta.code} · School of Continuous Improvement</p>
+    <h1 class="hm-title">{courseName}</h1>
+    <p class="hm-subtitle">{courseSubtitle}</p>
+    <p class="hm-eyebrow">{courseMeta.session} {courseMeta.year} · Level {courseLevelLabel} · Postgraduate coursework</p>
+  </HeroFarm>
 
   <ul class="course-tags" aria-label="Course tags">
     {courseMeta.tags.map((tag) => <li>{tag}</li>)}

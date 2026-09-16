@@ -1,0 +1,438 @@
+---
+// The hero: a wind farm running on the course's own data.
+//
+// This is the thesis as a moving image. Blade speed is the wind value at the
+// current hour of the shared trace, with rotational inertia, so the turbines
+// wind DOWN rather than cut — and stop dead for the 61 hours of the reference
+// event while the sky dims and the clouds slow. The wind stops, and you watch
+// it stop. It is not stock imagery and it is not ornament.
+//
+// Ported from the reference prototype's canvas, with every value taken from
+// src/lib/trace.ts instead of a local copy. The farm's layout uses its own
+// seeded generator: turbine positions are presentation, not data, and seeding
+// them keeps the composition identical between builds.
+//
+// The masthead renders inside this section, over a left-to-right scrim, so the
+// kicker, h1 and subtitle stay legible against the sky.
+---
+
+<section class="hero">
+  <canvas class="hero-canvas" aria-hidden="true"></canvas>
+  <div class="hero-scrim" aria-hidden="true"></div>
+
+  <div class="hero-body">
+    <slot />
+  </div>
+
+  <div class="hero-hud">
+    <p class="hero-read" role="status" aria-live="off">—</p>
+    <svg class="hero-spark" viewBox="0 0 190 26" preserveAspectRatio="none" aria-hidden="true"></svg>
+    <button type="button" class="hero-pause" aria-label="Pause the hero animation">❙❙ PAUSE</button>
+  </div>
+
+  <p class="visually-hidden">
+    A wind farm rendered from this course's fourteen-day teaching trace. The
+    turbines turn at the speed the trace says, and stand still for the
+    sixty-one hours of the reference event.
+  </p>
+</section>
+
+<script>
+  import {
+    EVENT_LENGTH_HOURS,
+    EVENT_START_HOUR,
+    TRACE_HOURS,
+    trace,
+  } from "../lib/trace";
+
+  const section = document.querySelector<HTMLElement>(".hero");
+  const canvas = section?.querySelector<HTMLCanvasElement>(".hero-canvas");
+  const ctx = canvas?.getContext("2d");
+
+  if (section && canvas && ctx) {
+    const readout = section.querySelector<HTMLElement>(".hero-read")!;
+    const spark = section.querySelector<SVGSVGElement>(".hero-spark")!;
+    const pause = section.querySelector<HTMLButtonElement>(".hero-pause")!;
+    const SVG_NS = "http://www.w3.org/2000/svg";
+
+    const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    /** Data-hours per real second: the fortnight loops in about forty. */
+    const HOURS_PER_SEC = 8.4;
+    const EVENT_END = EVENT_START_HOUR + EVENT_LENGTH_HOURS;
+
+    // Reduced motion opens on a still frame of the event — the turbines
+    // stopped, which is the best frame anyway.
+    let hour = reduced ? EVENT_START_HOUR + 26 : 0;
+    let playing = !reduced;
+    let last = 0;
+    let prev = 0;
+    let w = 0;
+    let h = 0;
+
+    /** Seeded, so the farm's composition is identical on every build. */
+    const rng = (() => {
+      let s = 20260914;
+      return () => ((s = (s * 1664525 + 1013904223) % 4294967296), s / 4294967296);
+    })();
+
+    interface Turbine { gx: number; depth: number; sc: number; phase: number; om: number; yaw: number }
+    const farm: Turbine[] = [];
+    for (const [depth, scale, n] of [[0.4, 0.17, 7], [0.58, 0.28, 6], [0.76, 0.46, 5], [0.95, 0.8, 3]] as const) {
+      const row = farm.length;
+      for (let i = 0; i < n; i++) {
+        farm.push({
+          gx: (i + 0.5) / n + (row % 2 ? -0.07 : 0.06) + (rng() - 0.5) * 0.08,
+          depth,
+          sc: scale * (0.88 + rng() * 0.26),
+          phase: rng() * Math.PI * 2,
+          om: 0,
+          yaw: (rng() - 0.5) * 0.9,
+        });
+      }
+    }
+    farm.sort((a, b) => a.sc - b.sc);
+
+    function size() {
+      const r = canvas!.getBoundingClientRect();
+      const d = Math.min(2, devicePixelRatio || 1);
+      w = r.width;
+      h = r.height;
+      canvas!.width = Math.round(r.width * d);
+      canvas!.height = Math.round(r.height * d);
+      ctx!.setTransform(d, 0, 0, d, 0, 0);
+    }
+
+    function turbine(x: number, gy: number, s: number, ang: number, alpha: number, yaw: number, om: number) {
+      const c = ctx!;
+      c.save();
+      c.translate(x, gy);
+      c.globalAlpha = alpha;
+      c.fillStyle = "#060504";
+      const tw = 2.2 * s;
+      const th = 126 * s;
+      const bl = 58 * s;
+      const hub = 4.6 * s;
+
+      c.beginPath();
+      c.moveTo(-tw * 2.05, 0);
+      c.quadraticCurveTo(-tw * 1.15, -th * 0.3, -tw * 0.62, -th);
+      c.lineTo(tw * 0.62, -th);
+      c.quadraticCurveTo(tw * 1.15, -th * 0.3, tw * 2.05, 0);
+      c.closePath();
+      c.fill();
+      c.beginPath();
+      c.ellipse(0, 0, tw * 3.4, tw * 0.85, 0, 0, 7);
+      c.fill();
+
+      c.translate(0, -th);
+      c.beginPath();
+      c.moveTo(-hub * 0.55, -hub * 0.95);
+      c.lineTo(hub * 2.5, -hub * 0.72);
+      c.quadraticCurveTo(hub * 3.2, 0, hub * 2.5, hub * 0.72);
+      c.lineTo(-hub * 0.55, hub * 0.95);
+      c.closePath();
+      c.fill();
+
+      // The rotor plane is foreshortened by this turbine's own yaw, so the
+      // field does not read as twenty identical pinwheels.
+      c.save();
+      c.scale(Math.max(0.26, Math.abs(Math.cos(yaw))), 1);
+
+      const blades = () => {
+        for (let b = 0; b < 3; b++) {
+          c.rotate((Math.PI * 2) / 3);
+          c.beginPath();
+          c.moveTo(-hub * 0.42, -hub * 0.2);
+          c.bezierCurveTo(-bl * 0.15, -bl * 0.34, -bl * 0.115, -bl * 0.74, -bl * 0.03, -bl * 0.985);
+          c.quadraticCurveTo(bl * 0.012, -bl * 1.01, bl * 0.036, -bl * 0.975);
+          c.bezierCurveTo(bl * 0.1, -bl * 0.7, bl * 0.175, -bl * 0.3, hub * 1.5, -hub * 0.1);
+          c.closePath();
+          c.fill();
+        }
+      };
+
+      // Motion blur is ghosted blades trailing the real ones. A swept ring
+      // would read as a bicycle wheel, and it would not disappear when the
+      // rotor stops — which is the one thing this image has to show.
+      const smear = Math.min(0.34, Math.max(0, om - 0.07) * 1.1);
+      if (smear > 0.02) {
+        const a0 = c.globalAlpha;
+        for (let g = 1; g <= 2; g++) {
+          c.globalAlpha = (a0 * smear) / g;
+          c.save();
+          c.rotate(ang - g * om * 1.5);
+          blades();
+          c.restore();
+        }
+        c.globalAlpha = a0;
+      }
+      c.rotate(ang);
+      blades();
+      c.restore();
+
+      c.beginPath();
+      c.arc(0, 0, hub * 0.9, 0, 7);
+      c.fill();
+      c.beginPath();
+      c.moveTo(-hub * 0.5, -hub * 0.78);
+      c.quadraticCurveTo(-hub * 2.3, 0, -hub * 0.5, hub * 0.78);
+      c.closePath();
+      c.fill();
+      c.restore();
+    }
+
+    function drawSpark(cur: number) {
+      spark.textContent = "";
+      const x = (k: number) => (k / (TRACE_HOURS - 1)) * 190;
+      const y = (v: number) => 25 - (v / 85) * 23;
+      const band = document.createElementNS(SVG_NS, "rect");
+      band.setAttribute("x", String(x(EVENT_START_HOUR)));
+      band.setAttribute("y", "0");
+      band.setAttribute("width", String(x(EVENT_END) - x(EVENT_START_HOUR)));
+      band.setAttribute("height", "26");
+      band.setAttribute("fill", "rgba(255,255,255,.12)");
+      const path = document.createElementNS(SVG_NS, "path");
+      path.setAttribute("d", trace.total.map((v, i) => `${i ? "L" : "M"}${x(i).toFixed(1)} ${y(v).toFixed(1)}`).join(" "));
+      path.setAttribute("fill", "none");
+      path.setAttribute("stroke", "rgba(232,200,119,.55)");
+      path.setAttribute("stroke-width", "1");
+      const head = document.createElementNS(SVG_NS, "line");
+      head.setAttribute("x1", String(x(cur)));
+      head.setAttribute("x2", String(x(cur)));
+      head.setAttribute("y1", "0");
+      head.setAttribute("y2", "26");
+      head.setAttribute("stroke", "#e8c877");
+      head.setAttribute("stroke-width", "1.4");
+      spark.append(band, path, head);
+    }
+
+    function draw(ts: number) {
+      if (!w) size();
+      const c = ctx!;
+      if (playing && last) hour = (hour + ((ts - last) / 1000) * HOURS_PER_SEC) % TRACE_HOURS;
+      last = ts;
+
+      const i = Math.floor(hour);
+      const nx = (i + 1) % TRACE_HOURS;
+      const f = hour - i;
+      const windPct = trace.wind[i]! + (trace.wind[nx]! - trace.wind[i]!) * f;
+      const totalPct = trace.total[i]! + (trace.total[nx]! - trace.total[i]!) * f;
+      const inEvent = i >= EVENT_START_HOUR && i < EVENT_END;
+
+      const sky = c.createLinearGradient(0, 0, 0, h);
+      sky.addColorStop(0, "#0b0a07");
+      sky.addColorStop(0.46, "#231a09");
+      sky.addColorStop(0.8, inEvent ? "#5c4515" : "#7d5d1c");
+      sky.addColorStop(1, "#0a0906");
+      c.fillStyle = sky;
+      c.fillRect(0, 0, w, h);
+
+      const horizon = h * 0.86;
+      const haze = c.createLinearGradient(0, horizon - h * 0.3, 0, horizon);
+      haze.addColorStop(0, "rgba(200,151,47,0)");
+      haze.addColorStop(1, inEvent ? "rgba(200,151,47,.16)" : "rgba(200,151,47,.30)");
+      c.fillStyle = haze;
+      c.fillRect(0, horizon - h * 0.3, w, h * 0.3);
+
+      // Cloud drift follows the wind too, so the whole sky goes still.
+      const drift = (hour * (inEvent ? 1.4 : 9)) % (w + 420);
+      c.globalAlpha = inEvent ? 0.1 : 0.16;
+      c.fillStyle = "#d6a63f";
+      for (let k = 0; k < 3; k++) {
+        const cy = horizon - h * (0.3 + k * 0.1);
+        const cw = 260 + k * 110;
+        const cx = ((drift * (1 + k * 0.35)) % (w + cw * 2)) - cw;
+        c.beginPath();
+        c.ellipse(cx, cy, cw * 0.5, 5 + k * 2.4, 0, 0, 7);
+        c.fill();
+      }
+      c.globalAlpha = 1;
+
+      // Two hill lines, so the farm sits in a landscape.
+      c.fillStyle = "#0d0b08";
+      c.beginPath();
+      c.moveTo(0, horizon - h * 0.035);
+      for (let k = 0; k <= 16; k++) c.lineTo((w * k) / 16, horizon - h * 0.035 + Math.sin(k * 1.3 + 1.1) * h * 0.016);
+      c.lineTo(w, h);
+      c.lineTo(0, h);
+      c.closePath();
+      c.fill();
+      c.fillStyle = "#070605";
+      c.beginPath();
+      c.moveTo(0, horizon);
+      for (let k = 0; k <= 12; k++) c.lineTo((w * k) / 12, horizon + Math.sin(k * 1.7) * h * 0.012 - 2);
+      c.lineTo(w, h);
+      c.lineTo(0, h);
+      c.closePath();
+      c.fill();
+
+      // Angular velocity chases the wind rather than tracking it, so the rotors
+      // wind down over several seconds instead of cutting to a stop.
+      const dt = Math.min(0.05, (ts - (prev || ts)) / 1000);
+      prev = ts;
+      const target = Math.max(0, windPct - 2.6) * 0.055;
+      for (const t of farm) {
+        t.om += (target * (0.82 + t.sc * 0.3) - t.om) * (playing ? Math.min(1, dt * 1.6) : 1);
+        if (playing) t.phase += t.om * dt * 60 * 0.055;
+        const gy = horizon - (1 - t.depth) * h * 0.16 + t.sc * 2;
+        turbine((0.13 + t.gx * 0.95) * w, gy, t.sc, t.phase, 0.3 + t.depth * 0.7, t.yaw, t.om);
+      }
+
+      const day = Math.floor(i / 24) + 1;
+      readout.innerHTML =
+        `DAY ${String(day).padStart(2, "0")} · ${String(i % 24).padStart(2, "0")}:00 — ` +
+        `<b>${totalPct.toFixed(1)}%</b> OF CAPACITY`;
+      drawSpark(i);
+      if (playing) requestAnimationFrame(draw);
+    }
+
+    function toggle() {
+      playing = !playing;
+      pause.textContent = playing ? "❙❙ PAUSE" : "▶ PLAY";
+      pause.setAttribute("aria-label", playing ? "Pause the hero animation" : "Play the hero animation");
+      if (playing) {
+        last = 0;
+        requestAnimationFrame(draw);
+      }
+    }
+
+    pause.addEventListener("click", (e) => {
+      e.stopPropagation();
+      toggle();
+    });
+    canvas.addEventListener("click", toggle);
+    addEventListener("resize", () => {
+      size();
+      if (!playing) draw(performance.now());
+    });
+    if (reduced) pause.textContent = "▶ PLAY";
+    requestAnimationFrame(draw);
+  }
+</script>
+
+<style>
+  .hero {
+    order: -1;
+    /* .at-main's subgrid spans inset-start/content-end only, so `full` is not
+       a line it can resolve and silently falls back to the content column.
+       This is the widest span actually available here. */
+    grid-column: inset-start / content-end;
+    position: relative;
+    isolation: isolate;
+    min-height: clamp(300px, 44vw, 470px);
+    display: grid;
+    align-content: end;
+    margin-block-end: var(--at-spacing-xl);
+    background: #0b0a07;
+  }
+
+  .hero-canvas {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+  }
+
+  /* Left-to-right, so the masthead sits on the dense end. */
+  .hero-scrim {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background: linear-gradient(
+      100deg,
+      rgb(6 5 4 / 88%) 0%,
+      rgb(6 5 4 / 72%) 42%,
+      rgb(6 5 4 / 22%) 78%,
+      rgb(6 5 4 / 8%) 100%
+    );
+    pointer-events: none;
+  }
+
+  .hero-body {
+    position: relative;
+    z-index: 2;
+    padding: var(--at-spacing-xl) var(--at-gutter) var(--at-spacing-lg);
+    max-width: calc(var(--at-content-width) + var(--at-content-inset));
+    margin-inline: auto;
+    width: 100%;
+    pointer-events: none;
+  }
+
+  /* The masthead renders through the slot, so it is restyled here for the dark
+     ground rather than duplicated. */
+  .hero-body :global(.hm-kicker) {
+    color: #e8c877;
+  }
+
+  .hero-body :global(.hm-title) {
+    color: #f6efdd;
+  }
+
+  .hero-body :global(.hm-subtitle),
+  .hero-body :global(.hm-eyebrow) {
+    color: rgb(246 239 221 / 78%);
+  }
+
+  .hero-body :global(.course-tags li) {
+    background: rgb(246 239 221 / 12%);
+    color: rgb(246 239 221 / 88%);
+  }
+
+  .hero-hud {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: var(--at-spacing-sm);
+    padding: 0 var(--at-gutter) var(--at-spacing-md);
+  }
+
+  .hero-read {
+    margin: 0;
+    font-family: var(--at-font-mono);
+    font-size: var(--at-font-size-xs);
+    letter-spacing: 0.06em;
+    color: rgb(246 239 221 / 82%);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .hero-spark {
+    width: 190px;
+    height: 26px;
+    flex: 0 0 auto;
+  }
+
+  .hero-pause {
+    padding: 0.3rem 0.6rem;
+    border: 1px solid rgb(246 239 221 / 40%);
+    background: rgb(6 5 4 / 55%);
+    color: #f6efdd;
+    font-family: var(--at-font-mono);
+    font-size: var(--at-font-size-xs);
+    cursor: pointer;
+  }
+
+  .hero-pause:hover {
+    background: rgb(6 5 4 / 80%);
+  }
+
+  .hero :is(button):focus-visible {
+    outline: 2px solid #e8c877;
+    outline-offset: 2px;
+  }
+
+  @media (width < 34rem) {
+    .hero-hud {
+      justify-content: flex-start;
+    }
+
+    .hero-spark {
+      width: 130px;
+    }
+  }
+</style>
