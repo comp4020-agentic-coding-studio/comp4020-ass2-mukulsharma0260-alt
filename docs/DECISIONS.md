@@ -32,3 +32,9 @@ Commit: 9d57fbc
 Obvious option: Remove the body "# Heading" from the three MDX pages, as instructed, on the report that they rendered both a frontmatter title and a duplicate h1.
 Why not that: The duplicate did not exist. MdxPageLayout uses the frontmatter title only for the document title, so removing the body heading would have left those pages with no h1 at all — replacing a cosmetic complaint with a real accessibility and structure failure.
 How I knew the result was right: Curled all three served pages and counted h1 elements before editing anything — exactly one each, text "Policies and support", "The Failure Wall", "About this course", with the frontmatter title appearing only inside <title>. The defect was two hand-typed copies of one string, so the fix was to make the heading read the field.
+
+## 2026-09-16 — Event band became a wash, not an opaque fill
+Commit: 5371870
+Obvious option: Move the highlight rect later in the SVG, on the report that it was painted on top of the series.
+Why not that: Reading the source showed the rect was already appended first, so document order was never the fault. The fault was the fill token: an opaque var(--at-bg-elevated) behind a translucent area fill still erases the shape. Reordering would have changed nothing and I would have reported a fix that did not fix it.
+How I knew the result was right: Checked the built markup that tf-event still precedes tf-area (it does), then confirmed the opaque token no longer appears in the emitted CSS and that the 0% label and the in-chart "61 HOURS BELOW 12%" text both render — so the trough now has data drawn through it and a stated finding.
