@@ -4,6 +4,7 @@ import CardGrid from "astro-theme-university/components/CardGrid.astro";
 import BaseLayout from "astro-theme-university/layouts/BaseLayout.astro";
 import { withBase } from "astro-theme-university/url";
 import ProvenanceTag from "../components/ProvenanceTag.astro";
+import ArgumentBand from "../components/ArgumentBand.astro";
 import TraceFigure from "../components/TraceFigure.astro";
 import { courseLevelLabel, courseMeta, courseName, courseSubtitle } from "../course-config";
 import { EVENT_LENGTH_HOURS, THRESHOLD_PCT, hoursBelow, meanIn, TRACE_HOURS } from "../lib/trace";
@@ -82,6 +83,8 @@ const LADDER = [
     failure condition.
   </p>
 
+  <ArgumentBand />
+
   <section aria-labelledby="argument">
     <h2 id="argument">The argument</h2>
 
@@ -105,11 +108,6 @@ const LADDER = [
       The course argues from a single synthetic fortnight, so every week is
       talking about the same weather. Here it is.
     </p>
-
-    <TraceFigure
-      title="The shared teaching trace"
-      caption={`Combined wind and solar output across fourteen synthetic days, as a percentage of installed capacity. Output sits well above the 12% threshold for most of the fortnight, then collapses into a ${EVENT_LENGTH_HOURS}-hour trough beginning on day 8 — the reference event the whole course argues about.`}
-    />
 
     <dl class="hm-stats">
       <div class="hm-stat">

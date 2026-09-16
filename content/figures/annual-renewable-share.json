@@ -1,0 +1,12 @@
+{
+  "id": "annual-renewable-share",
+  "value": 87.4,
+  "unit": "%",
+  "class": "synthetic",
+  "scope": "annual",
+  "label": "Renewable share, 2025 calendar year",
+  "derived_from": "trace",
+  "recompute_exempt": true,
+  "recompute_exempt_reason": "An annual energy share cannot be derived from a fourteen-day capacity-factor trace. It is the teaching system's own annual figure and must not pretend to be computed from the fortnight, so it is exempt from the recompute rule and the exemption is declared here rather than hidden in the checker.",
+  "note": "Property of the synthetic teaching system. Not a measurement of any real grid."
+}

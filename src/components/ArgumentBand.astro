@@ -1,0 +1,206 @@
+---
+// The argument, as one dark band directly below the masthead.
+//
+// The page previously asserted "Both descriptions are true of the same system.
+// Only one of them is a design input" while showing only one description. Three
+// synthetic stat rows are not a contrast — they are the same kind of number
+// three times. This band puts the annual figure and the hourly trace side by
+// side, which is the whole course in one frame.
+//
+// The annual figure is registered at content/figures/annual-renewable-share.json
+// as class: synthetic with a declared recompute exemption: an annual energy
+// share is not derivable from a fourteen-day capacity-factor trace, so it must
+// not pretend to be. It is read from that record rather than typed here.
+import ProvenanceTag from "./ProvenanceTag.astro";
+import annual from "../../content/figures/annual-renewable-share.json";
+import {
+  EVENT_LENGTH_HOURS,
+  EVENT_START_HOUR,
+  THRESHOLD_PCT,
+  TRACE_HOURS,
+  trace,
+} from "../lib/trace";
+
+const W = 640;
+const H = 210;
+const PAD = { l: 30, r: 10, t: 26, b: 22 };
+const MAX = 70;
+const plotW = W - PAD.l - PAD.r;
+const plotH = H - PAD.t - PAD.b;
+
+const gx = (h: number) => PAD.l + (h / (TRACE_HOURS - 1)) * plotW;
+const gy = (v: number) => PAD.t + plotH - (Math.min(v, MAX) / MAX) * plotH;
+
+const area =
+  `M${gx(0).toFixed(1)} ${gy(0).toFixed(1)} ` +
+  trace.total.map((v, i) => `L${gx(i).toFixed(1)} ${gy(v).toFixed(1)}`).join(" ") +
+  ` L${gx(TRACE_HOURS - 1).toFixed(1)} ${gy(0).toFixed(1)} Z`;
+
+const evX = gx(EVENT_START_HOUR);
+const evW = gx(EVENT_START_HOUR + EVENT_LENGTH_HOURS) - evX;
+---
+
+<section class="ab" aria-labelledby="ab-title">
+  <div class="ab-inner">
+    <div class="ab-left">
+      <h2 id="ab-title" class="ab-head">The average looked fine.<br />Then Thursday happened.</h2>
+      <p class="ab-figure">
+        <span class="ab-value">{annual.value}{annual.unit}</span>
+        <span class="ab-caption">{annual.label}</span>
+        <ProvenanceTag kind="synthetic" />
+      </p>
+    </div>
+
+    <figure class="ab-right">
+      <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" role="img" aria-labelledby="ab-alt">
+        <rect x={evX} y={PAD.t} width={evW} height={plotH} class="ab-ev" />
+        <line x1={PAD.l} x2={W - PAD.r} y1={gy(0)} y2={gy(0)} class="ab-axis" />
+        <path d={area} class="ab-area" />
+        <line x1={PAD.l} x2={W - PAD.r} y1={gy(THRESHOLD_PCT)} y2={gy(THRESHOLD_PCT)} class="ab-thr" />
+        <text x={PAD.l - 5} y={gy(0) + 3} class="ab-tick">0%</text>
+        <text x={PAD.l - 5} y={gy(THRESHOLD_PCT) + 3} class="ab-tick">{THRESHOLD_PCT}%</text>
+        <text x={PAD.l - 5} y={gy(MAX) + 8} class="ab-tick">{MAX}%</text>
+        <text x={evX + evW / 2} y={PAD.t - 9} class="ab-evlbl">
+          {`${EVENT_LENGTH_HOURS} HOURS BELOW ${THRESHOLD_PCT}%`}
+        </text>
+      </svg>
+      <figcaption id="ab-alt" class="visually-hidden">
+        Combined wind and solar output across the same fourteen days, hour by
+        hour. Output holds well above the {THRESHOLD_PCT}% threshold for most of
+        the fortnight and then falls below it for {EVENT_LENGTH_HOURS} consecutive
+        hours from day 8 — the event the annual figure does not mention.
+      </figcaption>
+    </figure>
+  </div>
+
+  <p class="ab-foot">
+    The same system, hour by hour. One number describes it. So does the other.
+  </p>
+</section>
+
+<style>
+  /* Full-bleed dark band. Breaks the cream column that otherwise runs
+     uninterrupted from the masthead to the footer, which is what flattens the
+     page's rhythm. */
+  .ab {
+    grid-column: full;
+    margin-block: var(--at-spacing-xl);
+    padding: var(--at-spacing-xl) var(--at-gutter);
+    background: #0e0c08;
+    color: #f6efdd;
+  }
+
+  .ab-inner {
+    display: grid;
+    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+    gap: var(--at-spacing-xl);
+    align-items: center;
+    max-width: var(--at-content-width);
+    margin-inline: auto;
+  }
+
+  .ab-head {
+    margin-block: 0 var(--at-spacing-lg);
+    font-size: clamp(24px, 3.1vw, 34px);
+    font-weight: 600;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+    color: #f6efdd;
+    text-wrap: balance;
+  }
+
+  .ab-figure {
+    display: grid;
+    gap: var(--at-spacing-xs);
+    margin: 0;
+    justify-items: start;
+  }
+
+  .ab-value {
+    font-family: var(--at-font-mono);
+    font-size: clamp(44px, 7vw, 68px);
+    font-weight: 500;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    color: var(--at-primary);
+  }
+
+  .ab-caption {
+    font-family: var(--at-font-mono);
+    font-size: var(--at-font-size-xs);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: rgb(246 239 221 / 62%);
+  }
+
+  .ab-right {
+    margin: 0;
+    min-width: 0;
+  }
+
+  .ab-right svg {
+    display: block;
+    width: 100%;
+    height: 210px;
+  }
+
+  /* Same wash convention as every other appearance of the trough, inverted for
+     the dark ground. Appended before the series so the data draws through it. */
+  .ab-ev {
+    fill: rgb(246 239 221 / 9%);
+    stroke: rgb(246 239 221 / 30%);
+    stroke-width: 1;
+    stroke-dasharray: 3 3;
+  }
+
+  .ab-area {
+    fill: rgb(168 119 34 / 34%);
+    stroke: var(--at-primary);
+    stroke-width: 1.6;
+  }
+
+  .ab-thr {
+    stroke: rgb(246 239 221 / 70%);
+    stroke-width: 1.2;
+    stroke-dasharray: 5 4;
+  }
+
+  .ab-axis {
+    stroke: rgb(246 239 221 / 25%);
+    stroke-width: 1;
+  }
+
+  .ab-tick {
+    font-family: var(--at-font-mono);
+    font-size: 10px;
+    fill: rgb(246 239 221 / 62%);
+    text-anchor: end;
+  }
+
+  .ab-evlbl {
+    font-family: var(--at-font-mono);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    fill: #f6efdd;
+    text-anchor: middle;
+  }
+
+  .ab-foot {
+    max-width: var(--at-content-width);
+    margin: var(--at-spacing-lg) auto 0;
+    font-size: var(--at-font-size-sm);
+    color: rgb(246 239 221 / 72%);
+  }
+
+  @media (width < 48rem) {
+    .ab-inner {
+      grid-template-columns: 1fr;
+      gap: var(--at-spacing-lg);
+    }
+
+    .ab-right svg {
+      height: 170px;
+    }
+  }
+</style>
