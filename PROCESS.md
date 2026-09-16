@@ -1,11 +1,7 @@
 # Process overview
 
-## What I built
-
 SLOP6246 *Dunkelflaute: Designing for the Week the Weather Stops* — a
-twelve-week postgraduate course site built around one failure condition: the
-period when wind and solar output are simultaneously low for long enough that
-normal planning assumptions stop holding.
+twelve-week postgraduate course site built around one failure condition.
 
 ## How I got here
 
@@ -18,8 +14,7 @@ removing it would collapse the course rather than inconvenience it.
 My first instinct was a renewable-energy course. I narrowed it to Dunkelflaute
 because the broad version could only become a technology survey — a block on
 wind, a block on storage — and a survey has no argument to sustain. Committing
-to the drought gave me a thesis: a system should not be judged on its averages, and a defensible design names
-the event it survives and the event that defeats it.
+to the drought gave me a thesis to argue rather than a field to cover.
 
 I wrote the rules before generating the course. [`506f058`](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-mukulsharma0260-alt/commit/506f058)
 establishes the harness and design contract, and
@@ -35,21 +30,17 @@ is interesting, or whether a prospective student would want to enrol.
 
 The canonical definition at [`22aaea1`](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-mukulsharma0260-alt/commit/22aaea1) came first among
 content, because reliability claims are empty until the event has a threshold,
-a span and a recovery rule. That page
-became the standard I judged agent output against, and the standard is
-evidential rather than stylistic. Three times I rejected work for failing it.
-The supplied material gave a ~14 GW *peak demand* figure and the draft had
-quietly reused it as installed renewable capacity; a different quantity, so it
-was cut. A stated 4.1% minimum survived until I read the seeded generator and
-found it produced 0.9%, so the page now derives its synthetic values from the
-trace rather than transcribing them
+a span and a recovery rule. Three times I rejected agent output against it, on
+evidence rather than style. The supplied material gave a ~14 GW *peak demand*
+figure and the draft had quietly reused it as installed renewable capacity; a
+different quantity, so it was cut. A stated 4.1% minimum survived until I read
+the seeded generator and found it produced 0.9%, so the page now derives its
+synthetic values from the trace rather than transcribing them
 ([`91ba7ca`](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-mukulsharma0260-alt/commit/91ba7ca)). And I deleted the starter teaching staff
 rather than write biographies for people who do not exist.
 
-That gave me the test I used from then on: every number is either a boundary
-the course chose or an output of one clearly-labelled synthetic trace, and
-anything that cannot be one of those gets written qualitatively or not at all.
-One trace, one source of truth, no duplicated figures between pages.
+The rule that came out of those three: every number is either a boundary the
+course chose or an output of one labelled synthetic trace.
 
 The three instruments in [`28086c7`](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-mukulsharma0260-alt/commit/28086c7) each carry a claim
 rather than decorating a page. The dial shows that moving the definition moves
@@ -59,6 +50,18 @@ fails. I rejected the reference implementation's invented absolute capacities
 and worked in normalised units. I also caught my own error there: the first
 feasibility calculation treated a reserve decision still in the future as
 already sunk, which reported failure at hour 0. Corrected, it reports hour 1 —
-four hours before the shortfall is visible, which is the lesson.
+four hours before the shortfall is visible.
+
+[WRITE THIS — ~60 words. 28086c7. The agent refused an instruction
+ that contradicted an earlier documented decision, and the refusal was
+ correct.]
+
+[WRITE THIS — ~45 words. e8146d2. The three dispatch constraints that
+ were jointly unreachable, and which one I cut.]
+
+[WRITE THIS — ~70 words. The phantom-reporting incident. b5f9759 and
+ e8146d2. Deployed SHA equalled local HEAD while four hero files were
+ uncommitted; the standing "report HEAD vs deployed first" rule that
+ came out of it.]
 
 Baseline: [`a48ce1f`](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-mukulsharma0260-alt/commit/a48ce1f).
