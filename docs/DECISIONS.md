@@ -38,3 +38,15 @@ Commit: 5371870
 Obvious option: Move the highlight rect later in the SVG, on the report that it was painted on top of the series.
 Why not that: Reading the source showed the rect was already appended first, so document order was never the fault. The fault was the fill token: an opaque var(--at-bg-elevated) behind a translucent area fill still erases the shape. Reordering would have changed nothing and I would have reported a fix that did not fix it.
 How I knew the result was right: Checked the built markup that tf-event still precedes tf-area (it does), then confirmed the opaque token no longer appears in the emitted CSS and that the 0% label and the in-chart "61 HOURS BELOW 12%" text both render — so the trough now has data drawn through it and a stated finding.
+
+## 2026-09-16 — Property vocabulary moved out of the schema so a test could read it
+Commit: b5f9759
+Obvious option: Copy the twelve property names into spec/course-coherence.test.ts, since importing src/content.config.ts into vitest fails on "astro:content".
+Why not that: Two copies of a locked vocabulary is exactly the drift the check exists to catch, and the check would have been asserting against its own copy rather than the one the schema enforces.
+How I knew the result was right: Grepped both consumers after the move — content.config.ts:5 and course-coherence.test.ts:4 now import the same src/lib/course-properties.ts, and the suite reports all twelve properties used exactly once, which it could not have known from a hardcoded list.
+
+## 2026-09-16 — check:ladder rejected my assessment chain; the content changed
+Commit: b5f9759
+Obvious option: Loosen the check to a fuzzy match, since "A2's portfolio" obviously refers to A2's output and reads better in a metadata field.
+Why not that: A paraphrase reads like a chain while letting the two ends drift silently — rename A2's output and nothing complains. The check was right and the content was wrong, so takesInput on A2, A3 and A4 was rewritten to the previous stage's produces string exactly, and the assertion was tightened from fuzzy to byte-equality.
+How I knew the result was right: Printed the four stages from the built API and read the chain end to end: null, then each takes_input identical to the prior produces, ending at "a defended system, and the declared event that beats it". The prose in each brief still names its predecessor naturally; only the machine-readable field is exact.
