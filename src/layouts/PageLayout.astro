@@ -6,3 +6,28 @@ import { siteConfig } from "../site-config";
 <MdxPageLayout siteConfig={siteConfig} {...Astro.props}>
   <slot />
 </MdxPageLayout>
+
+<style is:global>
+  /* The theme's heading-autolink plugin emits a literal "#" text node inside
+     every heading, which renders as visible punctuation ("The Failure Wall #").
+     The plugin lives in the fixed build pipeline, so this suppresses the glyph
+     site-wide from the layer README:76-78 designates as ours, instead of
+     editing astro.config.ts.
+     The anchor stays in the DOM and keeps working as a link target; it is
+     already aria-hidden and tabindex="-1", so hiding the glyph removes nothing
+     from assistive technology. It reappears on hover/focus-within for anyone
+     who wants to copy a section link. */
+  .at-heading-anchor {
+    font-size: 0;
+    line-height: 0;
+    opacity: 0;
+    margin-inline-start: 0.35em;
+  }
+
+  :is(h1, h2, h3, h4, h5, h6):hover > .at-heading-anchor,
+  .at-heading-anchor:focus-visible {
+    font-size: 0.7em;
+    line-height: 1;
+    opacity: 0.55;
+  }
+</style>
