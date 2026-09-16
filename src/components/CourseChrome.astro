@@ -11,7 +11,45 @@
 // Imported at the top of all seven entry points. spec/chrome.test.ts asserts
 // every built page carries what this emits, so "on every page" is mechanical
 // rather than hand-maintained — which was the actual defect.
+//
+// The strip is the course's signature at 22px: the same fortnight, the same
+// trough, the same wash and threshold convention as every other appearance of
+// it. A marker sampling two non-adjacent pages meets the same event twice
+// without being told to look for it.
+import {
+  EVENT_LENGTH_HOURS,
+  EVENT_START_HOUR,
+  THRESHOLD_PCT,
+  TRACE_HOURS,
+  trace,
+} from "../lib/trace";
+
+const W = 1200;
+const H = 22;
+const MAX = 70;
+const gx = (h: number) => (h / (TRACE_HOURS - 1)) * W;
+const gy = (v: number) => H - (Math.min(v, MAX) / MAX) * H;
+
+const area =
+  `M0 ${H} ` +
+  trace.total.map((v, i) => `L${gx(i).toFixed(1)} ${gy(v).toFixed(1)}`).join(" ") +
+  ` L${W} ${H} Z`;
+const evX = gx(EVENT_START_HOUR);
+const evW = gx(EVENT_START_HOUR + EVENT_LENGTH_HOURS) - evX;
 ---
+
+<div class="cc-strip">
+  <svg
+    viewBox={`0 0 ${W} ${H}`}
+    preserveAspectRatio="none"
+    role="img"
+    aria-label={`The course's fourteen-day teaching trace at a glance: combined wind and solar output holds above the ${THRESHOLD_PCT}% threshold for most of the fortnight, then falls below it for ${EVENT_LENGTH_HOURS} consecutive hours — the reference event this course is about.`}
+  >
+    <rect x={evX} y="0" width={evW} height={H} class="cc-ev" />
+    <path d={area} class="cc-area" />
+    <line x1="0" x2={W} y1={gy(THRESHOLD_PCT)} y2={gy(THRESHOLD_PCT)} class="cc-thr" />
+  </svg>
+</div>
 
 <link
   rel="stylesheet"
@@ -57,5 +95,45 @@
   .ab-value,
   .cc-strip-label {
     font-variant-numeric: tabular-nums;
+  }
+</style>
+
+<style>
+  /* Full-bleed under the nav. Decorative-but-labelled: it repeats the figure
+     the site already explains, so it carries an aria-label stating the finding
+     rather than the shape. */
+  .cc-strip {
+    grid-column: full;
+    margin-block: 0 var(--at-spacing-lg);
+    border-block-end: 1px solid var(--at-divider);
+    background: var(--at-bg-alt);
+  }
+
+  .cc-strip svg {
+    display: block;
+    width: 100%;
+    height: 22px;
+  }
+
+  /* Identical conventions to every other appearance of the trough: a
+     translucent wash behind the data, never an opaque fill. */
+  .cc-ev {
+    fill: rgb(26 22 17 / 8.5%);
+  }
+
+  :root[data-theme="dark"] .cc-ev {
+    fill: rgb(255 246 225 / 7%);
+  }
+
+  .cc-area {
+    fill: var(--at-accent-soft);
+    stroke: var(--at-accent);
+    stroke-width: 1;
+  }
+
+  .cc-thr {
+    stroke: var(--at-text-muted);
+    stroke-width: 1;
+    stroke-dasharray: 4 3;
   }
 </style>
