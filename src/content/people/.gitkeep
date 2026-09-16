@@ -1,0 +1,8 @@
+The `people` collection is part of the fixed starter architecture: its key is
+declared in src/content.config.ts, it is listed in `graphCollections`, and the
+generated course API reports it. This directory is kept so the glob loader has
+its base path even while the collection is empty.
+
+It is empty on purpose. The course has no verifiable staff data, and inventing
+teaching staff to populate a page is barred by CLAUDE.md §6. Add entries here
+when real names and roles exist; the schema and routes are unchanged.

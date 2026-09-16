@@ -2,58 +2,259 @@
 import Card from "astro-theme-university/components/Card.astro";
 import CardGrid from "astro-theme-university/components/CardGrid.astro";
 import ContentLayout from "astro-theme-university/layouts/ContentLayout.astro";
-import heroImage from "../assets/images/hero-home.avif";
+import { withBase } from "astro-theme-university/url";
+import ProvenanceTag from "../components/ProvenanceTag.astro";
+import TraceFigure from "../components/TraceFigure.astro";
 import { courseMeta } from "../course-config";
+import { EVENT_LENGTH_HOURS, THRESHOLD_PCT, hoursBelow, meanIn, TRACE_HOURS } from "../lib/trace";
 import { sessionLabels, siteConfig } from "../site-config";
 
-// STARTER_CONTENT: replace the hero artwork and its alt text below, then
-// remove this comment.
+// Deliberately image-free. README sanctions an image-free treatment, and
+// DESIGN.md §2 asks for an operational evidence board rather than a
+// photographic hero — so the trace itself is the visual anchor.
+//
+// Every figure in the stat row is computed from src/lib/trace.ts at build
+// time, so the homepage cannot drift from the shared trace or cite a number
+// nobody can check.
+const meanPct = Math.round(meanIn(0, TRACE_HOURS));
+const belowHours = hoursBelow(THRESHOLD_PCT);
+
+const ACTS = [
+  {
+    act: "Act I",
+    weeks: "Weeks 1–4",
+    heading: "What the event is",
+    body: "Visibility, definition, correlation and spatial extent. The act that decides what the rest of the course is allowed to see.",
+  },
+  {
+    act: "Act II",
+    weeks: "Weeks 5–8",
+    heading: "What survives it",
+    body: "Depth below cut-in, the hours when the wind–solar complement fails, duration, and the economics of an asset you hope stays idle.",
+  },
+  {
+    act: "Act III",
+    weeks: "Weeks 9–12",
+    heading: "Who decides, and who explains it afterwards",
+    body: "Allocation, forecast lead time, the institutional shape of a post-mortem, and a system you are willing to defend.",
+  },
+];
+
+const MILESTONES = [
+  { week: 1, slug: "week-01", title: "The Average Is Lying to You", why: "Where the gap between a summary statistic and an hourly trace becomes visible." },
+  { week: 2, slug: "week-02", title: "When Does Bad Weather Become a Drought?", why: "Where the definition stops being obvious and starts being a decision." },
+  { week: 6, slug: "week-06", title: "Solar Helps, Until It Doesn't", why: "Where the most widely trusted mitigation is tested against the hours that matter." },
+  { week: 7, slug: "week-07", title: "Storage Is Two Problems Wearing One Name", why: "Where duration replaces power as the binding constraint." },
+  { week: 12, slug: "week-12", title: "The System You Are Willing to Defend", why: "Where you name the event that beats your design." },
+];
+
+const LADDER = [
+  { id: "A1", slug: "a1-define-the-drought", title: "Define the Drought", weight: 15, takes: "—", gives: "an operative definition of the event" },
+  { id: "A2", slug: "a2-site-against-failure", title: "Site Against Failure", weight: 20, takes: "A1's definition", gives: "a portfolio with a correlation profile" },
+  { id: "A3", slug: "a3-the-72-hour-dispatch", title: "The 72-Hour Dispatch", weight: 25, takes: "A2's portfolio", gives: "a dispatch log and a counterfactual" },
+  { id: "A4", slug: "a4-design-for-the-worst-week", title: "Design for the Worst Week", weight: 40, takes: "A3's dispatch log", gives: "a system, and the event that beats it" },
+];
 ---
 
 <ContentLayout
   title={`${courseMeta.code}: ${courseMeta.title}`}
-  description={courseMeta.description}
-  heroImage={heroImage}
-  heroImageAlt="A lecture theatre reduced to flat gold and black shapes, rows of seats sweeping past the frame, in a two-ink risograph print"
+  description="A renewable grid is not designed by its average. It is designed by the event it must survive — twelve weeks on one failure condition."
   {...siteConfig}
 >
+  <p class="hm-eyebrow">{courseMeta.session} {courseMeta.year} · Level {courseMeta.level}00 · Postgraduate coursework</p>
+
   <ul class="course-tags" aria-label="Course tags">
     {courseMeta.tags.map((tag) => <li>{tag}</li>)}
   </ul>
 
-  <!-- STARTER_CONTENT: replace the authored page below, then remove this comment. -->
-  <h2>What you will do</h2>
-  <p>
-    Say what a student spends their time on — the making, reading, arguing or
-    measuring that fills the weeks. Name the artefact they walk out with.
+  <p class="hm-lede">
+    A period when wind and solar output are simultaneously low, for long enough
+    that normal planning assumptions stop holding, is called a
+    <i lang="de">Dunkelflaute</i>. This course spends twelve weeks on that one
+    failure condition.
   </p>
 
-  <h2>Who it is for</h2>
-  <p>
-    Say who this is aimed at and what they need to already know. Be specific
-    enough that someone can rule themselves in or out without emailing you.
-  </p>
+  <section aria-labelledby="argument">
+    <h2 id="argument">The argument</h2>
 
-  <h2>Where to go next</h2>
-  <CardGrid columns={2}>
-    <Card title={sessionLabels.plural} href="/sessions/">
-      <p>The weekly schedule and what happens in each teaching session.</p>
-    </Card>
-    <Card title="Assessment" href="/assessments/">
-      <p>What is marked, what it is worth, and when it is due.</p>
-    </Card>
-    <Card title="People" href="/people/">
-      <p>Who teaches the course and how to reach them.</p>
-    </Card>
-  </CardGrid>
+    <blockquote class="hm-thesis">
+      <p>
+        A renewable electricity system should not be judged only by its average
+        generation. A defensible design identifies the low-wind, low-solar
+        event it is built to survive, shows how it survives it, and states the
+        event that would still defeat it.
+      </p>
+    </blockquote>
+
+    <p>
+      Turbines, panels, batteries, transmission, reserve plant and forecasts
+      appear in this course only where they change how that event is defined,
+      detected, predicted, survived, allocated or bounded. It is not a survey
+      of renewable technology. It is one problem, examined for twelve weeks.
+    </p>
+
+    <p>
+      The course argues from a single synthetic fortnight, so every week is
+      talking about the same weather. Here it is.
+    </p>
+
+    <TraceFigure
+      title="The shared teaching trace"
+      caption={`Combined wind and solar output across fourteen synthetic days, as a percentage of installed capacity. Output sits well above the 12% threshold for most of the fortnight, then collapses into a ${EVENT_LENGTH_HOURS}-hour trough beginning on day 8 — the reference event the whole course argues about.`}
+    />
+
+    <dl class="hm-stats">
+      <div class="hm-stat">
+        <dt>Mean output across the fortnight</dt>
+        <dd><strong>{meanPct}%</strong> of capacity <ProvenanceTag kind="synthetic" /></dd>
+      </div>
+      <div class="hm-stat">
+        <dt>Hours below the {THRESHOLD_PCT}% threshold</dt>
+        <dd><strong>{belowHours}</strong> of {TRACE_HOURS} <ProvenanceTag kind="synthetic" /></dd>
+      </div>
+      <div class="hm-stat">
+        <dt>Longest qualifying event</dt>
+        <dd><strong>{EVENT_LENGTH_HOURS} hours</strong> <ProvenanceTag kind="synthetic" /></dd>
+      </div>
+    </dl>
+
+    <p>
+      Both descriptions are true of the same system. Only one of them is a
+      design input. Which figures here are the course's own chosen boundaries
+      and which are properties of the generated trace is marked everywhere they
+      appear — see <a href={withBase("/the-event/")}>the event</a> for the
+      definition all of it resolves against.
+    </p>
+  </section>
+
+  <section aria-labelledby="semester">
+    <h2 id="semester">The semester</h2>
+    <p>
+      Three acts, twelve claims. Each week owns exactly one property of the
+      event, and no two weeks own the same one.
+    </p>
+
+    <dl class="hm-acts">
+      {
+        ACTS.map((a) => (
+          <div class="hm-act">
+            <dt>
+              <span class="hm-act-id">{a.act}</span>
+              <span class="hm-act-weeks">{a.weeks}</span>
+            </dt>
+            <dd>
+              <strong>{a.heading}</strong>
+              <span>{a.body}</span>
+            </dd>
+          </div>
+        ))
+      }
+    </dl>
+
+    <h3>Five weeks worth arriving for</h3>
+    <ol class="hm-miles">
+      {
+        MILESTONES.map((m) => (
+          <li>
+            <span class="hm-miles-wk">W{String(m.week).padStart(2, "0")}</span>
+            <span class="hm-miles-body">
+              <a href={withBase(`/sessions/${m.slug}/`)}>{m.title}</a>
+              <span>{m.why}</span>
+            </span>
+          </li>
+        ))
+      }
+    </ol>
+    <p><a href={withBase("/sessions/")}>All twelve {sessionLabels.plural.toLowerCase()} →</a></p>
+  </section>
+
+  <section aria-labelledby="assessment">
+    <h2 id="assessment">Assessment</h2>
+    <p>
+      Four stages of one problem. Each stage consumes what the last one
+      produced, so the semester assembles a single defended design rather than
+      four unrelated submissions.
+    </p>
+
+    <div class="at-table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Stage</th>
+            <th scope="col">Takes as input</th>
+            <th scope="col">Produces</th>
+            <th scope="col">Weight</th>
+          </tr>
+        </thead>
+        <tbody>
+          {
+            LADDER.map((r) => (
+              <tr>
+                <th scope="row">
+                  <span class="hm-lad-id">{r.id}</span>{" "}
+                  <a href={withBase(`/assessments/${r.slug}/`)}>{r.title}</a>
+                </th>
+                <td>{r.takes}</td>
+                <td>{r.gives}</td>
+                <td class="hm-num">{r.weight}%</td>
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+    </div>
+    <p><a href={withBase("/assessments/")}>Full assessment detail →</a></p>
+  </section>
+
+  <section aria-labelledby="who">
+    <h2 id="who">Who it is for</h2>
+    <p>
+      Postgraduate students from engineering, computing, data science,
+      environmental science and public policy. No power-systems background is
+      assumed and no machine equations are derived. If you can read a
+      time-series chart and argue about what it means, you can do this course.
+    </p>
+    <p>
+      The weekly pattern is a two-hour seminar followed by a two-hour studio.
+      The studio is where the work happens.
+    </p>
+  </section>
+
+  <section aria-labelledby="next">
+    <h2 id="next">Where to go next</h2>
+    <CardGrid columns={2}>
+      <Card title="Define the event" href="/the-event/">
+        <p>The course's operative definition — the threshold, the span, the recovery rule, and what they exclude.</p>
+      </Card>
+      <Card title="Start with Week 1" href="/sessions/week-01/">
+        <p>The average is lying to you. One system, described two ways.</p>
+      </Card>
+      <Card title="Assessment" href="/assessments/">
+        <p>Four tasks, one problem, 100%.</p>
+      </Card>
+      <Card title="The Failure Wall" href="/failure-wall/">
+        <p>What each week's design could not survive, kept on the record.</p>
+      </Card>
+    </CardGrid>
+  </section>
 </ContentLayout>
 
 <style>
+  .hm-eyebrow {
+    order: -1;
+    margin-block: 0 var(--at-spacing-xs);
+    font-family: var(--at-font-mono);
+    font-size: var(--at-font-size-xs);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--at-text-muted);
+  }
+
   .course-tags {
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem;
-    margin-block: 0 2rem;
+    margin-block: 0 var(--at-spacing-lg);
     padding: 0;
     list-style: none;
   }
@@ -64,5 +265,134 @@ import { sessionLabels, siteConfig } from "../site-config";
     color: var(--at-text-secondary);
     background: var(--at-bg-alt);
     font-size: 0.9rem;
+  }
+
+  .hm-lede {
+    font-size: 1.1rem;
+    color: var(--at-text);
+  }
+
+  .hm-thesis {
+    margin-inline: 0;
+    padding-inline-start: var(--at-spacing-md);
+    border-inline-start: 3px solid var(--at-accent);
+  }
+
+  .hm-thesis p {
+    margin-block: 0;
+    font-size: 1.05rem;
+  }
+
+  /* Instrument rows, matching the register of the definition card on the
+     event page so the two read as one system. */
+  .hm-stats,
+  .hm-acts {
+    grid-column: inset-start / content-end;
+    margin-block: var(--at-spacing-lg) var(--at-spacing-xl);
+    border-block-start: 1px solid var(--at-border);
+    font-size: var(--at-font-size-sm);
+  }
+
+  .hm-stat,
+  .hm-act {
+    display: grid;
+    grid-template-columns: minmax(10rem, 16rem) 1fr;
+    gap: 0 var(--at-spacing-md);
+    padding-block: var(--at-spacing-sm);
+    border-block-end: 1px solid var(--at-divider);
+  }
+
+  .hm-stat dt,
+  .hm-act dt {
+    font-family: var(--at-font-mono);
+    font-size: var(--at-font-size-xs);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--at-text-muted);
+    padding-block-start: 0.2em;
+  }
+
+  .hm-stat dd,
+  .hm-act dd {
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--at-spacing-xs) var(--at-spacing-sm);
+    align-items: baseline;
+  }
+
+  .hm-stat dd strong {
+    font-size: 1.15rem;
+  }
+
+  .hm-act dt {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+  }
+
+  .hm-act-id {
+    color: var(--at-accent);
+  }
+
+  .hm-act dd {
+    display: grid;
+    gap: 0.2rem;
+  }
+
+  .hm-act dd span {
+    color: var(--at-text-secondary);
+  }
+
+  .hm-miles {
+    margin-block: var(--at-spacing-md) var(--at-spacing-lg);
+    padding: 0;
+    list-style: none;
+  }
+
+  .hm-miles li {
+    display: grid;
+    grid-template-columns: 3rem 1fr;
+    gap: var(--at-spacing-sm);
+    padding-block: var(--at-spacing-sm);
+    border-block-start: 1px solid var(--at-divider);
+  }
+
+  .hm-miles-wk {
+    font-family: var(--at-font-mono);
+    font-size: var(--at-font-size-sm);
+    color: var(--at-accent);
+  }
+
+  .hm-miles-body {
+    display: grid;
+    gap: 0.15rem;
+  }
+
+  .hm-miles-body span {
+    color: var(--at-text-secondary);
+    font-size: var(--at-font-size-sm);
+  }
+
+  .hm-lad-id {
+    font-family: var(--at-font-mono);
+    color: var(--at-accent);
+  }
+
+  .hm-num {
+    font-family: var(--at-font-mono);
+    text-align: end;
+  }
+
+  @media (width < 34rem) {
+    .hm-stat,
+    .hm-act,
+    .hm-miles li {
+      grid-template-columns: 1fr;
+    }
+
+    .hm-num {
+      text-align: start;
+    }
   }
 </style>

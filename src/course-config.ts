@@ -39,24 +39,24 @@ export const slopCourseMetaSchema = z
   });
 
 // The single source of truth for the course record. The generated homepage,
-// navigation label and /api/index.json all read this object.
-// Replace every placeholder value, but keep the shape: the catalogue ingests
-// this API contract when the course is published.
+// navigation label and /api/index.json all read this object, so no page
+// restates these facts.
 //
-// The code's last three digits were assigned to this repo when it was
-// provisioned, and no other course in the cohort has them. Change the first
-// digit to your course's level (and `level` to match); keep the other three.
-// STARTER_CONTENT: replace this course record, then remove this comment.
+// The last three digits (246) were allocated to this repo and must not change.
+// The leading digit is the ANU level: 6 for postgraduate coursework, which
+// `level` mirrors.
 export const courseMeta = slopCourseMetaSchema.parse({
-  code: "SLOP1246",
-  title: "Course Title Goes Here",
-  session: "Semester 1",
-  year: 2027,
-  level: 1,
-  startDate: "2027-02-22",
-  endDate: "2027-05-28",
+  code: "SLOP6246",
+  title: "Dunkelflaute: Designing for the Week the Weather Stops",
+  session: "Semester 2",
+  year: 2026,
+  level: 6,
+  startDate: "2026-07-27",
+  endDate: "2026-10-30",
   description:
-    "One concise paragraph explaining what this course is, who it is for, " +
-    "and why somebody would choose to spend a semester taking it.",
-  tags: ["replace me"],
+    "Twelve weeks on one failure condition: the period when wind and solar " +
+    "output are simultaneously low for long enough that normal planning " +
+    "assumptions stop holding. A renewable grid is not designed by its " +
+    "average — it is designed by the event it must survive.",
+  tags: ["energy systems", "reliability", "design"],
 }) satisfies CourseMetaInput;

@@ -1,30 +1,23 @@
 ---
-title: Opening lecture
+title: One System, Two Stories
 description:
-  The first lecture — what the course is, why it is shaped this way, and what
-  happens in week 1
+  The opening lecture — the same synthetic system described by an annual
+  figure and by its hourly trace, and why only one of them is a design input.
 week: 1
-date: 2027-02-22
-teachers:
-  - marisol-quaye
-slides: /decks/week-01/
+date: 2026-07-27
 related:
-  - sessions/01-getting-started
+  - sessions/week-01
 ---
 
-<!-- STARTER_CONTENT: replace this lecture, then remove this comment. -->
-
-Replace this page. A lecture entry says what was covered and links to the pages
-that own the detail, so the lecture stays short and nothing is explained twice.
-
-The `related:` ref above is a graph edge: it renders on this page and on the
-session's, so declare a connection once, on whichever side is convenient.
-
-The page renders its `slides:` link automatically. Decks are markdown too,
-under `src/decks/`; the path is part of the lecture's API metadata.
+The course opens by putting two descriptions of one system side by side and
+refusing to let either stand alone.
 
 ## Outline
 
-- what the course is for
-- how the weeks are shaped
-- what to do before the first session
+- what an annual renewable share is, and what it is chosen to summarise
+- the same synthetic fortnight at hourly resolution
+- why a summary statistic cannot be a reliability argument
+- what the semester does with the gap between them
+
+The accompanying studio is [week 1](/sessions/week-01/), where you go looking
+for the worst window in the trace yourself.

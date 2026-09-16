@@ -1,0 +1,191 @@
+---
+// A static plot of the shared synthetic teaching trace (src/lib/trace.ts).
+//
+// Static on purpose: this phase builds the data foundation, not the
+// interactives. There are no controls here, because a control that changed
+// nothing would be decoration (DESIGN.md §9).
+//
+// The threshold line and the event band are course-defined boundaries; the
+// series itself is synthetic. Both are labelled, and the figcaption carries
+// the accessible description of what the plot shows.
+import ProvenanceTag from "./ProvenanceTag.astro";
+import {
+  EVENT_LENGTH_HOURS,
+  EVENT_START_HOUR,
+  THRESHOLD_PCT,
+  TRACE_HOURS,
+  trace,
+} from "../lib/trace";
+
+interface Props {
+  /** Heading for the figure. */
+  title: string;
+  /** Sentence stating what the plot shows — also the text alternative. */
+  caption: string;
+}
+
+const { title, caption } = Astro.props;
+
+// viewBox units; the SVG scales to its container, so nothing is fixed-width.
+const W = 720;
+const H = 200;
+const PAD = { l: 34, r: 8, t: 10, b: 22 };
+const plotW = W - PAD.l - PAD.r;
+const plotH = H - PAD.t - PAD.b;
+const MAX = 70; // % of capacity, comfortably above the trace's peak
+
+const x = (hour: number): number => PAD.l + (hour / (TRACE_HOURS - 1)) * plotW;
+const y = (pct: number): number => PAD.t + plotH - (Math.min(pct, MAX) / MAX) * plotH;
+
+const area = `M${x(0).toFixed(1)} ${y(0).toFixed(1)} ${trace.total
+  .map((v, i) => `L${x(i).toFixed(1)} ${y(v).toFixed(1)}`)
+  .join(" ")} L${x(TRACE_HOURS - 1).toFixed(1)} ${y(0).toFixed(1)} Z`;
+
+const eventX = x(EVENT_START_HOUR);
+const eventW = x(EVENT_START_HOUR + EVENT_LENGTH_HOURS) - eventX;
+const dayTicks = [0, 2, 4, 6, 8, 10, 12].map((d) => ({ day: d + 1, at: x(d * 24) }));
+---
+
+<figure class="tf">
+  <p class="tf-kicker">{title}</p>
+  <svg
+    class="tf-svg"
+    viewBox={`0 0 ${W} ${H}`}
+    role="img"
+    aria-label={caption}
+    preserveAspectRatio="none"
+  >
+    <rect
+      x={eventX}
+      y={PAD.t}
+      width={eventW}
+      height={plotH}
+      class="tf-event"
+    />
+    <path d={area} class="tf-area" />
+    <line x1={PAD.l} x2={W - PAD.r} y1={y(THRESHOLD_PCT)} y2={y(THRESHOLD_PCT)} class="tf-thr" />
+    <line x1={PAD.l} x2={W - PAD.r} y1={y(0)} y2={y(0)} class="tf-axis" />
+    <text x={PAD.l - 6} y={y(THRESHOLD_PCT) + 3} class="tf-lbl tf-lbl--end">{THRESHOLD_PCT}%</text>
+    <text x={PAD.l - 6} y={y(MAX) + 8} class="tf-lbl tf-lbl--end">{MAX}%</text>
+    {dayTicks.map((t) => <text x={t.at} y={H - 6} class="tf-lbl">{`d${t.day}`}</text>)}
+  </svg>
+  <p class="tf-key">
+    <span class="tf-key-item"><span class="tf-sw tf-sw--area"></span> combined wind + solar</span>
+    <span class="tf-key-item"><span class="tf-sw tf-sw--thr"></span> 12% threshold <ProvenanceTag kind="defined" /></span>
+    <span class="tf-key-item"><span class="tf-sw tf-sw--event"></span> reference event <ProvenanceTag kind="synthetic" /></span>
+  </p>
+  <figcaption>{caption}</figcaption>
+</figure>
+
+<style>
+  .tf {
+    grid-column: inset-start / content-end;
+    margin-block: var(--at-spacing-lg);
+  }
+
+  .tf-kicker {
+    margin-block: 0 var(--at-spacing-sm);
+    font-family: var(--at-font-mono);
+    font-size: var(--at-font-size-xs);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--at-text-muted);
+  }
+
+  .tf-svg {
+    display: block;
+    width: 100%;
+    height: 200px;
+    border: 1px solid var(--at-border);
+    background: var(--at-bg-alt);
+  }
+
+  .tf-area {
+    fill: var(--at-accent-soft);
+    stroke: var(--at-accent);
+    stroke-width: 1;
+  }
+
+  .tf-thr {
+    stroke: var(--at-text);
+    stroke-width: 1;
+    stroke-dasharray: 5 3;
+  }
+
+  .tf-axis {
+    stroke: var(--at-divider);
+    stroke-width: 1;
+  }
+
+  /* Hatched, so the event band is distinguishable without relying on colour. */
+  .tf-event {
+    fill: var(--at-bg-elevated);
+    stroke: var(--at-text-muted);
+    stroke-width: 1;
+    stroke-dasharray: 3 3;
+  }
+
+  .tf-lbl {
+    font-family: var(--at-font-mono);
+    font-size: 10px;
+    fill: var(--at-text-muted);
+    text-anchor: middle;
+  }
+
+  .tf-lbl--end {
+    text-anchor: end;
+  }
+
+  .tf-key {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--at-spacing-xs) var(--at-spacing-lg);
+    margin-block-start: var(--at-spacing-sm);
+    font-family: var(--at-font-mono);
+    font-size: var(--at-font-size-xs);
+    color: var(--at-text-secondary);
+  }
+
+  .tf-key-item {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--at-spacing-xs);
+    flex-wrap: wrap;
+  }
+
+  .tf-sw {
+    display: inline-block;
+    width: 1.25rem;
+    height: 0.7rem;
+    border: 1px solid var(--at-border);
+  }
+
+  .tf-sw--area {
+    background: var(--at-accent-soft);
+    border-color: var(--at-accent);
+  }
+
+  .tf-sw--thr {
+    height: 0;
+    border: 0;
+    border-block-start: 2px dashed var(--at-text);
+  }
+
+  .tf-sw--event {
+    background: var(--at-bg-elevated);
+    border-style: dashed;
+    border-color: var(--at-text-muted);
+  }
+
+  .tf figcaption {
+    margin-block-start: var(--at-spacing-sm);
+    font-size: var(--at-font-size-sm);
+    color: var(--at-text-secondary);
+  }
+
+  @media (width < 34rem) {
+    .tf-svg {
+      height: 160px;
+    }
+  }
+</style>

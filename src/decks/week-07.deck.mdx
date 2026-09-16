@@ -1,0 +1,198 @@
+---
+title: Storage Is Two Problems Wearing One Name
+description: Week 7 — power capacity and energy capacity are separate constraints, and a multi-day event is what forces the distinction into the open.
+---
+
+{/* _class: impact */}
+
+# Storage is two problems
+
+## wearing one name
+
+SLOP6246 · Week 7 · duration
+
+```notes
+The whole lecture is one distinction: power versus energy. Everything else is
+consequence. Ask at the start who can state the difference in units without
+thinking about it — usually fewer hands than expected, and that is the point.
+```
+
+---
+
+## "How much storage do we need?"
+
+Two questions in a trench coat.
+
+- **How fast** can it deliver? — power
+- **How long** can it keep delivering? — energy
+
+A specification that answers one and assumes the other is how a system arrives
+at an event under-built.
+
+```notes
+Stress that both questions are legitimate and usually asked by different people
+for different reasons — a network engineer worries about the first, a planner
+about the second. The failure is not asking the wrong question, it is answering
+one and reporting it as though it settled both.
+```
+
+---
+
+## The units do the arguing
+
+| Quantity   | Measured in | Answers                       |
+| ---------- | ----------- | ----------------------------- |
+| **Power**  | MW, GW      | Can I meet the shortfall now? |
+| **Energy** | MWh, GWh    | Can I keep meeting it?        |
+
+Duration is the ratio: energy ÷ power.
+
+```notes
+If students take one slide away, this is it. Watch for the common slip of
+writing MW when MWh is meant — in this course that slip is not a typo, it is a
+design error that changes the answer.
+```
+
+---
+
+## A specification, deliberately absurd
+
+**1 GW / 1 GWh** — illustrative, not a product
+
+Nominal power of 1 GW. Stored energy of 1 GWh.
+
+Duration: **one hour.**
+
+```notes
+Say plainly that this is an illustrative configuration invented for the
+lecture, not a real battery and not a claim about any product's performance.
+It is chosen because the arithmetic is trivial and the conclusion is stark.
+```
+
+---
+
+## What one hour of duration buys
+
+At full output it is empty in an hour.
+
+That is genuinely useful — for a frequency event, an evening peak, a
+generator tripping offline.
+
+It is the right machine for the wrong problem.
+
+```notes
+Be careful to be fair to short-duration storage here. It is not a bad asset;
+it is an asset procured against a different failure mode. Most storage in most
+systems is procured for exactly the problems listed on this slide.
+```
+
+---
+
+{/* _class: quote */}
+
+## Now bring it to the event
+
+61 hours below threshold — a property of the course's synthetic teaching trace
+
+```notes
+Flag the provenance out loud: 61 hours is a property of the generated teaching
+trace, not a measurement of any real system. The 12% threshold and the 48-hour
+minimum are the course's own chosen boundaries. Students should be able to say
+which numbers in this course are which.
+```
+
+---
+
+## The mismatch
+
+- Event span: **61 hours** *(synthetic trace)*
+- Storage duration: **one hour** *(illustrative spec)*
+
+The power rating was never the binding constraint.
+
+```notes
+Resist the temptation to state a precise shortfall figure — that depends on
+demand, which this course has not defined and which we are not going to
+invent. The qualitative point stands without it.
+```
+
+---
+
+## Four levers
+
+1. **Power** — how fast it can deliver
+2. **Energy** — how much it holds
+3. **State of charge** — how full it was when the event started
+4. **Round-trip efficiency** — what you lose storing and retrieving
+
+```notes
+Lever 3 is the one students consistently forget, and it is the one an operator
+actually controls in the days before a forecast event. Connect forward to week
+10: pre-charging is a long-lead-time action, so it depends on a forecast
+arriving early enough to authorise it.
+```
+
+---
+
+## Which lever moves the outcome?
+
+Against a multi-day deficit:
+
+- raising **power** — usually no
+- raising **energy** — yes, until it becomes unaffordable
+- starting **fuller** — yes, and it is free if you saw it coming
+- better **efficiency** — helps at the margin
+
+```notes
+This is the slide to spend time on. Let students argue. The honest answer is
+that energy and state of charge dominate, and that the cheapest of the four is
+the one that depends entirely on forecasting and institutional willingness to
+act early.
+```
+
+---
+
+## Why the instinct misleads
+
+Storage is mostly procured against the daily peak.
+
+The daily peak is a **power** problem.
+
+A drought is a **duration** problem.
+
+The same word covers both, and the procurement does not transfer.
+
+```notes
+This is the week's contribution to the thesis: the event does not simply make
+storage more necessary, it changes which specification number matters. A fleet
+sized correctly for one problem can be irrelevant to the other.
+```
+
+---
+
+## What this means for your dispatch
+
+In [Assessment 3](/assessments/a3-the-72-hour-dispatch/) you will spend a
+finite store across a multi-day event.
+
+Every hour you discharge early is an hour unavailable at hour 60.
+
+```notes
+Point out that the dispatch assessment is where this becomes visceral. The
+temptation is to hold storage back; the cost of holding it back is load shed
+earlier. There is no free ordering, and the log has to own the choice.
+```
+
+---
+
+{/* _class: impact */}
+
+# Power is not energy
+
+A system sized in megawatts has not answered a question asked in hours.
+
+```notes
+Close on the unit distinction, then hand over to the studio exercise where they
+manipulate all four levers against a fixed deficit. Remind them the deficit is
+synthetic and fixed deliberately so the levers are the only variable.
+```

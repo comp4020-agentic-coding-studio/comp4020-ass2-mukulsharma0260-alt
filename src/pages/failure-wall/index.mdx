@@ -1,0 +1,58 @@
+---
+title: The Failure Wall
+description: "A running record of what each design could not survive — kept because naming the failure boundary is part of the engineering, not an apology for it."
+---
+
+# The Failure Wall
+
+Every design in this course is asked for two statements: the event it survives,
+and the event that defeats it. This page is where the second statement lives.
+
+It is not a wall of shame, and it is not encouragement. It is a register. A
+design whose limits are written down can be checked, compared and improved by
+someone who was not in the room. A design that claims to survive everything has
+either not been tested or is not telling you about the case it fails.
+
+## Why the course keeps one
+
+The thesis is that a defensible system names its own failure boundary. If that
+is true, the boundary is a deliverable — and deliverables get recorded
+somewhere durable rather than mentioned once in a studio.
+
+Three things follow from keeping the record in public:
+
+1. **A boundary becomes falsifiable.** "This system survives the reference
+   event but not one arriving with storage already depleted" is a claim someone
+   can test. "This system is robust" is not.
+2. **Comparison becomes possible.** Two portfolios that both survive the
+   reference event are not equivalent if one fails at 70 hours and the other at
+   140.
+3. **The incentive changes.** When the failure boundary is the marked output,
+   there is nothing to gain from hiding it.
+
+## What gets recorded
+
+For each entry: the design, the event it survived, the event that defeated it,
+and where the boundary was located — in generation, in storage duration, in
+transmission, in reserve availability, in forecast lead time, or in the
+allocation rules.
+
+The last of those matters more than it looks. [Week 11](/sessions/week-11/)
+argues that the cause of a failure is partly a choice about where the system's
+edge was drawn, so an entry that does not say where the boundary sits has not
+finished describing the failure.
+
+## How entries arrive
+
+From the studios, and from
+[Design for the Worst Week](/assessments/a4-design-for-the-worst-week/), where
+stating the defeating event is the primary requirement rather than a caveat.
+
+The wall opens empty at the start of semester. Filling it is the work.
+
+## What this page is not
+
+It does not record marks. It does not name students who ran out of storage in
+hour 50 — that is what the studio is for, and it happens to most designs at
+least once. It records designs and their boundaries, which are technical
+objects rather than performances.

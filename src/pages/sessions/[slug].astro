@@ -15,6 +15,15 @@ export async function getStaticPaths() {
 
 const { session } = Astro.props;
 const { Content } = await render(session);
+
+// Each week's contract, per CLAUDE.md §3: the one property of the event it
+// owns, its stance towards the central thesis, the claim, and how it earns it.
+const STANCE_LABEL: Record<string, string> = {
+  advances: "Advances the claim",
+  complicates: "Complicates it",
+  challenges: "Challenges it",
+};
+const stance = String(session.data.stance);
 ---
 
 <ContentLayout
@@ -22,12 +31,116 @@ const { Content } = await render(session);
   description={session.data.description}
   {...siteConfig}
 >
-  <p><strong>{formatCourseDate(session.data.date)}</strong></p>
+  <p class="wk-eyebrow">
+    Week {String(session.data.week).padStart(2, "0")} · {session.data.property} ·
+    {formatCourseDate(session.data.date)}
+  </p>
+
+  <p class="wk-claim">{session.data.claim}</p>
+
+  <dl class="wk-spec">
+    <div class="wk-spec-row">
+      <dt>Property</dt>
+      <dd>{session.data.property}</dd>
+    </div>
+    <div class="wk-spec-row">
+      <dt>Stance</dt>
+      <dd><span class:list={["wk-stance", `wk-stance--${stance}`]}>{STANCE_LABEL[stance] ?? stance}</span></dd>
+    </div>
+    <div class="wk-spec-row">
+      <dt>How</dt>
+      <dd>{session.data.how}</dd>
+    </div>
+    <div class="wk-spec-row">
+      <dt>Studio activity</dt>
+      <dd>{session.data.activity}</dd>
+    </div>
+  </dl>
+
   <Content />
   <SpecList spec={session.data.spec}>
-    What you bring to the session. Written so a reader can tell whether it has
-    been met without asking you.
+    What to bring. Written so you can tell whether you have met it without
+    asking.
   </SpecList>
   <TeachingTeam teachers={session.data.teachers} />
   <RelatedContent entry={session} collections={graphCollections} />
 </ContentLayout>
+
+<style>
+  .wk-eyebrow {
+    order: -1;
+    margin-block: 0 var(--at-spacing-xs);
+    font-family: var(--at-font-mono);
+    font-size: var(--at-font-size-xs);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--at-text-muted);
+  }
+
+  .wk-claim {
+    margin-block: var(--at-spacing-md) var(--at-spacing-lg);
+    padding-inline-start: var(--at-spacing-md);
+    border-inline-start: 3px solid var(--at-accent);
+    font-size: 1.1rem;
+    color: var(--at-text);
+  }
+
+  .wk-spec {
+    grid-column: inset-start / content-end;
+    margin-block: var(--at-spacing-lg) var(--at-spacing-xl);
+    border-block-start: 1px solid var(--at-border);
+    font-size: var(--at-font-size-sm);
+  }
+
+  .wk-spec-row {
+    display: grid;
+    grid-template-columns: minmax(8rem, 12rem) 1fr;
+    gap: 0 var(--at-spacing-md);
+    padding-block: var(--at-spacing-sm);
+    border-block-end: 1px solid var(--at-divider);
+  }
+
+  .wk-spec dt {
+    font-family: var(--at-font-mono);
+    font-size: var(--at-font-size-xs);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--at-text-muted);
+    padding-block-start: 0.15em;
+  }
+
+  .wk-spec dd {
+    margin: 0;
+    color: var(--at-text);
+  }
+
+  /* Stance is carried by the word first; the rule is a secondary cue, so
+     meaning never rests on colour alone. */
+  .wk-stance {
+    display: inline-block;
+    padding-inline-start: var(--at-spacing-sm);
+    border-inline-start: 3px solid var(--at-divider);
+    font-family: var(--at-font-mono);
+    font-size: var(--at-font-size-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .wk-stance--advances {
+    border-inline-start-color: var(--at-accent);
+  }
+
+  .wk-stance--complicates {
+    border-inline-start-color: var(--at-text-muted);
+  }
+
+  .wk-stance--challenges {
+    border-inline-start-color: var(--at-info);
+  }
+
+  @media (width < 34rem) {
+    .wk-spec-row {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
