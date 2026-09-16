@@ -188,10 +188,10 @@ const canonical = CANONICAL_DEFINITION;
 
       bands.textContent = "";
       for (const p of c.nearMisses) {
-        bands.appendChild(rect(gx(p.start), gx(p.start + p.span) - gx(p.start), "dial-band dial-band--near"));
+        bands.appendChild(rect(gx(p.start), gx(p.start + p.span) - gx(p.start), "trough trough--near"));
       }
       for (const p of c.events) {
-        bands.appendChild(rect(gx(p.start), gx(p.start + p.span) - gx(p.start), "dial-band dial-band--event"));
+        bands.appendChild(rect(gx(p.start), gx(p.start + p.span) - gx(p.start), "trough"));
       }
 
       thrLine.setAttribute("y1", String(gy(def.thresholdPct)));
@@ -301,22 +301,6 @@ const canonical = CANONICAL_DEFINITION;
     fill: none;
     stroke: var(--at-accent);
     stroke-width: 1.6;
-  }
-
-  /* A qualifying event: solid band. A near-miss: the same band, much fainter
-     and dashed, so the two are distinguishable without relying on colour. */
-  .dial-band--event {
-    fill: var(--at-accent-soft);
-    stroke: var(--at-accent);
-    stroke-width: 1;
-  }
-
-  .dial-band--near {
-    fill: var(--at-bg-elevated);
-    stroke: var(--at-text-muted);
-    stroke-width: 1;
-    stroke-dasharray: 2 4;
-    opacity: 0.6;
   }
 
   .dial-thr {

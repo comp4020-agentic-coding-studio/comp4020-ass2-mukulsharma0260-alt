@@ -60,7 +60,7 @@ const dayTicks = [0, 2, 4, 6, 8, 10, 12].map((d) => ({ day: d + 1, at: x(d * 24)
       y={PAD.t}
       width={eventW}
       height={plotH}
-      class="tf-event"
+      class="trough"
     />
     <path d={area} class="tf-area" />
     <line x1={PAD.l} x2={W - PAD.r} y1={y(THRESHOLD_PCT)} y2={y(THRESHOLD_PCT)} class="tf-thr" />
@@ -119,22 +119,6 @@ const dayTicks = [0, 2, 4, 6, 8, 10, 12].map((d) => ({ day: d + 1, at: x(d * 24)
   .tf-axis {
     stroke: var(--at-divider);
     stroke-width: 1;
-  }
-
-  /* A translucent wash, not an opaque fill. This band sits behind the series
-     and the whole point of the figure is the shape of the data inside it, so
-     anything opaque here erases the course's central image and makes the
-     61-hour trough read as missing data. Ink-on-paper in light, paper-on-ink
-     in dark, both well under 10% so the area fill survives underneath. */
-  .tf-event {
-    fill: rgb(26 22 17 / 8.5%);
-    stroke: var(--at-text-muted);
-    stroke-width: 1;
-    stroke-dasharray: 3 3;
-  }
-
-  :root[data-theme="dark"] .tf-event {
-    fill: rgb(255 246 225 / 7%);
   }
 
   .tf-lbl {

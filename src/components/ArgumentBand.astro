@@ -53,7 +53,7 @@ const evW = gx(EVENT_START_HOUR + EVENT_LENGTH_HOURS) - evX;
 
     <figure class="ab-right">
       <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" role="img" aria-labelledby="ab-alt">
-        <rect x={evX} y={PAD.t} width={evW} height={plotH} class="ab-ev" />
+        <rect x={evX} y={PAD.t} width={evW} height={plotH} class="trough trough--on-dark" />
         <line x1={PAD.l} x2={W - PAD.r} y1={gy(0)} y2={gy(0)} class="ab-axis" />
         <path d={area} class="ab-area" />
         <line x1={PAD.l} x2={W - PAD.r} y1={gy(THRESHOLD_PCT)} y2={gy(THRESHOLD_PCT)} class="ab-thr" />
@@ -142,15 +142,6 @@ const evW = gx(EVENT_START_HOUR + EVENT_LENGTH_HOURS) - evX;
     display: block;
     width: 100%;
     height: 210px;
-  }
-
-  /* Same wash convention as every other appearance of the trough, inverted for
-     the dark ground. Appended before the series so the data draws through it. */
-  .ab-ev {
-    fill: rgb(246 239 221 / 9%);
-    stroke: rgb(246 239 221 / 30%);
-    stroke-width: 1;
-    stroke-dasharray: 3 3;
   }
 
   .ab-area {

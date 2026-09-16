@@ -45,7 +45,7 @@ const evW = gx(EVENT_START_HOUR + EVENT_LENGTH_HOURS) - evX;
     role="img"
     aria-label={`The course's fourteen-day teaching trace at a glance: combined wind and solar output holds above the ${THRESHOLD_PCT}% threshold for most of the fortnight, then falls below it for ${EVENT_LENGTH_HOURS} consecutive hours — the reference event this course is about.`}
   >
-    <rect x={evX} y="0" width={evW} height={H} class="cc-ev" />
+    <rect x={evX} y="0" width={evW} height={H} class="trough" />
     <path d={area} class="cc-area" />
     <line x1="0" x2={W} y1={gy(THRESHOLD_PCT)} y2={gy(THRESHOLD_PCT)} class="cc-thr" />
   </svg>
@@ -83,6 +83,45 @@ const evW = gx(EVENT_START_HOUR + EVENT_LENGTH_HOURS) - evX;
     font-optical-sizing: auto;
   }
 
+  /* ── The trough convention ──────────────────────────────────────────────
+     The 61-hour trough is the course's visual signature and it appears on four
+     charts. It has now shipped as an opaque fill three times — the light chart
+     (5371870), the dark argument band, and the dial — so it is a shared class
+     rather than a fourth local rule.
+     The invariant: a band marking a region is a translucent WASH painted
+     BEFORE the data, never an opaque fill. Nothing on any chart may be an
+     opaque fill over a data series. spec/render.test.ts enforces both halves. */
+  :root {
+    --trough-wash: rgb(26 22 17 / 8.5%);
+    --trough-edge: rgb(26 22 17 / 22%);
+  }
+
+  :root[data-theme="dark"] {
+    --trough-wash: rgb(255 246 225 / 7%);
+    --trough-edge: rgb(255 246 225 / 20%);
+  }
+
+  /* A qualifying event. */
+  .trough {
+    fill: var(--trough-wash);
+    stroke: var(--trough-edge);
+    stroke-width: 1;
+  }
+
+  /* Rejected as too short: the same wash at roughly a third the weight, no
+     edges, so the duration rule's discards are visible without competing. */
+  .trough--near {
+    fill: var(--trough-wash);
+    fill-opacity: 0.33;
+    stroke: none;
+  }
+
+  /* On a permanently dark ground the wash inverts regardless of theme. */
+  .trough--on-dark {
+    fill: rgb(255 246 225 / 9%);
+    stroke: rgb(255 246 225 / 30%);
+  }
+
   /* Instrument: the institution's chrome keeps its own face, and anything
      measured keeps tabular figures so digits align down a column. */
   .at-nav,
@@ -113,16 +152,6 @@ const evW = gx(EVENT_START_HOUR + EVENT_LENGTH_HOURS) - evX;
     display: block;
     width: 100%;
     height: 22px;
-  }
-
-  /* Identical conventions to every other appearance of the trough: a
-     translucent wash behind the data, never an opaque fill. */
-  .cc-ev {
-    fill: rgb(26 22 17 / 8.5%);
-  }
-
-  :root[data-theme="dark"] .cc-ev {
-    fill: rgb(255 246 225 / 7%);
   }
 
   .cc-area {
