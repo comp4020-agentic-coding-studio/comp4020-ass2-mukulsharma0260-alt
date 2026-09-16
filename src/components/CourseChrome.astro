@@ -1,0 +1,61 @@
+---
+// The course layer's own chrome, added as a component rather than by re-routing
+// every page through one layout.
+//
+// PageLayout.astro is only the defaultLayout for the .md/.mdx pages; the six
+// .astro pages import ContentLayout or BaseLayout directly. So there is no
+// single layout to hang site-wide additions on, and README:18-22 permits the
+// cheaper route: "adding is always allowed ... a component the theme doesn't
+// have."
+//
+// Imported at the top of all seven entry points. spec/chrome.test.ts asserts
+// every built page carries what this emits, so "on every page" is mechanical
+// rather than hand-maintained — which was the actual defect.
+---
+
+<link
+  rel="stylesheet"
+  href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400..700&family=Newsreader:opsz,ital,wght@6..72,0,300..600;6..72,1,300..500&display=swap"
+/>
+
+<style is:global>
+  /* Four type roles, and the split carries meaning: institution / argument /
+     instrument. The university speaks in its own face; the course speaks in a
+     different one on top of it.
+     --ui and --mono alias the theme's self-hosted Public Sans and Roboto Mono
+     and are untouched: astro.config.ts requires --font-public-sans for deck
+     compilation, and README fixes that file. Only --disp and --serif are new. */
+  :root {
+    --ui: var(--at-font-body);
+    --mono: var(--at-font-mono);
+    --disp: "Fraunces", "Iowan Old Style", Georgia, serif;
+    --serif: "Newsreader", Georgia, "Times New Roman", serif;
+  }
+
+  /* Argument: all reading prose. */
+  .at-main :is(p, li, dd, blockquote, figcaption) {
+    font-family: var(--serif);
+  }
+
+  /* Display: headings, and the claims that behave like headings. */
+  .at-main :is(h1, h2, h3, h4),
+  .at-main .wk-claim,
+  .ab-head {
+    font-family: var(--disp);
+    font-optical-sizing: auto;
+  }
+
+  /* Instrument: the institution's chrome keeps its own face, and anything
+     measured keeps tabular figures so digits align down a column. */
+  .at-nav,
+  .at-footer {
+    font-family: var(--ui);
+  }
+
+  .instr-hud dd,
+  .hm-num,
+  .ab-value,
+  .cc-strip-label {
+    font-variant-numeric: tabular-nums;
+  }
+</style>

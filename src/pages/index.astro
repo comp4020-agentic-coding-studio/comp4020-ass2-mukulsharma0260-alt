@@ -4,6 +4,7 @@ import CardGrid from "astro-theme-university/components/CardGrid.astro";
 import BaseLayout from "astro-theme-university/layouts/BaseLayout.astro";
 import { withBase } from "astro-theme-university/url";
 import ProvenanceTag from "../components/ProvenanceTag.astro";
+import CourseChrome from "../components/CourseChrome.astro";
 import ArgumentBand from "../components/ArgumentBand.astro";
 import TraceFigure from "../components/TraceFigure.astro";
 import { courseLevelLabel, courseMeta, courseName, courseSubtitle } from "../course-config";
@@ -67,6 +68,8 @@ const LADDER = [
   description="A renewable grid is not designed by its average. It is designed by the event it must survive — twelve weeks on one failure condition."
   {...siteConfig}
 >
+  <CourseChrome />
+
   <p class="hm-kicker">{courseMeta.code} · School of Continuous Improvement</p>
   <h1 class="hm-title">{courseName}</h1>
   <p class="hm-subtitle">{courseSubtitle}</p>

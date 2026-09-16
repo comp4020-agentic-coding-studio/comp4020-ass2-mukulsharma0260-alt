@@ -1,3 +1,4 @@
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400..700&family=Newsreader:opsz,ital,wght@6..72,0,300..600&display=swap");
 /* The deck stylesheet. It is one import on purpose.
  *
  * astro-theme-university's deck.css derives every colour it uses from the
@@ -11,3 +12,28 @@
  * slide class you reach for (`_class: quote`), a code-heavy layout, a
  * background. */
 @import url("astro-theme-university/styles/deck.css");
+
+/* The same four type roles the site uses. Deck pages do not load the site's
+ * stylesheets — only the brand CSS and this file — so CourseChrome cannot
+ * reach them and the tokens are declared again here. This is the one place a
+ * second declaration is correct rather than drift: it is a different document.
+ * --ui and --mono still alias the theme's own faces. */
+:root {
+  --ui: var(--at-font-body);
+  --mono: var(--at-font-mono);
+  --disp: "Fraunces", "Iowan Old Style", Georgia, serif;
+  --serif: "Newsreader", Georgia, "Times New Roman", serif;
+}
+
+.reveal :is(h1, h2, h3) {
+  font-family: var(--disp);
+  font-optical-sizing: auto;
+}
+
+.reveal :is(p, li, td) {
+  font-family: var(--serif);
+}
+
+.reveal :is(code, pre, th) {
+  font-family: var(--mono);
+}

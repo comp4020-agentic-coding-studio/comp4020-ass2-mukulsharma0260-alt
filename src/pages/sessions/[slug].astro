@@ -4,6 +4,7 @@ import { getPublishedCollection } from "astro-course-university/content";
 import RelatedContent from "astro-course-university/components/RelatedContent.astro";
 import SpecList from "astro-course-university/components/SpecList.astro";
 import ContentLayout from "astro-theme-university/layouts/ContentLayout.astro";
+import CourseChrome from "../../components/CourseChrome.astro";
 import DefinitionDial from "../../components/DefinitionDial.astro";
 import StorageSizer from "../../components/StorageSizer.astro";
 import TeachingTeam from "../../components/TeachingTeam.astro";
@@ -38,6 +39,8 @@ const property = String(session.data.property);
   description={session.data.description}
   {...siteConfig}
 >
+  <CourseChrome />
+
   <p class="wk-eyebrow">
     Week {String(session.data.week).padStart(2, "0")} · {session.data.property} ·{" "}
     {formatCourseDate(session.data.date)}
