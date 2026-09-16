@@ -5,6 +5,46 @@ description: "A running record of what each design could not survive — kept be
 
 # {frontmatter.title}
 
+Seven ways to lose a 72-hour event, from the dispatch logs of the previous
+cohort. Anonymised, and published with their permission. Nobody on this list did
+anything stupid.
+
+<dl class="fw">
+  <div class="fw-row">
+    <dt>Hour 19</dt>
+    <dd>Charged the battery during the only windy hour of the event, because the price was low.</dd>
+  </div>
+  <div class="fw-row">
+    <dt>Hour 31</dt>
+    <dd>Held the reserve back to save fuel, then needed ninety minutes it did not have.</dd>
+  </div>
+  <div class="fw-row">
+    <dt>Hour 44</dt>
+    <dd>Shed industry first because it was the largest block, and lost the argument afterwards.</dd>
+  </div>
+  <div class="fw-row">
+    <dt>Hour 52</dt>
+    <dd>Imported to the cap for two days, then discovered the neighbour was in the same weather.</dd>
+  </div>
+  <div class="fw-row">
+    <dt>Hour 61</dt>
+    <dd>Protected EV charging over water treatment, and then had to explain why.</dd>
+  </div>
+  <div class="fw-row">
+    <dt>Hour 8</dt>
+    <dd>Ran a perfect first day and never looked at the forecast for the third.</dd>
+  </div>
+  <div class="fw-row">
+    <dt>Hour 70</dt>
+    <dd>Survived, with eleven minutes of margin, and could not say which decision had saved it.</dd>
+  </div>
+</dl>
+
+The last one is on the list because a system you cannot explain is not a system
+you can repeat.
+
+## Why the course keeps one
+
 Every design in this course is asked for two statements: the event it survives,
 and the event that defeats it. This page is where the second statement lives.
 
@@ -12,12 +52,6 @@ It is not a wall of shame, and it is not encouragement. It is a register. A
 design whose limits are written down can be checked, compared and improved by
 someone who was not in the room. A design that claims to survive everything has
 either not been tested or is not telling you about the case it fails.
-
-## Why the course keeps one
-
-The thesis is that a defensible system names its own failure boundary. If that
-is true, the boundary is a deliverable — and deliverables get recorded
-somewhere durable rather than mentioned once in a studio.
 
 Three things follow from keeping the record in public:
 
@@ -30,29 +64,50 @@ Three things follow from keeping the record in public:
 3. **The incentive changes.** When the failure boundary is the marked output,
    there is nothing to gain from hiding it.
 
-## What gets recorded
+## How the wall is added to
 
-For each entry: the design, the event it survived, the event that defeated it,
-and where the boundary was located — in generation, in storage duration, in
-transmission, in reserve availability, in forecast lead time, or in the
-allocation rules.
-
-The last of those matters more than it looks. [Week 11](/sessions/week-11/)
-argues that the cause of a failure is partly a choice about where the system's
-edge was drawn, so an entry that does not say where the boundary sits has not
-finished describing the failure.
-
-## How entries arrive
-
-From the studios, and from
+Entries arrive from the studios, and from
 [Design for the Worst Week](/assessments/a4-design-for-the-worst-week/), where
-stating the defeating event is the primary requirement rather than a caveat.
+stating the defeating event is the primary requirement rather than a caveat
+attached to one. Each records the hour a run became unavoidable, the decision
+that caused it, and what it cost.
+
+[Week 11](/sessions/week-11/) argues that the cause of a failure is partly a
+choice about where the system's edge was drawn, so an entry that does not say
+where the boundary sits has not finished describing the failure.
 
 The wall opens empty at the start of semester. Filling it is the work.
 
-## What this page is not
+<style>{`
+  .fw {
+    grid-column: inset-start / content-end;
+    margin-block: var(--at-spacing-lg) var(--at-spacing-xl);
+    border-block-start: 1px solid var(--at-border);
+  }
 
-It does not record marks. It does not name students who ran out of storage in
-hour 50 — that is what the studio is for, and it happens to most designs at
-least once. It records designs and their boundaries, which are technical
-objects rather than performances.
+  .fw-row {
+    display: grid;
+    grid-template-columns: minmax(5rem, 7rem) 1fr;
+    gap: 0 var(--at-spacing-md);
+    padding-block: var(--at-spacing-sm);
+    border-block-end: 1px solid var(--at-divider);
+  }
+
+  .fw dt {
+    font-family: var(--at-font-mono);
+    font-size: var(--at-font-size-xs);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--at-accent);
+    padding-block-start: 0.2em;
+  }
+
+  .fw dd {
+    margin: 0;
+    color: var(--at-text);
+  }
+
+  @media (width < 34rem) {
+    .fw-row { grid-template-columns: 1fr; }
+  }
+`}</style>
