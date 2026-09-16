@@ -1,11 +1,11 @@
 ---
 import Card from "astro-theme-university/components/Card.astro";
 import CardGrid from "astro-theme-university/components/CardGrid.astro";
-import ContentLayout from "astro-theme-university/layouts/ContentLayout.astro";
+import BaseLayout from "astro-theme-university/layouts/BaseLayout.astro";
 import { withBase } from "astro-theme-university/url";
 import ProvenanceTag from "../components/ProvenanceTag.astro";
 import TraceFigure from "../components/TraceFigure.astro";
-import { courseLevelLabel, courseMeta } from "../course-config";
+import { courseLevelLabel, courseMeta, courseName, courseSubtitle } from "../course-config";
 import { EVENT_LENGTH_HOURS, THRESHOLD_PCT, hoursBelow, meanIn, TRACE_HOURS } from "../lib/trace";
 import { sessionLabels, siteConfig } from "../site-config";
 
@@ -56,11 +56,19 @@ const LADDER = [
 ];
 ---
 
-<ContentLayout
-  title={`${courseMeta.code}: ${courseMeta.title}`}
+<!-- BaseLayout rather than ContentLayout: ContentLayout renders one `title`
+     prop as both the document title and the h1, which is what produced
+     "SLOP6246: Dunkelflaute: Designing for the Week the Weather Stops" — two
+     colons in one heading. BaseLayout sets only the document title, so the
+     masthead below can be three separate elements. -->
+<BaseLayout
+  title={`${courseName} — ${courseMeta.code}`}
   description="A renewable grid is not designed by its average. It is designed by the event it must survive — twelve weeks on one failure condition."
   {...siteConfig}
 >
+  <p class="hm-kicker">{courseMeta.code} · School of Continuous Improvement</p>
+  <h1 class="hm-title">{courseName}</h1>
+  <p class="hm-subtitle">{courseSubtitle}</p>
   <p class="hm-eyebrow">{courseMeta.session} {courseMeta.year} · Level {courseLevelLabel} · Postgraduate coursework</p>
 
   <ul class="course-tags" aria-label="Course tags">
@@ -237,11 +245,35 @@ const LADDER = [
       </Card>
     </CardGrid>
   </section>
-</ContentLayout>
+</BaseLayout>
 
 <style>
+  .hm-kicker {
+    margin-block: 0 var(--at-spacing-sm);
+    font-family: var(--at-font-mono);
+    font-size: var(--at-font-size-xs);
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    color: var(--at-accent);
+  }
+
+  .hm-title {
+    margin-block: 0 var(--at-spacing-xs);
+    font-size: clamp(32px, 5vw, 48px);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: var(--at-text);
+    text-wrap: balance;
+  }
+
+  .hm-subtitle {
+    margin-block: 0 var(--at-spacing-md);
+    font-size: clamp(17px, 2.2vw, 21px);
+    color: var(--at-text-secondary);
+    text-wrap: balance;
+  }
+
   .hm-eyebrow {
-    order: -1;
     margin-block: 0 var(--at-spacing-xs);
     font-family: var(--at-font-mono);
     font-size: var(--at-font-size-xs);

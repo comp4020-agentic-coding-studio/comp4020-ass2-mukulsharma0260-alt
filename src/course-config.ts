@@ -66,3 +66,9 @@ export const courseMeta = slopCourseMetaSchema.parse({
  *  cannot drop a digit the way string concatenation did (`level` + "00" gave
  *  "600" for SLOP6246). spec/course-contract.test.ts asserts the relationship. */
 export const courseLevelLabel = String(Number(courseMeta.code.at(4)) * 1000);
+
+/** The course title is one field because the catalogue ingests one field, but
+ *  readers need it in two parts. Split on the first colon rather than storing a
+ *  second copy, so the name and the subtitle cannot drift apart. */
+export const courseName = courseMeta.title.split(": ")[0]!;
+export const courseSubtitle = courseMeta.title.slice(courseName.length + 2);
