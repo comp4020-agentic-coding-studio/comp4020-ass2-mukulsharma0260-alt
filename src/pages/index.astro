@@ -182,7 +182,10 @@ const LADDER = [
       four unrelated submissions.
     </p>
 
-    <div class="at-table-wrap">
+    <!-- Four columns are unreadable at phone width even inside a scroll wrap,
+         so below 560px the same data is one block per stage with label/value
+         pairs. One source, two presentations, no duplicated markup. -->
+    <div class="at-table-wrap hm-lad-wide">
       <table>
         <thead>
           <tr>
@@ -209,6 +212,24 @@ const LADDER = [
         </tbody>
       </table>
     </div>
+
+    <ol class="hm-lad-stack">
+      {
+        LADDER.map((r) => (
+          <li>
+            <p class="hm-lad-head">
+              <span class="hm-lad-id">{r.id}</span>{" "}
+              <a href={withBase(`/assessments/${r.slug}/`)}>{r.title}</a>
+            </p>
+            <dl>
+              <div><dt>Takes as input</dt><dd>{r.takes}</dd></div>
+              <div><dt>Produces</dt><dd>{r.gives}</dd></div>
+              <div><dt>Weight</dt><dd>{r.weight}% of the course</dd></div>
+            </dl>
+          </li>
+        ))
+      }
+    </ol>
     <p><a href={withBase("/assessments/")}>Full assessment detail →</a></p>
   </section>
 
@@ -412,6 +433,54 @@ const LADDER = [
   .hm-num {
     font-family: var(--at-font-mono);
     text-align: end;
+  }
+
+  /* One of the two ladder presentations is always hidden; never both. */
+  .hm-lad-stack {
+    display: none;
+  }
+
+  .hm-lad-stack li {
+    padding-block: var(--at-spacing-md);
+    border-block-start: 1px solid var(--at-divider);
+  }
+
+  .hm-lad-head {
+    margin-block: 0 var(--at-spacing-sm);
+    font-weight: 600;
+  }
+
+  .hm-lad-stack dl {
+    display: grid;
+    gap: var(--at-spacing-xs);
+    margin: 0;
+    font-size: var(--at-font-size-sm);
+  }
+
+  .hm-lad-stack dt {
+    font-family: var(--at-font-mono);
+    font-size: var(--at-font-size-xs);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--at-text-muted);
+  }
+
+  .hm-lad-stack dd {
+    margin: 0;
+    color: var(--at-text);
+  }
+
+  @media (width < 35rem) {
+    .hm-lad-wide {
+      display: none;
+    }
+
+    .hm-lad-stack {
+      display: block;
+      margin-block: var(--at-spacing-md) var(--at-spacing-lg);
+      padding: 0;
+      list-style: none;
+    }
   }
 
   @media (width < 34rem) {

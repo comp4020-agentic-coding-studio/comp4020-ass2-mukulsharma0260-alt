@@ -8,7 +8,7 @@ import DefinitionDial from "../../components/DefinitionDial.astro";
 import StorageSizer from "../../components/StorageSizer.astro";
 import TeachingTeam from "../../components/TeachingTeam.astro";
 import { formatCourseDate } from "../../lib/dates";
-import { graphCollections, sessionLabels, siteConfig } from "../../site-config";
+import { graphCollections, siteConfig } from "../../site-config";
 
 export async function getStaticPaths() {
   const sessions = await getPublishedCollection("sessions");
