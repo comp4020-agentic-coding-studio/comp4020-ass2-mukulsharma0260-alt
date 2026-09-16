@@ -1,8 +1,6 @@
 ---
 title: How Big Is the Weather?
-description:
-  Week 4 — geographic diversification helps only when the grid is larger than
-  the weather pattern shutting it down.
+description: The size of a weather system set against the size of the grid underneath it.
 week: 4
 date: 2026-08-17
 property: spatial-extent

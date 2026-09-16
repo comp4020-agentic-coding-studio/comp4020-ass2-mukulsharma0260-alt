@@ -1,8 +1,6 @@
 ---
 title: The Generator You Hope Never Runs
-description:
-  Week 8 — reliability is bought with assets whose success is measured by how
-  rarely they are needed.
+description: The economics of reserve plant: paying for capacity whose value is in not being needed.
 week: 8
 date: 2026-09-14
 property: reserve-economics

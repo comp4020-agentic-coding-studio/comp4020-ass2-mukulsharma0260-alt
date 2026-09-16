@@ -1,8 +1,6 @@
 ---
 title: A Forecast Is Only Useful While You Can Still Act
-description:
-  Week 10 — forecast accuracy has no operational value past the point where
-  the system can no longer respond.
+description: Forecast skill set against the lead time each available action needs.
 week: 10
 date: 2026-09-28
 property: lead-time

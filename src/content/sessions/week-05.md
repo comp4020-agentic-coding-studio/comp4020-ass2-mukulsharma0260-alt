@@ -1,8 +1,6 @@
 ---
 title: Below Cut-In
-description:
-  Week 5 — in weak wind a fleet is not producing a little less; parts of it
-  are absent from supply altogether.
+description: Power curves, cut-in speed, and what a fleet does when the wind is merely weak.
 week: 5
 date: 2026-08-24
 property: depth

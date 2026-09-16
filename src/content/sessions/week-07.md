@@ -1,8 +1,6 @@
 ---
 title: Storage Is Two Problems Wearing One Name
-description:
-  Week 7 — power capacity and energy capacity solve different problems, and
-  confusing them is how a system gets under-built.
+description: Power and energy as separate specifications, and which one a multi-day event actually tests.
 week: 7
 date: 2026-09-07
 property: duration

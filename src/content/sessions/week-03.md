@@ -1,8 +1,6 @@
 ---
 title: The Weather Does Not Fail Independently
-description:
-  Week 3 — treating renewable generators as independent sources overstates
-  reliability, because one weather system reaches all of them.
+description: Correlated output, and why independent-generator arithmetic overstates a fleet's reliability.
 week: 3
 date: 2026-08-10
 property: correlation

@@ -1,8 +1,6 @@
 ---
 title: When Does Bad Weather Become a Drought?
-description:
-  Week 2 — you cannot design against an event until you define it, and moving
-  the definition moves what counts as failure.
+description: Building an operative definition: threshold, span, recovery allowance, scope, season.
 week: 2
 date: 2026-08-03
 property: definition

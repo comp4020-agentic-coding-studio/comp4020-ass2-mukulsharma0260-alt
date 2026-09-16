@@ -1,8 +1,6 @@
 ---
 title: The System You Are Willing to Defend
-description:
-  Week 12 — a defensible design names the event it survives and the event that
-  beats it.
+description: Studio critique of the systems you have built, and the failure boundaries you declare for them.
 week: 12
 date: 2026-10-12
 property: declared-boundary

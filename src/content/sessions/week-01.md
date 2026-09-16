@@ -1,8 +1,6 @@
 ---
 title: The Average Is Lying to You
-description:
-  Week 1 — a grid can look excellent across a year and fail completely inside
-  one week, and only one of those two views is a design input.
+description: Two descriptions of one system — an annual share and an hourly trace — and what each is fit for.
 week: 1
 date: 2026-07-27
 property: visibility

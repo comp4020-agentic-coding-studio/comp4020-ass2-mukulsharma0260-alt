@@ -1,8 +1,6 @@
 ---
 title: Solar Helps, Until It Doesn't
-description:
-  Week 6 — wind and solar complement each other on average, and reliability is
-  decided by the hours when the complement fails.
+description: Wind and solar through a winter anticyclone, tested hour by hour rather than on annual averages.
 week: 6
 date: 2026-08-31
 property: complementarity

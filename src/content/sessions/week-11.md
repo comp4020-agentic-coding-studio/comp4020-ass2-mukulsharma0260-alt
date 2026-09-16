@@ -1,8 +1,6 @@
 ---
 title: Every Failure Gets a Story Afterwards
-description:
-  Week 11 — a post-mortem reports the system boundary of whoever wrote it, so
-  the cause of a failure is partly an institutional choice.
+description: Post-mortems as documents with authors, and the system boundaries they assume.
 week: 11
 date: 2026-10-05
 property: boundary
