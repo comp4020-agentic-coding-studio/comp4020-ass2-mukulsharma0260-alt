@@ -14,6 +14,25 @@
 //
 // The masthead renders inside this section, over a left-to-right scrim, so the
 // kicker, h1 and subtitle stay legible against the sky.
+//
+// The sparkline's band and trace are server-rendered: check:render rejects an
+// SVG that builds with no children, and it was right to — an empty chart looks
+// exactly like whitespace. Only the playhead moves at runtime, so the
+// fortnight is visible before any JavaScript runs.
+import {
+  EVENT_LENGTH_HOURS,
+  EVENT_START_HOUR,
+  TRACE_HOURS,
+  trace,
+} from "../lib/trace";
+
+const sx = (k: number) => (k / (TRACE_HOURS - 1)) * 190;
+const sy = (v: number) => 25 - (v / 85) * 23;
+const sparkPath = trace.total
+  .map((v, i) => `${i ? "L" : "M"}${sx(i).toFixed(1)} ${sy(v).toFixed(1)}`)
+  .join(" ");
+const sparkEvX = sx(EVENT_START_HOUR);
+const sparkEvW = sx(EVENT_START_HOUR + EVENT_LENGTH_HOURS) - sparkEvX;
 ---
 
 <section class="hero">
@@ -26,7 +45,11 @@
 
   <div class="hero-hud">
     <p class="hero-read" role="status" aria-live="off">—</p>
-    <svg class="hero-spark" viewBox="0 0 190 26" preserveAspectRatio="none" aria-hidden="true"></svg>
+    <svg class="hero-spark" viewBox="0 0 190 26" preserveAspectRatio="none" aria-hidden="true">
+      <rect x={sparkEvX} y="0" width={sparkEvW} height="26" fill="rgba(255,255,255,.12)" />
+      <path d={sparkPath} fill="none" stroke="rgba(232,200,119,.55)" stroke-width="1" />
+      <line class="hero-playhead" x1="0" x2="0" y1="0" y2="26" stroke="#e8c877" stroke-width="1.4" />
+    </svg>
     <button type="button" class="hero-pause" aria-label="Pause the hero animation">❙❙ PAUSE</button>
   </div>
 
@@ -53,7 +76,6 @@
     const readout = section.querySelector<HTMLElement>(".hero-read")!;
     const spark = section.querySelector<SVGSVGElement>(".hero-spark")!;
     const pause = section.querySelector<HTMLButtonElement>(".hero-pause")!;
-    const SVG_NS = "http://www.w3.org/2000/svg";
 
     const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
     /** Data-hours per real second: the fortnight loops in about forty. */
@@ -181,29 +203,12 @@
       c.restore();
     }
 
+    // The band and the trace are server-rendered; only the playhead moves.
+    const playhead = spark.querySelector<SVGLineElement>(".hero-playhead")!;
     function drawSpark(cur: number) {
-      spark.textContent = "";
-      const x = (k: number) => (k / (TRACE_HOURS - 1)) * 190;
-      const y = (v: number) => 25 - (v / 85) * 23;
-      const band = document.createElementNS(SVG_NS, "rect");
-      band.setAttribute("x", String(x(EVENT_START_HOUR)));
-      band.setAttribute("y", "0");
-      band.setAttribute("width", String(x(EVENT_END) - x(EVENT_START_HOUR)));
-      band.setAttribute("height", "26");
-      band.setAttribute("fill", "rgba(255,255,255,.12)");
-      const path = document.createElementNS(SVG_NS, "path");
-      path.setAttribute("d", trace.total.map((v, i) => `${i ? "L" : "M"}${x(i).toFixed(1)} ${y(v).toFixed(1)}`).join(" "));
-      path.setAttribute("fill", "none");
-      path.setAttribute("stroke", "rgba(232,200,119,.55)");
-      path.setAttribute("stroke-width", "1");
-      const head = document.createElementNS(SVG_NS, "line");
-      head.setAttribute("x1", String(x(cur)));
-      head.setAttribute("x2", String(x(cur)));
-      head.setAttribute("y1", "0");
-      head.setAttribute("y2", "26");
-      head.setAttribute("stroke", "#e8c877");
-      head.setAttribute("stroke-width", "1.4");
-      spark.append(band, path, head);
+      const x = ((cur / (TRACE_HOURS - 1)) * 190).toFixed(1);
+      playhead.setAttribute("x1", x);
+      playhead.setAttribute("x2", x);
     }
 
     function draw(ts: number) {
