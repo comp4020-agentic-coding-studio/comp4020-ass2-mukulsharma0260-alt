@@ -30,9 +30,12 @@ decides what the rest of the semester is even allowed to see.
 
 ## In the session
 
-We classify one fortnight four ways, changing threshold, duration, geographic
-scope and which sources count. You watch periods appear and disappear from the
-qualifying set without the weather changing at all.
+We classify one fortnight several ways, changing the threshold, the minimum
+span, the recovery allowance and which sources count. You watch periods appear
+and disappear from the qualifying set without the weather changing at all.
+
+The dial below is the instrument we use. It runs the course's own classifier
+over the shared trace, so what you see is what the definition actually selects.
 
 ## Its relationship to the canonical event
 

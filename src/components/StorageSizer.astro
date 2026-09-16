@@ -1,0 +1,303 @@
+---
+// The Storage Sizer — Week 7's instrument.
+//
+// Claim: power capacity and energy capacity solve different problems.
+//
+// The model is src/lib/storage-scenario.ts; every synthetic constant lives
+// there. Two panels share one x-axis and are never combined onto a single
+// dual-axis chart (DESIGN.md §7): the deficit is a rate (% of capacity), the
+// store's contents are a quantity (%·h), and overlaying them would invite
+// exactly the confusion this week exists to correct.
+import ProvenanceTag from "./ProvenanceTag.astro";
+import "../styles/instrument.css";
+import {
+  DEMAND_PCT,
+  WINDOW_HOURS,
+  simulateStorage,
+  windowProfile,
+  type StorageSpec,
+} from "../lib/storage-scenario";
+
+const START: StorageSpec = { powerPct: 20, energyPctH: 1600 };
+
+const W = 720;
+const PAD = { l: 40, r: 10, t: 12, b: 22 };
+const H_TOP = 150;
+const H_BOT = 120;
+const plotW = W - PAD.l - PAD.r;
+
+const profile = windowProfile();
+const deficitMax = 45; // % of capacity; above the window's peak deficit
+const energyMax = 2600; // %·h; the sizer's own energy ceiling
+
+const gx = (hour: number) => PAD.l + (hour / (WINDOW_HOURS - 1)) * plotW;
+const gyTop = (pct: number) =>
+  PAD.t + (H_TOP - PAD.t - PAD.b) - (Math.min(pct, deficitMax) / deficitMax) * (H_TOP - PAD.t - PAD.b);
+const gyBot = (e: number) =>
+  PAD.t + (H_BOT - PAD.t - PAD.b) - (Math.min(e, energyMax) / energyMax) * (H_BOT - PAD.t - PAD.b);
+
+const deficitArea =
+  `M${gx(0).toFixed(1)} ${gyTop(0).toFixed(1)} ` +
+  profile.map((p, i) => `L${gx(i).toFixed(1)} ${gyTop(p.deficitPct).toFixed(1)}`).join(" ") +
+  ` L${gx(WINDOW_HOURS - 1).toFixed(1)} ${gyTop(0).toFixed(1)} Z`;
+
+const initial = simulateStorage(START);
+const geom = { W, PAD, H_TOP, H_BOT, WINDOW_HOURS, deficitMax, energyMax };
+---
+
+<section class="instr sz" aria-labelledby="sz-title" data-geom={JSON.stringify(geom)}>
+  <div class="instr-hd">
+    <h3 id="sz-title">The storage sizer</h3>
+    <p class="instr-hint">Set power and energy independently. Watch which one binds.</p>
+  </div>
+
+  <div class="instr-plot">
+    <p class="sz-panel-label">Hourly deficit and what the store covers — % of installed capacity</p>
+    <svg viewBox={`0 0 ${W} ${H_TOP}`} preserveAspectRatio="none" role="img" aria-labelledby="sz-alt-top">
+      {
+        [0, 20, 40].map((v) => (
+          <g>
+            <line x1={PAD.l} x2={W - PAD.r} y1={gyTop(v)} y2={gyTop(v)} class="sz-grid" />
+            <text x={PAD.l - 6} y={gyTop(v) + 3} class="sz-tick sz-tick--end">{v}%</text>
+          </g>
+        ))
+      }
+      <path d={deficitArea} class="sz-deficit" />
+      <path id="sz-cover" d="" class="sz-cover" />
+      <g id="sz-short"></g>
+    </svg>
+    <p id="sz-alt-top" class="visually-hidden">
+      Demand exceeds combined wind and solar output in every hour of this
+      72-hour window, peaking at a deficit of {initial.peakDeficitPct.toFixed(0)}% of
+      capacity. Covering the whole window would take {initial.requiredPctH.toFixed(0)} capacity-percent-hours
+      of stored energy.
+    </p>
+
+    <p class="sz-panel-label">Energy left in the store — capacity-percent-hours</p>
+    <svg viewBox={`0 0 ${W} ${H_BOT}`} preserveAspectRatio="none" class="is-short" role="img" aria-labelledby="sz-alt-bot">
+      {
+        [0, 1300, 2600].map((v) => (
+          <g>
+            <line x1={PAD.l} x2={W - PAD.r} y1={gyBot(v)} y2={gyBot(v)} class="sz-grid" />
+            <text x={PAD.l - 6} y={gyBot(v) + 3} class="sz-tick sz-tick--end">{v}</text>
+          </g>
+        ))
+      }
+      <path id="sz-soc" d="" class="sz-soc" />
+      <g id="sz-empty"></g>
+    </svg>
+    <p id="sz-alt-bot" class="visually-hidden">
+      Stored energy remaining, hour by hour, on the same time axis as the panel
+      above. The two are kept on separate axes because a rate and a quantity
+      are different measurements.
+    </p>
+  </div>
+
+  <div class="instr-ctrls">
+    <div class="instr-ctl">
+      <label for="sz-power">Discharge power <b id="sz-power-v">{START.powerPct}% of capacity</b></label>
+      <input type="range" id="sz-power" min="5" max="45" step="1" value={START.powerPct} />
+    </div>
+    <div class="instr-ctl">
+      <label for="sz-energy">Stored energy <b id="sz-energy-v">{START.energyPctH} %·h</b></label>
+      <input type="range" id="sz-energy" min="100" max="2600" step="50" value={START.energyPctH} />
+    </div>
+  </div>
+
+  <dl class="instr-hud">
+    <div><dt>Survived</dt><dd id="sz-surv">{initial.survivedHours} h</dd></div>
+    <div><dt>First shortfall</dt><dd id="sz-first">{initial.firstShortfallHour === null ? "none" : `h${initial.firstShortfallHour}`}</dd></div>
+    <div><dt>Unserved energy</dt><dd id="sz-uns">{initial.unservedPctH.toFixed(0)} %·h</dd></div>
+    <div><dt>Binding constraint</dt><dd id="sz-bind">{initial.powerLimited ? "power" : initial.energyLimited ? "energy" : "neither"}</dd></div>
+  </dl>
+
+  <p class="instr-verdict" id="sz-verdict" role="status">
+    At {START.powerPct}% discharge power the store cannot meet the hourly deficit at all, so
+    it fails at hour {initial.firstShortfallHour} with {initial.unservedPctH.toFixed(0)} %·h unserved —
+    and it still has energy left. This run is power-limited: adding stored energy will not move
+    the outcome.
+  </p>
+
+  <div class="instr-foot">
+    <button type="button" id="sz-reset">Reset</button>
+    <p class="instr-note">
+      Demand is a flat {DEMAND_PCT}% of capacity and the window is 72 hours around the
+      reference event — both synthetic teaching parameters declared in one module
+      <ProvenanceTag kind="synthetic" />. No megawatt figure is claimed anywhere.
+    </p>
+  </div>
+</section>
+
+<script>
+  import {
+    WINDOW_HOURS,
+    simulateStorage,
+    type StorageSpec,
+  } from "../lib/storage-scenario";
+
+  const root = document.querySelector<HTMLElement>(".sz");
+  if (root) {
+    const host = root;
+    const SVG_NS = "http://www.w3.org/2000/svg";
+    const g = JSON.parse(host.dataset.geom!) as {
+      W: number;
+      PAD: { l: number; r: number; t: number; b: number };
+      H_TOP: number;
+      H_BOT: number;
+      deficitMax: number;
+      energyMax: number;
+    };
+    const plotW = g.W - g.PAD.l - g.PAD.r;
+    const gx = (h: number) => g.PAD.l + (h / (WINDOW_HOURS - 1)) * plotW;
+    const gyTop = (p: number) =>
+      g.PAD.t + (g.H_TOP - g.PAD.t - g.PAD.b) - (Math.min(p, g.deficitMax) / g.deficitMax) * (g.H_TOP - g.PAD.t - g.PAD.b);
+    const gyBot = (e: number) =>
+      g.PAD.t + (g.H_BOT - g.PAD.t - g.PAD.b) - (Math.min(e, g.energyMax) / g.energyMax) * (g.H_BOT - g.PAD.t - g.PAD.b);
+
+    const $ = <T extends Element>(s: string) => host.querySelector<T>(s)!;
+    const power = $<HTMLInputElement>("#sz-power");
+    const energy = $<HTMLInputElement>("#sz-energy");
+
+    function render() {
+      const spec: StorageSpec = {
+        powerPct: Number(power.value),
+        energyPctH: Number(energy.value),
+      };
+      const run = simulateStorage(spec);
+
+      $<SVGPathElement>("#sz-cover").setAttribute(
+        "d",
+        `M${gx(0)} ${gyTop(0)} ` +
+          run.rows.map((r, i) => `L${gx(i)} ${gyTop(r.dischargePct)}`).join(" ") +
+          ` L${gx(WINDOW_HOURS - 1)} ${gyTop(0)} Z`,
+      );
+      $<SVGPathElement>("#sz-soc").setAttribute(
+        "d",
+        `M${gx(0)} ${gyBot(spec.energyPctH)} ` +
+          run.rows.map((r, i) => `L${gx(i)} ${gyBot(r.remainingPctH)}`).join(" "),
+      );
+
+      const shortG = $<SVGGElement>("#sz-short");
+      shortG.textContent = "";
+      if (run.firstShortfallHour !== null) {
+        const line = document.createElementNS(SVG_NS, "line");
+        line.setAttribute("x1", String(gx(run.firstShortfallHour)));
+        line.setAttribute("x2", String(gx(run.firstShortfallHour)));
+        line.setAttribute("y1", String(g.PAD.t));
+        line.setAttribute("y2", String(g.H_TOP - g.PAD.b));
+        line.setAttribute("class", "sz-mark");
+        const t = document.createElementNS(SVG_NS, "text");
+        t.setAttribute("x", String(gx(run.firstShortfallHour) + 4));
+        t.setAttribute("y", String(g.PAD.t + 11));
+        t.setAttribute("class", "sz-mark-label");
+        t.textContent = `SHORTFALL h${run.firstShortfallHour}`;
+        shortG.append(line, t);
+      }
+
+      $("#sz-power-v").textContent = `${spec.powerPct}% of capacity`;
+      $("#sz-energy-v").textContent = `${spec.energyPctH} %·h`;
+      $("#sz-surv").textContent = `${run.survivedHours} h`;
+      $("#sz-first").textContent = run.firstShortfallHour === null ? "none" : `h${run.firstShortfallHour}`;
+      $("#sz-uns").textContent = `${run.unservedPctH.toFixed(0)} %·h`;
+
+      const bind = run.firstShortfallHour === null ? "neither" : run.powerLimited ? "power" : "energy";
+      const bindEl = $("#sz-bind");
+      bindEl.textContent = bind;
+      bindEl.className = bind === "neither" ? "is-good" : "";
+
+      let verdict: string;
+      if (run.firstShortfallHour === null) {
+        verdict =
+          `The store covers all ${WINDOW_HOURS} hours. It needed ${run.requiredPctH.toFixed(0)} %·h of ` +
+          `energy and a discharge rate of at least ${run.peakDeficitPct.toFixed(0)}% of capacity — both ` +
+          `satisfied. Neither parameter is binding, which means one of them is larger than it has to be.`;
+      } else if (run.powerLimited && !run.energyLimited) {
+        verdict =
+          `Shortfall at hour ${run.firstShortfallHour}, with energy still in the store. The deficit peaks ` +
+          `at ${run.peakDeficitPct.toFixed(0)}% of capacity and the store can only deliver ${spec.powerPct}%, ` +
+          `so it is losing hours it has the energy to cover. This run is power-limited: adding stored ` +
+          `energy will not move the outcome.`;
+      } else if (run.energyLimited && !run.powerLimited) {
+        verdict =
+          `Shortfall at hour ${run.firstShortfallHour}, because the store is empty. It held ` +
+          `${spec.energyPctH} %·h against a window needing ${run.requiredPctH.toFixed(0)} %·h. This run is ` +
+          `energy-limited: raising discharge power will not extend survival — it will empty the store sooner.`;
+      } else {
+        verdict =
+          `Shortfall at hour ${run.firstShortfallHour}. Both limits bite: the store cannot match the ` +
+          `${run.peakDeficitPct.toFixed(0)}% peak deficit, and it runs out of energy as well. ` +
+          `${run.unservedPctH.toFixed(0)} %·h went unserved.`;
+      }
+      $("#sz-verdict").textContent = verdict;
+    }
+
+    for (const input of [power, energy]) input.addEventListener("input", render);
+    $("#sz-reset").addEventListener("click", () => {
+      power.value = "20";
+      energy.value = "1600";
+      render();
+    });
+    render();
+  }
+</script>
+
+<style>
+  .sz-panel-label {
+    margin-block: var(--at-spacing-sm) var(--at-spacing-xs);
+    font-family: var(--at-font-mono);
+    font-size: var(--at-font-size-xs);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--at-text-muted);
+  }
+
+  .sz-grid {
+    stroke: var(--at-divider);
+    stroke-width: 1;
+  }
+
+  .sz-tick {
+    font-family: var(--at-font-mono);
+    font-size: 10px;
+    fill: var(--at-text-muted);
+    text-anchor: middle;
+  }
+
+  .sz-tick--end {
+    text-anchor: end;
+  }
+
+  /* The deficit is the hole; what the store covers is drawn over it, so the
+     uncovered remainder is the visible gap. Hatch distinguishes them without
+     relying on hue. */
+  .sz-deficit {
+    fill: var(--at-bg-elevated);
+    stroke: var(--at-text-muted);
+    stroke-width: 1;
+  }
+
+  .sz-cover {
+    fill: var(--at-accent-soft);
+    stroke: var(--at-accent);
+    stroke-width: 1.2;
+  }
+
+  .sz-soc {
+    fill: none;
+    stroke: var(--at-accent);
+    stroke-width: 2;
+  }
+
+  .sz-mark {
+    stroke: var(--at-error);
+    stroke-width: 2;
+    stroke-dasharray: 4 3;
+  }
+
+  .sz-mark-label {
+    font-family: var(--at-font-mono);
+    font-size: 10px;
+    font-weight: 600;
+    fill: var(--at-error);
+  }
+</style>

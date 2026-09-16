@@ -5,6 +5,7 @@ import RelatedContent from "astro-course-university/components/RelatedContent.as
 import SpecList from "astro-course-university/components/SpecList.astro";
 import Callout from "astro-theme-university/components/Callout.astro";
 import ContentLayout from "astro-theme-university/layouts/ContentLayout.astro";
+import DispatchConsole from "../../components/DispatchConsole.astro";
 import MarkingModel from "../../components/MarkingModel.astro";
 import { formatCourseDate } from "../../lib/dates";
 import { graphCollections, siteConfig } from "../../site-config";
@@ -59,6 +60,9 @@ const { Content } = await render(assessment);
   </dl>
 
   <Content />
+
+  {assessment.data.stage === 3 && <DispatchConsole />}
+
   <SpecList spec={assessment.data.spec}>
     The brief poses the problem and leaves room for a response. The spec is the
     fixed part: what a marker checks. Some lines can be checked mechanically;

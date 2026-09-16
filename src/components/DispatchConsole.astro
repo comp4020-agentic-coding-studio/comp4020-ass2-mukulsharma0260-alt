@@ -1,0 +1,334 @@
+---
+// The 72-Hour Dispatch Console — Assessment 3's instrument.
+//
+// Claim: a dispatch plan can become unrecoverable before the visible shortfall.
+//
+// Model: src/lib/dispatch-scenario.ts. Every synthetic constant lives there.
+// The unrecoverable hour is computed by testing, at each hour, whether ANY
+// remaining play avoids a shortfall — treating only already-executed choices
+// as sunk. It is never a label written by hand.
+//
+// Two panels, one shared time axis, separate y-axes. The dispatch stack is a
+// rate (% of capacity); the store's contents are a quantity (%·h). Putting
+// them on one dual axis is exactly the confusion Week 7 exists to correct.
+import ProvenanceTag from "./ProvenanceTag.astro";
+import "../styles/instrument.css";
+import {
+  DEFAULT_DECISIONS,
+  DEMAND_PCT,
+  RESERVE_LEAD_HOURS,
+  RESERVE_POWER_PCT,
+  SHED_PCT,
+  STORAGE_ENERGY_PCTH,
+  STORAGE_POWER_PCT,
+  WINDOW_HOURS,
+  scenarioIsWinnable,
+  simulateDispatch,
+} from "../lib/dispatch-scenario";
+
+const W = 720;
+const PAD = { l: 40, r: 10, t: 12, b: 22 };
+const H_TOP = 170;
+const H_BOT = 120;
+const SUPPLY_MAX = 50; // % of capacity
+const geom = { W, PAD, H_TOP, H_BOT, WINDOW_HOURS, SUPPLY_MAX, STORAGE_ENERGY_PCTH };
+
+const initial = simulateDispatch(DEFAULT_DECISIONS);
+const winnable = scenarioIsWinnable();
+
+const POLICIES = [
+  { id: "hold", label: "Hold back" },
+  { id: "balanced", label: "Balanced" },
+  { id: "full", label: "Full power" },
+] as const;
+---
+
+<section class="instr dc" aria-labelledby="dc-title" data-geom={JSON.stringify(geom)}>
+  <div class="instr-hd">
+    <h3 id="dc-title">The 72-hour dispatch console</h3>
+    <p class="instr-hint">Commit the reserve, choose a storage policy, then run it.</p>
+  </div>
+
+  <div class="instr-plot">
+    <p class="dc-panel-label">Dispatch stack against demand — % of installed capacity</p>
+    <svg viewBox={`0 0 ${W} ${H_TOP}`} preserveAspectRatio="none" role="img" aria-labelledby="dc-alt-top">
+      <g id="dc-stack"></g>
+      <g id="dc-marks"></g>
+    </svg>
+    <p id="dc-alt-top" class="visually-hidden" data-live-alt>
+      Generation, storage, reserve and unserved demand across a 72-hour window,
+      hour by hour. On the opening decisions the run loses supply from hour
+      {initial.shortfallHour} onwards.
+    </p>
+
+    <p class="dc-panel-label">Energy left in storage — capacity-percent-hours</p>
+    <svg viewBox={`0 0 ${W} ${H_BOT}`} preserveAspectRatio="none" class="is-short" role="img" aria-labelledby="dc-alt-bot">
+      <g id="dc-soc"></g>
+    </svg>
+    <p id="dc-alt-bot" class="visually-hidden">
+      Stored energy remaining on the same time axis, plotted on its own scale
+      because stored energy and hourly output are different measurements.
+    </p>
+  </div>
+
+  <div class="instr-ctrls">
+    <div class="instr-ctl">
+      <label for="dc-res">Commit reserve at <b id="dc-res-v">hour {DEFAULT_DECISIONS.reserveStartHour}</b></label>
+      <input type="range" id="dc-res" min="0" max="60" step="1" value={DEFAULT_DECISIONS.reserveStartHour} />
+    </div>
+    <div class="instr-ctl">
+      <label for="dc-shed">Demand reduction from <b id="dc-shed-v">never</b></label>
+      <input type="range" id="dc-shed" min="-1" max="60" step="1" value="-1" />
+    </div>
+    <fieldset class="instr-ctl instr-ctl--seg">
+      <legend>Storage policy</legend>
+      <div class="instr-seg" id="dc-pol">
+        {
+          POLICIES.map((p) => (
+            <button type="button" data-pol={p.id} aria-pressed={p.id === DEFAULT_DECISIONS.storagePolicy}>
+              {p.label}
+            </button>
+          ))
+        }
+      </div>
+    </fieldset>
+  </div>
+
+  <dl class="instr-hud">
+    <div><dt>Outcome</dt><dd id="dc-out">{initial.survived ? "survived" : "lost"}</dd></div>
+    <div><dt>Shortfall from</dt><dd id="dc-short">{initial.shortfallHour === null ? "none" : `h${initial.shortfallHour}`}</dd></div>
+    <div><dt>Unrecoverable at</dt><dd id="dc-unrec">{initial.unrecoverableHour === null ? "—" : `h${initial.unrecoverableHour}`}</dd></div>
+    <div><dt>Unserved energy</dt><dd id="dc-uns">{initial.totalUnservedPctH.toFixed(0)} %·h</dd></div>
+    <div><dt>Hours short</dt><dd id="dc-nh">{initial.shortfallHours}</dd></div>
+  </dl>
+
+  <p class="instr-verdict" id="dc-verdict" role="status"></p>
+
+  <div class="instr-foot">
+    <button type="button" id="dc-reset">Reset decisions</button>
+    <p class="instr-note">
+      Synthetic scenario <ProvenanceTag kind="synthetic" />: flat demand at {DEMAND_PCT}% of
+      capacity, storage rated {STORAGE_POWER_PCT}% / {STORAGE_ENERGY_PCTH} %·h, reserve
+      {RESERVE_POWER_PCT}% with a {RESERVE_LEAD_HOURS}-hour lead time, {SHED_PCT}% demand
+      reduction available. Generation is the shared teaching trace. No megawatt figure is
+      claimed. {winnable ? "This scenario is survivable — but not on the opening decisions." : ""}
+    </p>
+  </div>
+</section>
+
+<script>
+  import {
+    RESERVE_LEAD_HOURS,
+    STORAGE_ENERGY_PCTH,
+    WINDOW_HOURS,
+    simulateDispatch,
+    type Decisions,
+    type StoragePolicy,
+  } from "../lib/dispatch-scenario";
+
+  const root = document.querySelector<HTMLElement>(".dc");
+  if (root) {
+    const host = root;
+    const NS = "http://www.w3.org/2000/svg";
+    const g = JSON.parse(host.dataset.geom!) as {
+      W: number;
+      PAD: { l: number; r: number; t: number; b: number };
+      H_TOP: number;
+      H_BOT: number;
+      SUPPLY_MAX: number;
+    };
+    const plotW = g.W - g.PAD.l - g.PAD.r;
+    const topH = g.H_TOP - g.PAD.t - g.PAD.b;
+    const botH = g.H_BOT - g.PAD.t - g.PAD.b;
+    const gx = (h: number) => g.PAD.l + (h / (WINDOW_HOURS - 1)) * plotW;
+    const barW = plotW / WINDOW_HOURS;
+    const hTop = (v: number) => (Math.min(v, g.SUPPLY_MAX) / g.SUPPLY_MAX) * topH;
+    const gyBot = (e: number) => g.PAD.t + botH - (Math.min(e, STORAGE_ENERGY_PCTH) / STORAGE_ENERGY_PCTH) * botH;
+
+    const $ = <T extends Element>(s: string) => host.querySelector<T>(s)!;
+    const res = $<HTMLInputElement>("#dc-res");
+    const shed = $<HTMLInputElement>("#dc-shed");
+    let policy: StoragePolicy = "balanced";
+
+    const seg = (x: number, yTop: number, h: number, cls: string) => {
+      const r = document.createElementNS(NS, "rect");
+      r.setAttribute("x", String(x));
+      r.setAttribute("y", String(yTop));
+      r.setAttribute("width", String(Math.max(0.6, barW - 0.3)));
+      r.setAttribute("height", String(Math.max(0, h)));
+      r.setAttribute("class", cls);
+      return r;
+    };
+
+    function render() {
+      const shedVal = Number(shed.value);
+      const decisions: Decisions = {
+        reserveStartHour: Number(res.value),
+        shedFromHour: shedVal < 0 ? null : shedVal,
+        storagePolicy: policy,
+      };
+      const run = simulateDispatch(decisions);
+
+      // Stacked bars: supply, then storage, then reserve, then the hole.
+      const stack = $<SVGGElement>("#dc-stack");
+      stack.textContent = "";
+      for (const r of run.rows) {
+        const x = gx(r.hour);
+        let base = g.PAD.t + topH;
+        const push = (v: number, cls: string) => {
+          const h = hTop(v);
+          base -= h;
+          if (h > 0) stack.appendChild(seg(x, base, h, cls));
+        };
+        push(r.supplyPct, "dc-supply");
+        push(r.storagePct, "dc-storage");
+        push(r.reservePct, "dc-reserve");
+        push(r.shortfallPct, "dc-short");
+      }
+      // Demand line sits on top of the stack, never on a second axis.
+      const dl = document.createElementNS(NS, "line");
+      const dy = g.PAD.t + topH - hTop(run.rows[0]!.demandPct + run.rows[0]!.shedPct);
+      dl.setAttribute("x1", String(g.PAD.l));
+      dl.setAttribute("x2", String(g.W - g.PAD.r));
+      dl.setAttribute("y1", String(dy));
+      dl.setAttribute("y2", String(dy));
+      dl.setAttribute("class", "dc-demand");
+      stack.appendChild(dl);
+
+      const marks = $<SVGGElement>("#dc-marks");
+      marks.textContent = "";
+      const mark = (hour: number, label: string, cls: string) => {
+        const l = document.createElementNS(NS, "line");
+        l.setAttribute("x1", String(gx(hour)));
+        l.setAttribute("x2", String(gx(hour)));
+        l.setAttribute("y1", String(g.PAD.t));
+        l.setAttribute("y2", String(g.PAD.t + topH));
+        l.setAttribute("class", cls);
+        const t = document.createElementNS(NS, "text");
+        t.setAttribute("x", String(gx(hour) + 3));
+        t.setAttribute("y", String(g.PAD.t + (cls === "dc-mark-unrec" ? 10 : 22)));
+        t.setAttribute("class", "dc-mark-label");
+        t.textContent = label;
+        marks.append(l, t);
+      };
+      if (run.unrecoverableHour !== null) mark(run.unrecoverableHour, `UNRECOVERABLE h${run.unrecoverableHour}`, "dc-mark-unrec");
+      if (run.shortfallHour !== null) mark(run.shortfallHour, `SHORTFALL h${run.shortfallHour}`, "dc-mark-short");
+
+      const socG = $<SVGGElement>("#dc-soc");
+      socG.textContent = "";
+      const p = document.createElementNS(NS, "path");
+      p.setAttribute(
+        "d",
+        `M${gx(0)} ${gyBot(STORAGE_ENERGY_PCTH)} ` +
+          run.rows.map((r) => `L${gx(r.hour)} ${gyBot(r.socPctH)}`).join(" "),
+      );
+      p.setAttribute("class", "dc-soc-line");
+      socG.appendChild(p);
+
+      $("#dc-res-v").textContent = `hour ${decisions.reserveStartHour}`;
+      $("#dc-shed-v").textContent = decisions.shedFromHour === null ? "never" : `hour ${decisions.shedFromHour}`;
+      $("#dc-out").textContent = run.survived ? "survived" : "lost";
+      $("#dc-out").className = run.survived ? "is-good" : "is-bad";
+      $("#dc-short").textContent = run.shortfallHour === null ? "none" : `h${run.shortfallHour}`;
+      $("#dc-unrec").textContent = run.unrecoverableHour === null ? "—" : `h${run.unrecoverableHour}`;
+      $("#dc-uns").textContent = `${run.totalUnservedPctH.toFixed(0)} %·h`;
+      $("#dc-nh").textContent = String(run.shortfallHours);
+
+      const online = decisions.reserveStartHour + RESERVE_LEAD_HOURS;
+      let verdict: string;
+      if (run.survived) {
+        verdict =
+          `Survived all ${WINDOW_HOURS} hours with nothing unserved. The reserve was committed at hour ` +
+          `${decisions.reserveStartHour} and carrying load from hour ${online}, which is early enough that ` +
+          `storage only had to bridge the gap rather than substitute for firm capacity.`;
+      } else if (run.unrecoverableHour === null) {
+        verdict =
+          `Lost ${run.totalUnservedPctH.toFixed(0)} %·h across ${run.shortfallHours} hour(s), first at hour ` +
+          `${run.shortfallHour} — but no hour was ever unrecoverable. Best play from every hour would still ` +
+          `have survived, so these were hours you had the resources to cover and throttled away. The policy ` +
+          `lost this run, not the scenario.`;
+      } else {
+        verdict =
+          `Shortfall began at hour ${run.shortfallHour}, but the run became unrecoverable at hour ` +
+          `${run.unrecoverableHour} — ${run.shortfallHour! - run.unrecoverableHour} hours earlier. From that ` +
+          `point no remaining decision avoided a shortfall: the reserve was committed at hour ` +
+          `${decisions.reserveStartHour} and could not carry load until hour ${online}, and storage could not ` +
+          `bridge to it. ${run.totalUnservedPctH.toFixed(0)} %·h went unserved. Committing the reserve earlier ` +
+          `is the counterfactual worth testing.`;
+      }
+      $("#dc-verdict").textContent = verdict;
+      $("[data-live-alt]").textContent = run.survived
+        ? `Generation, storage and reserve meet demand in all ${WINDOW_HOURS} hours; no demand is unserved.`
+        : `Generation, storage and reserve across ${WINDOW_HOURS} hours. Demand goes unserved from hour ${run.shortfallHour}, and the run was already unrecoverable at hour ${run.unrecoverableHour ?? "no point"}.`;
+    }
+
+    for (const i of [res, shed]) i.addEventListener("input", render);
+    $("#dc-pol").addEventListener("click", (e) => {
+      const b = (e.target as HTMLElement).closest<HTMLButtonElement>("button[data-pol]");
+      if (!b) return;
+      policy = b.dataset.pol as StoragePolicy;
+      for (const x of host.querySelectorAll<HTMLButtonElement>("#dc-pol button")) {
+        x.setAttribute("aria-pressed", String(x === b));
+      }
+      render();
+    });
+    $("#dc-reset").addEventListener("click", () => {
+      res.value = "24";
+      shed.value = "-1";
+      policy = "balanced";
+      for (const x of host.querySelectorAll<HTMLButtonElement>("#dc-pol button")) {
+        x.setAttribute("aria-pressed", String(x.dataset.pol === "balanced"));
+      }
+      render();
+    });
+    render();
+  }
+</script>
+
+<style>
+  .dc-panel-label {
+    margin-block: var(--at-spacing-sm) var(--at-spacing-xs);
+    font-family: var(--at-font-mono);
+    font-size: var(--at-font-size-xs);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--at-text-muted);
+  }
+
+  /* Stack layers differ by fill AND by outline, so the order is readable
+     without depending on hue. */
+  .dc-supply { fill: var(--at-accent-soft); }
+  .dc-storage { fill: var(--at-accent); opacity: 0.55; }
+  .dc-reserve { fill: var(--at-tertiary); opacity: 0.6; }
+  .dc-short { fill: var(--at-error); }
+
+  .dc-demand {
+    stroke: var(--at-text);
+    stroke-width: 1.4;
+    stroke-dasharray: 5 4;
+  }
+
+  .dc-soc-line {
+    fill: none;
+    stroke: var(--at-accent);
+    stroke-width: 2;
+  }
+
+  .dc-mark-unrec {
+    stroke: var(--at-text);
+    stroke-width: 2;
+    stroke-dasharray: 3 3;
+  }
+
+  .dc-mark-short {
+    stroke: var(--at-error);
+    stroke-width: 2;
+  }
+
+  .dc-mark-label {
+    font-family: var(--at-font-mono);
+    font-size: 9.5px;
+    font-weight: 600;
+    fill: var(--at-text);
+  }
+</style>

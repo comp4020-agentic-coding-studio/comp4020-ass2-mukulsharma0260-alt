@@ -4,6 +4,8 @@ import { getPublishedCollection } from "astro-course-university/content";
 import RelatedContent from "astro-course-university/components/RelatedContent.astro";
 import SpecList from "astro-course-university/components/SpecList.astro";
 import ContentLayout from "astro-theme-university/layouts/ContentLayout.astro";
+import DefinitionDial from "../../components/DefinitionDial.astro";
+import StorageSizer from "../../components/StorageSizer.astro";
 import TeachingTeam from "../../components/TeachingTeam.astro";
 import { formatCourseDate } from "../../lib/dates";
 import { graphCollections, sessionLabels, siteConfig } from "../../site-config";
@@ -24,6 +26,11 @@ const STANCE_LABEL: Record<string, string> = {
   challenges: "Challenges it",
 };
 const stance = String(session.data.stance);
+
+// Instruments are attached by the week's property rather than by slug: the
+// property vocabulary is locked in the schema, so this cannot drift onto the
+// wrong week. They render after the argument and before "what to bring".
+const property = String(session.data.property);
 ---
 
 <ContentLayout
@@ -58,6 +65,10 @@ const stance = String(session.data.stance);
   </dl>
 
   <Content />
+
+  {property === "definition" && <DefinitionDial />}
+  {property === "duration" && <StorageSizer />}
+
   <SpecList spec={session.data.spec}>
     What to bring. Written so you can tell whether you have met it without
     asking.

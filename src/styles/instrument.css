@@ -1,0 +1,259 @@
+/* Shared chrome for the course's three instruments: the Definition Dial, the
+ * Storage Sizer and the Dispatch Console.
+ *
+ * They are one family on purpose — a reader who has learned to operate one
+ * should recognise the next. Every value is a theme token, so the instruments
+ * inherit the Slop palette and both colour schemes (DESIGN.md §1, §4).
+ *
+ * Register is an operating panel: thin rules, mono labels, measured spacing,
+ * no rounded card stack. Only the verdict carries any emphasis, because the
+ * verdict is the point. */
+
+.instr {
+  grid-column: inset-start / content-end;
+  margin-block: var(--at-spacing-xl);
+  border: 1px solid var(--at-border);
+  background: var(--at-bg-alt);
+}
+
+.instr-hd {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--at-spacing-xs) var(--at-spacing-md);
+  align-items: baseline;
+  justify-content: space-between;
+  padding: var(--at-spacing-sm) var(--at-spacing-md);
+  border-block-end: 1px solid var(--at-border);
+}
+
+.instr-hd h3 {
+  margin: 0;
+  font-family: var(--at-font-mono);
+  font-size: var(--at-font-size-sm);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--at-text);
+}
+
+.instr-hint {
+  margin: 0;
+  font-family: var(--at-font-mono);
+  font-size: var(--at-font-size-xs);
+  color: var(--at-text-muted);
+}
+
+/* ── controls ─────────────────────────────────────────────────────────── */
+
+.instr-ctrls {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+  gap: var(--at-spacing-md);
+  padding: var(--at-spacing-md);
+  border-block-end: 1px solid var(--at-border);
+}
+
+.instr-ctl {
+  display: grid;
+  gap: var(--at-spacing-xs);
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.instr-ctl label,
+.instr-ctl legend {
+  display: block;
+  padding: 0;
+  font-family: var(--at-font-mono);
+  font-size: var(--at-font-size-xs);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--at-text-muted);
+}
+
+.instr-ctl label b {
+  color: var(--at-text);
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.instr-ctl input[type="range"] {
+  width: 100%;
+  min-width: 0;
+  accent-color: var(--at-accent);
+}
+
+/* Segmented button group — native buttons, aria-pressed carries the state. */
+.instr-seg {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1px;
+  background: var(--at-border);
+  border: 1px solid var(--at-border);
+}
+
+.instr-seg button {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 0.3rem 0.5rem;
+  border: 0;
+  background: var(--at-bg);
+  color: var(--at-text-secondary);
+  font-family: var(--at-font-mono);
+  font-size: var(--at-font-size-xs);
+  cursor: pointer;
+}
+
+.instr-seg button[aria-pressed="true"] {
+  background: var(--at-accent-soft);
+  color: var(--at-text);
+  font-weight: 600;
+  box-shadow: inset 0 -2px 0 var(--at-accent);
+}
+
+/* ── readouts ─────────────────────────────────────────────────────────── */
+
+.instr-hud {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
+  gap: var(--at-spacing-md);
+  margin: 0;
+  padding: var(--at-spacing-md);
+  border-block-end: 1px solid var(--at-border);
+}
+
+.instr-hud > div {
+  min-width: 0;
+}
+
+.instr-hud dt {
+  font-family: var(--at-font-mono);
+  font-size: var(--at-font-size-xs);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--at-text-muted);
+}
+
+.instr-hud dd {
+  margin: 0;
+  font-family: var(--at-font-mono);
+  font-size: 1.15rem;
+  color: var(--at-text);
+}
+
+/* State is never carried by colour alone: these classes only ever accompany a
+ * readout whose text already states the value. */
+.instr-hud dd.is-bad {
+  color: var(--at-error);
+}
+
+.instr-hud dd.is-good {
+  color: var(--at-success);
+}
+
+/* ── verdict ──────────────────────────────────────────────────────────── */
+
+.instr-verdict {
+  margin: 0;
+  padding: var(--at-spacing-md);
+  border-inline-start: 3px solid var(--at-accent);
+  background: var(--at-bg);
+  font-size: var(--at-font-size-sm);
+  line-height: var(--at-line-height);
+  color: var(--at-text);
+}
+
+.instr-foot {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--at-spacing-sm) var(--at-spacing-md);
+  align-items: center;
+  padding: var(--at-spacing-md);
+  border-block-start: 1px solid var(--at-border);
+}
+
+.instr-foot button {
+  padding: 0.35rem 0.75rem;
+  border: 1px solid var(--at-accent);
+  background: var(--at-bg);
+  color: var(--at-text);
+  font-family: var(--at-font-mono);
+  font-size: var(--at-font-size-xs);
+  cursor: pointer;
+}
+
+.instr-foot button:hover {
+  background: var(--at-accent-soft);
+}
+
+.instr-note {
+  flex: 1 1 14rem;
+  min-width: 0;
+  margin: 0;
+  font-size: var(--at-font-size-xs);
+  color: var(--at-text-muted);
+}
+
+/* ── plots ────────────────────────────────────────────────────────────── */
+
+.instr-plot {
+  padding: var(--at-spacing-md);
+}
+
+.instr svg {
+  display: block;
+  width: 100%;
+  height: 230px;
+  background: var(--at-bg);
+  border: 1px solid var(--at-divider);
+}
+
+.instr svg.is-short {
+  height: 150px;
+}
+
+/* ── focus: always visible, never removed ─────────────────────────────── */
+
+.instr :is(button, input, [tabindex]):focus-visible {
+  outline: 2px solid var(--at-accent);
+  outline-offset: 2px;
+}
+
+/* ── motion ───────────────────────────────────────────────────────────── */
+
+/* The instruments redraw on input rather than animating, so there is no
+ * transition to suppress. This guard covers the one place motion could creep
+ * in — a future transition on a plot element — and keeps the contract
+ * explicit rather than implied. */
+@media (prefers-reduced-motion: reduce) {
+  .instr * {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+@media (width < 34rem) {
+  .instr {
+    margin-inline: 0;
+  }
+
+  .instr svg {
+    height: 180px;
+  }
+
+  .instr svg.is-short {
+    height: 130px;
+  }
+
+  .instr-hud {
+    grid-template-columns: repeat(auto-fit, minmax(6.5rem, 1fr));
+    gap: var(--at-spacing-sm);
+  }
+
+  .instr-hud dd {
+    font-size: 1rem;
+  }
+}

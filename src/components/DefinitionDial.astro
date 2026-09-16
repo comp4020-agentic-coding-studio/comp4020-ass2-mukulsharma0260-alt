@@ -1,0 +1,340 @@
+---
+// The Definition Dial — Week 2's instrument.
+//
+// Claim: the definition chooses the answer.
+//
+// The classifier lives in src/lib/event-definition.ts and the data in
+// src/lib/trace.ts. The client script imports both, so the browser rebuilds
+// the identical trace from the same seed rather than receiving a serialised
+// copy — there is exactly one dataset and one classification rule in the repo.
+//
+// Server-rendered with the canonical definition, so the figure and every
+// readout are correct before any JavaScript runs. The script then re-renders
+// on input. Nothing here writes to /the-event/: this is a sandbox for
+// interrogating that definition, not for redefining it.
+import ProvenanceTag from "./ProvenanceTag.astro";
+import "../styles/instrument.css";
+import { CANONICAL_DEFINITION, classify, seriesFor } from "../lib/event-definition";
+import { TRACE_HOURS } from "../lib/trace";
+
+const W = 720;
+const H = 230;
+const PAD = { l: 36, r: 10, t: 14, b: 26 };
+const SCALE_MAX = 70; // % of capacity — above the trace's peak in every mix
+const plotW = W - PAD.l - PAD.r;
+const plotH = H - PAD.t - PAD.b;
+
+const gx = (hour: number) => PAD.l + (hour / (TRACE_HOURS - 1)) * plotW;
+const gy = (pct: number) => PAD.t + plotH - (Math.min(pct, SCALE_MAX) / SCALE_MAX) * plotH;
+
+const path = (series: readonly number[]) =>
+  series.map((v, i) => `${i ? "L" : "M"}${gx(i).toFixed(1)} ${gy(v).toFixed(1)}`).join(" ");
+
+const MIXES = [
+  { id: "combined", label: "Wind + solar" },
+  { id: "wind", label: "Wind only" },
+  { id: "solar", label: "Solar only" },
+] as const;
+
+const initial = classify(CANONICAL_DEFINITION);
+const canonical = CANONICAL_DEFINITION;
+---
+
+<section class="instr dial" aria-labelledby="dial-title">
+  <div class="instr-hd">
+    <h3 id="dial-title">The definition dial</h3>
+    <p class="instr-hint">Move a control and watch which periods qualify.</p>
+  </div>
+
+  <div class="instr-plot">
+    <svg
+      id="dial-chart"
+      viewBox={`0 0 ${W} ${H}`}
+      preserveAspectRatio="none"
+      role="img"
+      aria-labelledby="dial-alt"
+    >
+      <!-- Bands are injected before the traces so the lines stay legible. -->
+      <g id="dial-bands"></g>
+      {
+        [0, 20, 40, 60].map((v) => (
+          <g>
+            <line x1={PAD.l} x2={W - PAD.r} y1={gy(v)} y2={gy(v)} class="dial-grid" />
+            <text x={PAD.l - 6} y={gy(v) + 3} class="dial-tick dial-tick--end">{v}%</text>
+          </g>
+        ))
+      }
+      {
+        MIXES.map((m) => (
+          <path
+            d={path(seriesFor(m.id))}
+            class:list={["dial-series", { "is-hidden": m.id !== canonical.sourceMix }]}
+            data-mix={m.id}
+          />
+        ))
+      }
+      <line id="dial-thr" x1={PAD.l} x2={W - PAD.r} y1={gy(canonical.thresholdPct)} y2={gy(canonical.thresholdPct)} class="dial-thr" />
+      <g id="dial-worst"></g>
+      {
+        [1, 4, 7, 10, 14].map((d) => (
+          <text x={gx((d - 1) * 24)} y={H - 7} class="dial-tick">{`d${d}`}</text>
+        ))
+      }
+    </svg>
+    <p id="dial-alt" class="visually-hidden">
+      Combined wind and solar output across fourteen synthetic days. Under the
+      course definition one period qualifies as an event: a {initial.worst?.span}-hour
+      trough beginning on day 8, with output falling to {initial.worst?.minPct.toFixed(1)}%
+      of capacity. Six shorter low periods are rejected by the duration rule.
+    </p>
+  </div>
+
+  <div class="instr-ctrls">
+    <div class="instr-ctl">
+      <label for="dial-thr-in">Threshold <b id="dial-thr-v">{canonical.thresholdPct}% of capacity</b></label>
+      <input type="range" id="dial-thr-in" min="4" max="30" step="0.5" value={canonical.thresholdPct} />
+    </div>
+    <div class="instr-ctl">
+      <label for="dial-dur-in">Minimum span <b id="dial-dur-v">{canonical.minSpanHours} h</b></label>
+      <input type="range" id="dial-dur-in" min="6" max="96" step="1" value={canonical.minSpanHours} />
+    </div>
+    <div class="instr-ctl">
+      <label for="dial-rec-in">Recovery allowance <b id="dial-rec-v">{canonical.recoveryAllowanceHours} h</b></label>
+      <input type="range" id="dial-rec-in" min="0" max="24" step="1" value={canonical.recoveryAllowanceHours} />
+    </div>
+    <fieldset class="instr-ctl instr-ctl--seg">
+      <legend>Sources counted</legend>
+      <div class="instr-seg" id="dial-mix">
+        {
+          MIXES.map((m) => (
+            <button type="button" data-mix={m.id} aria-pressed={m.id === canonical.sourceMix}>
+              {m.label}
+            </button>
+          ))
+        }
+      </div>
+    </fieldset>
+  </div>
+
+  <dl class="instr-hud">
+    <div><dt>Events found</dt><dd id="dial-n">{initial.events.length}</dd></div>
+    <div><dt>Longest span</dt><dd id="dial-long">{initial.worst ? `${initial.worst.span} h` : "—"}</dd></div>
+    <div><dt>Worst starts</dt><dd id="dial-start">{initial.worst ? `day ${Math.floor(initial.worst.start / 24) + 1}` : "—"}</dd></div>
+    <div><dt>Lowest output</dt><dd id="dial-min">{initial.worst ? `${initial.worst.minPct.toFixed(1)}%` : "—"}</dd></div>
+    <div><dt>Rejected as too short</dt><dd id="dial-near">{initial.nearMisses.length}</dd></div>
+  </dl>
+
+  <p class="instr-verdict" id="dial-verdict" role="status">
+    At the course definition, one period qualifies — {initial.worst?.span} hours beginning
+    on day 8. Six low periods are rejected for being too short, so the duration rule is
+    doing most of the discarding.
+  </p>
+
+  <div class="instr-foot">
+    <button type="button" id="dial-reset">Reset to course definition</button>
+    <p class="instr-note">
+      A sandbox for the definition, not a change to it. The course's own boundary
+      stays as published. Output series <ProvenanceTag kind="synthetic" />, boundaries
+      you set here are yours to defend.
+    </p>
+  </div>
+</section>
+
+<script>
+  import { CANONICAL_DEFINITION, classify, type EventDefinition, type SourceMix } from "../lib/event-definition";
+  import { TRACE_HOURS } from "../lib/trace";
+
+  const root = document.querySelector<HTMLElement>(".dial");
+  if (root) {
+    const host = root;
+    const SVG_NS = "http://www.w3.org/2000/svg";
+    const W = 720;
+    const H = 230;
+    const PAD = { l: 36, r: 10, t: 14, b: 26 };
+    const SCALE_MAX = 70;
+    const plotW = W - PAD.l - PAD.r;
+    const plotH = H - PAD.t - PAD.b;
+    const gx = (hour: number) => PAD.l + (hour / (TRACE_HOURS - 1)) * plotW;
+    const gy = (pct: number) => PAD.t + plotH - (Math.min(pct, SCALE_MAX) / SCALE_MAX) * plotH;
+
+    const $ = <T extends Element>(sel: string) => host.querySelector<T>(sel);
+    const thrIn = $<HTMLInputElement>("#dial-thr-in")!;
+    const durIn = $<HTMLInputElement>("#dial-dur-in")!;
+    const recIn = $<HTMLInputElement>("#dial-rec-in")!;
+    const bands = $<SVGGElement>("#dial-bands")!;
+    const worstG = $<SVGGElement>("#dial-worst")!;
+    const thrLine = $<SVGLineElement>("#dial-thr")!;
+
+    let mix: SourceMix = CANONICAL_DEFINITION.sourceMix;
+
+    const rect = (x: number, w: number, cls: string) => {
+      const r = document.createElementNS(SVG_NS, "rect");
+      r.setAttribute("x", String(x));
+      r.setAttribute("y", String(PAD.t));
+      r.setAttribute("width", String(Math.max(1.5, w)));
+      r.setAttribute("height", String(plotH));
+      r.setAttribute("class", cls);
+      return r;
+    };
+
+    function render() {
+      const def: EventDefinition = {
+        thresholdPct: Number(thrIn.value),
+        minSpanHours: Number(durIn.value),
+        recoveryAllowanceHours: Number(recIn.value),
+        sourceMix: mix,
+      };
+      const c = classify(def);
+
+      bands.textContent = "";
+      for (const p of c.nearMisses) {
+        bands.appendChild(rect(gx(p.start), gx(p.start + p.span) - gx(p.start), "dial-band dial-band--near"));
+      }
+      for (const p of c.events) {
+        bands.appendChild(rect(gx(p.start), gx(p.start + p.span) - gx(p.start), "dial-band dial-band--event"));
+      }
+
+      thrLine.setAttribute("y1", String(gy(def.thresholdPct)));
+      thrLine.setAttribute("y2", String(gy(def.thresholdPct)));
+
+      worstG.textContent = "";
+      if (c.worst) {
+        const mx = gx(c.worst.start + c.worst.span / 2);
+        const line = document.createElementNS(SVG_NS, "line");
+        line.setAttribute("x1", String(mx));
+        line.setAttribute("x2", String(mx));
+        line.setAttribute("y1", String(PAD.t));
+        line.setAttribute("y2", String(PAD.t + 12));
+        line.setAttribute("class", "dial-worst-mark");
+        const label = document.createElementNS(SVG_NS, "text");
+        label.setAttribute("x", String(mx));
+        label.setAttribute("y", String(PAD.t + 24));
+        label.setAttribute("class", "dial-worst-label");
+        label.textContent = "WORST";
+        worstG.append(line, label);
+      }
+
+      for (const path of host.querySelectorAll<SVGPathElement>(".dial-series")) {
+        path.classList.toggle("is-hidden", path.dataset.mix !== mix);
+      }
+
+      $("#dial-thr-v")!.textContent = `${def.thresholdPct}% of capacity`;
+      $("#dial-dur-v")!.textContent = `${def.minSpanHours} h`;
+      $("#dial-rec-v")!.textContent = `${def.recoveryAllowanceHours} h`;
+      $("#dial-n")!.textContent = String(c.events.length);
+      $("#dial-long")!.textContent = c.worst ? `${c.worst.span} h` : "—";
+      $("#dial-start")!.textContent = c.worst ? `day ${Math.floor(c.worst.start / 24) + 1}` : "—";
+      $("#dial-min")!.textContent = c.worst ? `${c.worst.minPct.toFixed(1)}%` : "—";
+      $("#dial-near")!.textContent = String(c.nearMisses.length);
+
+      const srcWord = mix === "combined" ? "wind and solar together" : mix === "wind" ? "wind alone" : "solar alone";
+      let verdict: string;
+      if (c.events.length === 0) {
+        verdict =
+          `Nothing qualifies. Counting ${srcWord}, no period stays below ${def.thresholdPct}% ` +
+          `for ${def.minSpanHours} hours — and ${c.nearMisses.length} low periods were rejected for being ` +
+          `too short. A definition that admits no events has not made the system safe; it has stopped ` +
+          `describing anything you could design against.`;
+      } else if (c.worst) {
+        const alt = `${c.nearMisses.length} low period${c.nearMisses.length === 1 ? "" : "s"} rejected as too short`;
+        verdict =
+          `${c.events.length} period${c.events.length === 1 ? "" : "s"} qualify, the worst running ` +
+          `${c.worst.span} hours from day ${Math.floor(c.worst.start / 24) + 1} and bottoming out at ` +
+          `${c.worst.minPct.toFixed(1)}% of capacity. Counting ${srcWord}, that is ${c.totalEventHours} ` +
+          `hours of the fortnight inside an event, with ${alt}. Your system would have to survive this one.`;
+      } else {
+        verdict = "—";
+      }
+      $("#dial-verdict")!.textContent = verdict;
+    }
+
+    for (const input of [thrIn, durIn, recIn]) input.addEventListener("input", render);
+
+    $("#dial-mix")!.addEventListener("click", (event) => {
+      const button = (event.target as HTMLElement).closest<HTMLButtonElement>("button[data-mix]");
+      if (!button) return;
+      mix = button.dataset.mix as SourceMix;
+      for (const b of host.querySelectorAll<HTMLButtonElement>("#dial-mix button")) {
+        b.setAttribute("aria-pressed", String(b === button));
+      }
+      render();
+    });
+
+    $("#dial-reset")!.addEventListener("click", () => {
+      thrIn.value = String(CANONICAL_DEFINITION.thresholdPct);
+      durIn.value = String(CANONICAL_DEFINITION.minSpanHours);
+      recIn.value = String(CANONICAL_DEFINITION.recoveryAllowanceHours);
+      mix = CANONICAL_DEFINITION.sourceMix;
+      for (const b of host.querySelectorAll<HTMLButtonElement>("#dial-mix button")) {
+        b.setAttribute("aria-pressed", String(b.dataset.mix === mix));
+      }
+      render();
+    });
+
+    render();
+  }
+</script>
+
+<style>
+  /* Dial-specific plot marks. Family chrome is in src/styles/instrument.css. */
+  .dial-grid {
+    stroke: var(--at-divider);
+    stroke-width: 1;
+  }
+
+  .dial-tick {
+    font-family: var(--at-font-mono);
+    font-size: 10px;
+    fill: var(--at-text-muted);
+    text-anchor: middle;
+  }
+
+  .dial-tick--end {
+    text-anchor: end;
+  }
+
+  .dial-series.is-hidden {
+    display: none;
+  }
+
+  .dial-series {
+    fill: none;
+    stroke: var(--at-accent);
+    stroke-width: 1.6;
+  }
+
+  /* A qualifying event: solid band. A near-miss: the same band, much fainter
+     and dashed, so the two are distinguishable without relying on colour. */
+  .dial-band--event {
+    fill: var(--at-accent-soft);
+    stroke: var(--at-accent);
+    stroke-width: 1;
+  }
+
+  .dial-band--near {
+    fill: var(--at-bg-elevated);
+    stroke: var(--at-text-muted);
+    stroke-width: 1;
+    stroke-dasharray: 2 4;
+    opacity: 0.6;
+  }
+
+  .dial-thr {
+    stroke: var(--at-text);
+    stroke-width: 1.4;
+    stroke-dasharray: 5 4;
+  }
+
+  .dial-worst-mark {
+    stroke: var(--at-accent);
+    stroke-width: 2.5;
+  }
+
+  .dial-worst-label {
+    font-family: var(--at-font-mono);
+    font-size: 10px;
+    font-weight: 600;
+    fill: var(--at-accent);
+    text-anchor: middle;
+  }
+</style>
