@@ -141,7 +141,12 @@ const evW = gx(EVENT_START_HOUR + EVENT_LENGTH_HOURS) - evX;
   /* Full-bleed under the nav. Decorative-but-labelled: it repeats the figure
      the site already explains, so it carries an aria-label stating the finding
      rather than the shape. */
+  /* ContentLayout emits the h1 and the lead before the slot, so as the slot's
+     first child the strip landed below the lead rather than under the nav.
+     .at-main is a grid, so order is enough — no positioning, and the DOM order
+     still puts the heading first for assistive technology. */
   .cc-strip {
+    order: -1;
     grid-column: full;
     margin-block: 0 var(--at-spacing-lg);
     border-block-end: 1px solid var(--at-divider);
