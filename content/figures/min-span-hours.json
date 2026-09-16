@@ -1,0 +1,3 @@
+{ "id": "min-span-hours", "value": 48, "unit": "h", "class": "course-defined",
+  "label": "Minimum event span",
+  "rationale": "Two days is the point past which a store sized for a daily peak stops being the relevant asset, which is the distinction Week 7 exists to teach." }

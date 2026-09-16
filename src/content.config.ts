@@ -2,6 +2,7 @@ import { defineCollection, reference } from "astro:content";
 import { glob } from "astro/loaders";
 import { z } from "astro/zod";
 import { courseNodeSchema } from "astro-course-university/schemas";
+import { COURSE_PROPERTIES } from "./lib/course-properties.ts";
 
 const weekSchema = z.coerce.number().int().min(1).max(12);
 const courseNodeLoader = (dir: string) =>
@@ -35,25 +36,12 @@ const holisticMarking = z.object({
 // contract (CLAUDE.md §3): one property of the event, a claim, a stance
 // towards the central thesis, and how the week earns it.
 //
-// The twelve properties are a locked vocabulary, listed in teaching order, so
-// a week cannot invent one. The schema still validates each week in isolation:
+// The twelve properties are a locked vocabulary held in src/lib/course-properties.ts
+// so that both this schema and spec/course-coherence.test.ts read one list.
+// The schema still validates each week in isolation:
 // it cannot express "no two weeks share a property", because that is a
 // property of the set rather than of one entry, and nothing in the repo
 // enforces it automatically at present.
-export const COURSE_PROPERTIES = [
-  "visibility",
-  "definition",
-  "correlation",
-  "spatial-extent",
-  "depth",
-  "complementarity",
-  "duration",
-  "reserve-economics",
-  "allocation",
-  "lead-time",
-  "boundary",
-  "declared-boundary",
-] as const;
 
 const propertySchema = z.enum(COURSE_PROPERTIES);
 const stanceSchema = z.enum(["advances", "complicates", "challenges"]);

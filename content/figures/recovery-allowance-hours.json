@@ -1,0 +1,3 @@
+{ "id": "recovery-allowance-hours", "value": 3, "unit": "h", "class": "course-defined",
+  "label": "Recovery allowance before an event is broken",
+  "rationale": "Short enough that a genuine recovery ends the event, long enough that a brief gust does not split one spell into two non-events. The rule, not the weather, decides how a spell is segmented." }

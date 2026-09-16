@@ -1,0 +1,9 @@
+{
+  "id": "reference-event-hours",
+  "unit": "h",
+  "class": "synthetic",
+  "label": "Reference event duration below threshold",
+  "derived_from": "trace",
+  "recompute": "EVENT_LENGTH_HOURS",
+  "value": 61
+}

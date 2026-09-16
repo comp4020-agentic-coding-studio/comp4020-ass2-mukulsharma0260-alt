@@ -1,0 +1,3 @@
+{ "id": "reference-event-minimum-pct", "unit": "%", "class": "synthetic",
+  "label": "Lowest combined output inside the reference event",
+  "derived_from": "trace", "recompute": "referenceEvent.minimumPct", "round": 1 }

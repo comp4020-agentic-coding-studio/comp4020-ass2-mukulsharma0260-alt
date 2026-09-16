@@ -1,0 +1,3 @@
+{ "id": "threshold-pct", "value": 12, "unit": "%", "class": "course-defined",
+  "label": "Combined wind and solar output below 12% of installed capacity",
+  "rationale": "Chosen low enough that qualifying periods are ones the system would genuinely have to survive, and high enough that the trace still contains one. Assessment 1 asks students to move it and defend the move." }

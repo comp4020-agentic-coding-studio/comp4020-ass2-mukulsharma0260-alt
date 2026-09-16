@@ -1,0 +1,3 @@
+{ "id": "trace-hours-below-threshold", "unit": "h", "class": "synthetic",
+  "label": "Hours below the threshold across the whole trace",
+  "derived_from": "trace", "recompute": "hoursBelow" }
