@@ -28,7 +28,7 @@ Why not that: That plugin is registered inside astro.config.ts, which README:14-
 How I knew the result was right: Read the served markup for the anchor before touching anything — it already carried aria-hidden="true" and tabindex="-1", so the glyph was decoration to assistive technology and hiding it removes nothing; confirmed the href and element survive in the built output so section links still resolve.
 
 ## 2026-09-16 — Declined the reported duplicate-h1 bug, fixed the real one
-Commit: 8e3b1a0
+Commit: 9d57fbc
 Obvious option: Remove the body "# Heading" from the three MDX pages, as instructed, on the report that they rendered both a frontmatter title and a duplicate h1.
 Why not that: The duplicate did not exist. MdxPageLayout uses the frontmatter title only for the document title, so removing the body heading would have left those pages with no h1 at all — replacing a cosmetic complaint with a real accessibility and structure failure.
 How I knew the result was right: Curled all three served pages and counted h1 elements before editing anything — exactly one each, text "Policies and support", "The Failure Wall", "About this course", with the frontmatter title appearing only inside <title>. The defect was two hand-typed copies of one string, so the fix was to make the heading read the field.
