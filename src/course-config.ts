@@ -60,3 +60,9 @@ export const courseMeta = slopCourseMetaSchema.parse({
     "average — it is designed by the event it must survive.",
   tags: ["energy systems", "reliability", "design"],
 }) satisfies CourseMetaInput;
+
+/** The ANU level as readers see it, derived from the code's leading digit rather
+ *  than typed. A page that renders this cannot disagree with the code, and
+ *  cannot drop a digit the way string concatenation did (`level` + "00" gave
+ *  "600" for SLOP6246). spec/course-contract.test.ts asserts the relationship. */
+export const courseLevelLabel = String(Number(courseMeta.code.at(4)) * 1000);
