@@ -8,7 +8,7 @@ due: 2026-10-16T17:00:00+10:00
 weight: 40
 stage: 4
 coversWeeks: Weeks 11–12, and everything before them
-takesInput: A3's dispatch log
+takesInput: a dispatch log and a counterfactual
 produces: a defended system, and the declared event that beats it
 marking:
   mode: holistic

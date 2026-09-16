@@ -8,7 +8,7 @@ due: 2026-09-18T17:00:00+10:00
 weight: 20
 stage: 2
 coversWeeks: Weeks 3–6
-takesInput: A1's operative definition
+takesInput: an operative definition of the event
 produces: a portfolio with a correlation profile
 marking:
   mode: weighted

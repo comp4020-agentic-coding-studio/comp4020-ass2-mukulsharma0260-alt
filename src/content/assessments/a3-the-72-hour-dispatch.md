@@ -8,7 +8,7 @@ due: 2026-10-09T17:00:00+10:00
 weight: 25
 stage: 3
 coversWeeks: Weeks 7–10
-takesInput: A2's portfolio
+takesInput: a portfolio with a correlation profile
 produces: a dispatch log and a counterfactual
 marking:
   mode: weighted
