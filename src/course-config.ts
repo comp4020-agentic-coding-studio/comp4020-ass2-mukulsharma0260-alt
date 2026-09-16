@@ -47,7 +47,7 @@ export const slopCourseMetaSchema = z
 // `level` mirrors.
 export const courseMeta = slopCourseMetaSchema.parse({
   code: "SLOP6246",
-  title: "Dunkelflaute: Designing for the Week the Weather Stops",
+  title: "Dunkelflaute: Designing for the week the weather stops",
   session: "Semester 2",
   year: 2026,
   level: 6,
