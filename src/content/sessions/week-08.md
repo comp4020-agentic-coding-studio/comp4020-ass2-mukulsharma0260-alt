@@ -1,6 +1,6 @@
 ---
 title: The Generator You Hope Never Runs
-description: The economics of reserve plant: paying for capacity whose value is in not being needed.
+description: "The economics of reserve plant: paying for capacity whose value is in not being needed."
 week: 8
 date: 2026-09-14
 property: reserve-economics

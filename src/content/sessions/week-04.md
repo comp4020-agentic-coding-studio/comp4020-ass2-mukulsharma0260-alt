@@ -1,6 +1,6 @@
 ---
 title: How Big Is the Weather?
-description: The size of a weather system set against the size of the grid underneath it.
+description: "The size of a weather system set against the size of the grid underneath it."
 week: 4
 date: 2026-08-17
 property: spatial-extent

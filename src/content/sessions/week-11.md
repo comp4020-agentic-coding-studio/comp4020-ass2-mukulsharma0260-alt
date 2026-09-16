@@ -1,6 +1,6 @@
 ---
 title: Every Failure Gets a Story Afterwards
-description: Post-mortems as documents with authors, and the system boundaries they assume.
+description: "Post-mortems as documents with authors, and the system boundaries they assume."
 week: 11
 date: 2026-10-05
 property: boundary

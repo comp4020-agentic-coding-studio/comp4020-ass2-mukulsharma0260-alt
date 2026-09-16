@@ -1,6 +1,6 @@
 ---
 title: Solar Helps, Until It Doesn't
-description: Wind and solar through a winter anticyclone, tested hour by hour rather than on annual averages.
+description: "Wind and solar through a winter anticyclone, tested hour by hour rather than on annual averages."
 week: 6
 date: 2026-08-31
 property: complementarity

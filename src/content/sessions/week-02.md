@@ -1,6 +1,6 @@
 ---
 title: When Does Bad Weather Become a Drought?
-description: Building an operative definition: threshold, span, recovery allowance, scope, season.
+description: "Building an operative definition: threshold, span, recovery allowance, scope, season."
 week: 2
 date: 2026-08-03
 property: definition

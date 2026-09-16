@@ -1,6 +1,6 @@
 ---
 title: Below Cut-In
-description: Power curves, cut-in speed, and what a fleet does when the wind is merely weak.
+description: "Power curves, cut-in speed, and what a fleet does when the wind is merely weak."
 week: 5
 date: 2026-08-24
 property: depth

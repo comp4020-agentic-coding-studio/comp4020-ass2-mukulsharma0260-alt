@@ -1,6 +1,6 @@
 ---
 title: Who Gets Turned Off?
-description: Load shedding as an allocation problem, once the technical options have run out.
+description: "Load shedding as an allocation problem, once the technical options have run out."
 week: 9
 date: 2026-09-21
 property: allocation

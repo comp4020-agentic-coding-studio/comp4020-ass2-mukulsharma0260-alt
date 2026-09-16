@@ -1,6 +1,6 @@
 ---
 title: A Forecast Is Only Useful While You Can Still Act
-description: Forecast skill set against the lead time each available action needs.
+description: "Forecast skill set against the lead time each available action needs."
 week: 10
 date: 2026-09-28
 property: lead-time

@@ -1,6 +1,6 @@
 ---
 title: The System You Are Willing to Defend
-description: Studio critique of the systems you have built, and the failure boundaries you declare for them.
+description: "Studio critique of the systems you have built, and the failure boundaries you declare for them."
 week: 12
 date: 2026-10-12
 property: declared-boundary

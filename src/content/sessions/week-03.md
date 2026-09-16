@@ -1,6 +1,6 @@
 ---
 title: The Weather Does Not Fail Independently
-description: Correlated output, and why independent-generator arithmetic overstates a fleet's reliability.
+description: "Correlated output, and why independent-generator arithmetic overstates a fleet's reliability."
 week: 3
 date: 2026-08-10
 property: correlation

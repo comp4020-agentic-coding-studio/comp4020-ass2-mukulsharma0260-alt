@@ -1,6 +1,6 @@
 ---
 title: The Average Is Lying to You
-description: Two descriptions of one system — an annual share and an hourly trace — and what each is fit for.
+description: "Two descriptions of one system — an annual share and an hourly trace — and what each is fit for."
 week: 1
 date: 2026-07-27
 property: visibility
