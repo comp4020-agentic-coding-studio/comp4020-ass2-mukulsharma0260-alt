@@ -175,3 +175,18 @@ pnpm check:evidence  # submission gate
 - Preserve useful intermediate commits. Do not collapse the assignment into one
   final commit, and do not amend or rebase away history that shows the work.
 - Cited commit hashes must resolve in this repo.
+
+## 13. Working agreement
+
+How to work with me, as distinct from what to build.
+
+- **One item per turn.** Stop and report. Never run ahead into the next item.
+- **Report in 150 words or fewer:** what changed, commits, check status, what's
+  next. No tables. No "three weakest things" unless asked. Never restate my own
+  brief back to me.
+- **No narration between tool calls.** Run the commands, explain once at the end.
+- **Do not re-read a file already read this session.**
+- **Run `pnpm check` once per item, at the end** — not after every commit.
+- **Never re-derive context already held.**
+- **Cite only SHAs actually read.** Never predict one. A predicted SHA has
+  already been wrong once in this repo (`bf47932`).
