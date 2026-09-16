@@ -1,53 +1,64 @@
 # Process overview
 
-<!-- TEMPLATE: this file is a shape to fill in, not a form. Replace everything
-     in it with your own overview, and delete this comment — `pnpm
-     check:evidence` will remind you if it's still here. -->
-
-Written by you, for a reader: how you got from the brief to the harness and
-agentic workflow behind this submission. Markers read this file and follow its
-citations; they don't trawl the repo for evidence you didn't point at.
-
-This file is the shape; the course site's
-[assessment page](https://comp.anu.edu.au/courses/comp4020-agentic-coding-studio/topics/assessment/#what-you-submit)
-is the requirement, and its
-[word counts](https://comp.anu.edu.au/courses/comp4020-agentic-coding-studio/topics/assessment/#word-counts)
-cover every deliverable.
-
 ## What I built
 
-One paragraph: the thing, and the idea behind it.
+SLOP6246 *Dunkelflaute: Designing for the Week the Weather Stops* — a
+twelve-week postgraduate course site built around one failure condition: the
+period when wind and solar output are simultaneously low for long enough that
+normal planning assumptions stop holding.
 
 ## How I got here
 
-The account of the process: how the work actually went, and how you knew the
-result was right. Tell it in whatever order makes it clear. A weekly prototype
-needs a paragraph or two; an assignment needs more.
+The feedback on Assignment 1 was that my central concept — an M/M/1 queue —
+had not shaped the interaction strongly enough. The queue was present, but the
+site would have survived having it swapped out. That criticism set the whole
+approach here: pick one condition and let it structure everything, so that
+removing it would collapse the course rather than inconvenience it.
 
-Cite the record as you go, as links whose text is the commit hash or range and
-whose target is this repo's commit or compare URL, so a reader clicks straight
-to the evidence:
+My first instinct was a renewable-energy course. I narrowed it to Dunkelflaute
+because the broad version could only become a technology survey — a block on
+wind, a block on storage — and a survey has no argument to sustain. Committing
+to the drought gave me a thesis: a system should not be judged on its averages, and a defensible design names
+the event it survives and the event that defeats it.
 
-- one commit: [`a1b2c3d`](https://github.com/YOUR-ORG/YOUR-REPO/commit/a1b2c3d)
-- a range:
-  [`a1b2c3d...e4f5a6b`](https://github.com/YOUR-ORG/YOUR-REPO/compare/a1b2c3d...e4f5a6b)
+I wrote the rules before generating the course. [`506f058`](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-mukulsharma0260-alt/commit/506f058)
+establishes the harness and design contract, and
+[`c243652`](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-mukulsharma0260-alt/commit/c243652) encodes the course's structural promises as
+tests — twelve weeks, four assessments totalling 100%, one canonical event
+route — deliberately red against the untouched starter so the contract existed
+before the content did. What I chose to automate was anything a machine can
+check without judgement: the assessment weights, the week numbering, whether
+starter placeholder text still reaches a reader. What I kept for myself was
+everything a green test would have flattered me about. A test can enforce that
+twelve weeks carry twelve distinct properties; it cannot tell me whether week 8
+is interesting, or whether a prospective student would want to enrol.
 
-To pair a prompt with the commit it produced, quote the prompt (curated, not a
-full transcript) next to the citation:
+The canonical definition at [`22aaea1`](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-mukulsharma0260-alt/commit/22aaea1) came first among
+content, because reliability claims are empty until the event has a threshold,
+a span and a recovery rule. That page
+became the standard I judged agent output against, and the standard is
+evidential rather than stylistic. Three times I rejected work for failing it.
+The supplied material gave a ~14 GW *peak demand* figure and the draft had
+quietly reused it as installed renewable capacity; a different quantity, so it
+was cut. A stated 4.1% minimum survived until I read the seeded generator and
+found it produced 0.9%, so the page now derives its synthetic values from the
+trace rather than transcribing them
+([`91ba7ca`](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-mukulsharma0260-alt/commit/91ba7ca)). And I deleted the starter teaching staff
+rather than write biographies for people who do not exist.
 
-> the prompt, verbatim
+That gave me the test I used from then on: every number is either a boundary
+the course chose or an output of one clearly-labelled synthetic trace, and
+anything that cannot be one of those gets written qualitatively or not at all.
+One trace, one source of truth, no duplicated figures between pages.
 
-Screenshots are welcome where one carries the point better than a sentence does.
-Commit the file to this repo and link it with a **relative** path, which is what
-makes it render on GitHub: `![alt text](docs/before.png)`. Images don't count
-towards the word count and don't replace the citation.
+The three instruments in [`28086c7`](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-mukulsharma0260-alt/commit/28086c7) each carry a claim
+rather than decorating a page. The dial shows that moving the definition moves
+the answer; the sizer separates power from energy; the console derives the hour
+a run becomes unrecoverable, which is usually earlier than the hour it visibly
+fails. I rejected the reference implementation's invented absolute capacities
+and worked in normalised units. I also caught my own error there: the first
+feasibility calculation treated a reserve decision still in the future as
+already sunk, which reported failure at hour 0. Corrected, it reports hour 1 —
+four hours before the shortfall is visible, which is the lesson.
 
-## Before you ship
-
-`pnpm check:evidence` verifies that this comment is gone, that your citations
-resolve to real commits, that a crit week's reflection entry is in
-`reflections/`, and that your `CLAUDE.md` is there. It checks that your account
-is traceable, not that it is good: that is the marker's call.
-
-Images aren't checked: unlike a citation whose SHA doesn't resolve, a broken
-image is visible the moment this file is rendered on GitHub.
+Baseline: [`a48ce1f`](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-mukulsharma0260-alt/commit/a48ce1f).
