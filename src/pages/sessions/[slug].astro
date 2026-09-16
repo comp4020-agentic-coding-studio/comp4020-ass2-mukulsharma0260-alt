@@ -34,12 +34,12 @@ const property = String(session.data.property);
 ---
 
 <ContentLayout
-  title={`Week ${session.data.week} ${sessionLabels.singular}: ${session.data.title}`}
+  title={`Week ${String(session.data.week).padStart(2, "0")} — ${session.data.title}`}
   description={session.data.description}
   {...siteConfig}
 >
   <p class="wk-eyebrow">
-    Week {String(session.data.week).padStart(2, "0")} · {session.data.property} ·
+    Week {String(session.data.week).padStart(2, "0")} · {session.data.property} ·{" "}
     {formatCourseDate(session.data.date)}
   </p>
 

@@ -3,11 +3,12 @@ import { slopBranding } from "astro-theme-slop";
 import { courseMeta } from "./course-config";
 
 // The collection key and URL stay `sessions`, which the catalogue reads. These
-// labels are the language students see: SLOP6246 runs a seminar plus a studio
-// each week, and the studio is what these entries describe.
+// labels are the language students see. SLOP6246 calls them Weeks: a week is the
+// unit a student navigates by, and "studio" is reserved for the two-hour
+// session inside one, never used as a synonym for the week itself.
 export const sessionLabels = {
-  singular: "Studio",
-  plural: "Studios",
+  singular: "Week",
+  plural: "Weeks",
 } as const;
 
 export const graphCollections = ["sessions", "assessments", "lectures", "people"];
