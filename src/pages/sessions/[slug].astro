@@ -110,6 +110,10 @@ const property = String(session.data.property);
     display: grid;
     grid-template-columns: minmax(8rem, 12rem) 1fr;
     gap: 0 var(--at-spacing-md);
+    /* The table claims the inset column, so without this the label sits left of
+       the content edge and lands on the gold rule. Collapses to 0 on phones,
+       where the theme zeroes the inset. */
+    padding-inline-start: var(--at-content-inset);
     padding-block: var(--at-spacing-sm);
     border-block-end: 1px solid var(--at-divider);
   }
@@ -130,14 +134,15 @@ const property = String(session.data.property);
 
   /* Stance is carried by the word first; the rule is a secondary cue, so
      meaning never rests on colour alone. */
+  /* Values in this table all take one face — the serif the prose uses. Mono is
+     reserved for the labels, so the column reads as one column. The stance is
+     still distinguished, by its rule and its weight rather than by a second
+     typeface. */
   .wk-stance {
     display: inline-block;
     padding-inline-start: var(--at-spacing-sm);
     border-inline-start: 3px solid var(--at-divider);
-    font-family: var(--at-font-mono);
-    font-size: var(--at-font-size-xs);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
+    font-weight: 600;
   }
 
   .wk-stance--advances {
