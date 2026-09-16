@@ -50,3 +50,9 @@ Commit: b5f9759
 Obvious option: Loosen the check to a fuzzy match, since "A2's portfolio" obviously refers to A2's output and reads better in a metadata field.
 Why not that: A paraphrase reads like a chain while letting the two ends drift silently — rename A2's output and nothing complains. The check was right and the content was wrong, so takesInput on A2, A3 and A4 was rewritten to the previous stage's produces string exactly, and the assertion was tightened from fuzzy to byte-equality.
 How I knew the result was right: Printed the four stages from the built API and read the chain end to end: null, then each takes_input identical to the prior produces, ending at "a defended system, and the declared event that beats it". The prose in each brief still names its predecessor naturally; only the machine-readable field is exact.
+
+## 2026-09-16 — A red CI run left in the history on purpose
+Commit: e8146d2
+Obvious option: Amend or reorder the two commits so CI never shows a failure, since the fix landed one commit later anyway.
+Why not that: The repo forbids amending, and the red run is true: I tightened check:ladder to byte-equality and pushed it one commit before the content that satisfies it. CI caught my own ordering mistake, which is the check doing exactly what it exists to do. Hiding that would make the history less honest and the check look decorative.
+How I knew the result was right: Watched the following run to completion (exit 0, "success — content: the assessment ladder names its inputs exactly") and re-probed the live site: title "Dunkelflaute — SLOP6246", h1 "Dunkelflaute", Level 6000, argument band and 87.4% present, "aDunkelflaute" gone.
