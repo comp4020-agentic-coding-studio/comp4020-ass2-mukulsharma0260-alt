@@ -40,7 +40,12 @@ synthetic values from the trace rather than transcribing them
 rather than write biographies for people who do not exist.
 
 The rule that came out of those three: every number is either a boundary the
-course chose or an output of one labelled synthetic trace.
+course chose or an output of one labelled synthetic trace. The one exemption is
+named in the check rather than hidden from it: the university's own quality
+snapshot is allowed through unlabelled, because a site that demands provenance
+of every course figure while the institution above it reports a bare
+satisfaction average is making its argument by the omission, and a check that
+"fixed" it would delete the point.
 
 The three instruments in [`28086c7`](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-mukulsharma0260-alt/commit/28086c7) each carry a claim
 rather than decorating a page. The dial shows that moving the definition moves
@@ -54,16 +59,17 @@ retuned since, the console's default run reports the plan unrecoverable at hour
 21 against a first shortfall at hour 38 — seventeen hours in which nothing has
 visibly failed yet.
 
-[WRITE THIS — ~60 words. 28086c7. The agent refused an instruction
- that contradicted an earlier documented decision, and the refusal was
- correct.]
 
-[WRITE THIS — ~45 words. e8146d2. The three dispatch constraints that
- were jointly unreachable, and which one I cut.]
 
-[WRITE THIS — ~70 words. The phantom-reporting incident. b5f9759 and
- e8146d2. Deployed SHA equalled local HEAD while four hero files were
- uncommitted; the standing "report HEAD vs deployed first" rule that
- came out of it.]
+
+[WRITE THIS — ~85 words. I WAS WRONG: three hero defects reported, two
+ did not exist, the agent measured and proved it. This goes FIRST.]
+
+[WRITE THIS — ~65 words. Deployed SHA equalled local HEAD while four
+ files were uncommitted; the HEAD-vs-deployed rule that followed.]
+
+[WRITE THIS — ~50 words. The revert that reverted nothing.]
+
+[WRITE THIS — ~60 words. What I would do differently.]
 
 Baseline: [`a48ce1f`](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-mukulsharma0260-alt/commit/a48ce1f).
