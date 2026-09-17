@@ -58,7 +58,7 @@ const POLICIES = [
     </svg>
     <p id="dc-alt-top" class="visually-hidden" data-live-alt>
       Generation, storage, reserve and unserved demand across a 72-hour window,
-      hour by hour. On the opening decisions the run loses supply from hour
+      hour by hour. On the opening decisions the run loses supply from hour{" "}
       {initial.shortfallHour} onwards.
     </p>
 
@@ -124,7 +124,7 @@ const POLICIES = [
     <button type="button" id="dc-reset">Reset decisions</button>
     <p class="instr-note">
       Synthetic scenario <ProvenanceTag kind="synthetic" />: flat demand at {DEMAND_PCT}% of
-      capacity, storage rated {STORAGE_POWER_PCT}% / {STORAGE_ENERGY_PCTH} %·h, reserve
+      capacity, storage rated {STORAGE_POWER_PCT}% / {STORAGE_ENERGY_PCTH} %·h, reserve{" "}
       {RESERVE_POWER_PCT}% with a {RESERVE_LEAD_HOURS}-hour lead time, {SHED_PCT}% demand
       reduction available. Generation is the shared teaching trace. No megawatt figure is
       claimed. {winnable ? "This scenario is survivable — but not on the opening decisions." : ""}
