@@ -4,7 +4,7 @@ description: "Wind and solar through a winter anticyclone, tested hour by hour r
 week: 6
 date: 2026-08-31
 property: complementarity
-stance: challenges
+stance: advances
 claim: Wind and solar complement each other on average, and reliability is decided by the hours when the complement fails.
 how: A winter anticyclone — calm, cold, and overcast at noon.
 activity: Run wind-only, solar-only and mixed portfolios through the event. Does the mix remove the failure, shorten it, or move it?
@@ -18,7 +18,7 @@ related:
 Wind and solar are genuinely anti-correlated across a year. The phrase that
 matters in this course is "across a year".
 
-## How this challenges the thesis
+## How this advances the thesis
 
 This is the week most likely to overturn something you believe. Complementarity
 is real and widely relied upon, and the event is precisely the condition under
