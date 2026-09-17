@@ -3,7 +3,7 @@ title: Every Failure Gets a Story Afterwards
 description: "Post-mortems as documents with authors, and the system boundaries they assume."
 week: 11
 date: 2026-10-05
-property: boundary
+property: attribution
 stance: challenges
 claim: A post-mortem reports the system boundary of whoever wrote it, so the cause of a failure is partly an institutional choice.
 how: One fictional failure, five reports.
@@ -23,7 +23,7 @@ author drew the edge of the system.
 
 The thesis treats the failure boundary as something an engineer states. Week 11
 argues the boundary is also chosen, and often chosen by whoever is writing
-afterwards. That does not make it arbitrary — but it means "the cause" is
+afterwards. That does not make it arbitrary — but it means attribution is
 partly a question about institutions, and a design that names its own boundary
 is making an institutional claim as well as a technical one.
 

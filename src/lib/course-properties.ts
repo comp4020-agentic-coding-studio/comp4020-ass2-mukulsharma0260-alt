@@ -19,7 +19,7 @@ export const COURSE_PROPERTIES = [
   "reserve-economics",
   "allocation",
   "lead-time",
-  "boundary",
+  "attribution",
   "declared-boundary",
 ] as const;
 
