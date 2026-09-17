@@ -49,8 +49,10 @@ a run becomes unrecoverable, which is usually earlier than the hour it visibly
 fails. I rejected the reference implementation's invented absolute capacities
 and worked in normalised units. I also caught my own error there: the first
 feasibility calculation treated a reserve decision still in the future as
-already sunk, which reported failure at hour 0. Corrected, it reports hour 1 —
-four hours before the shortfall is visible.
+already sunk, which reported failure at hour 0. Corrected, and with the presets
+retuned since, the console's default run reports the plan unrecoverable at hour
+21 against a first shortfall at hour 38 — seventeen hours in which nothing has
+visibly failed yet.
 
 [WRITE THIS — ~60 words. 28086c7. The agent refused an instruction
  that contradicted an earlier documented decision, and the refusal was
