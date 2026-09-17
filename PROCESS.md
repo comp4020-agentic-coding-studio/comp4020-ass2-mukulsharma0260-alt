@@ -33,6 +33,8 @@ but it would have meant asking students to be precise about their assumptions
 while being careless with mine. The same thing happened with the 4.1% minimum:
 once the seeded generator produced about 0.9%, I removed the unsupported
 number and made the page derive the value from the trace instead ([`91ba7ca`](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-mukulsharma0260-alt/commit/91ba7ca)).
+Every number on the site is therefore either a boundary the course chose or
+an output of one labelled synthetic trace.
 
 One block is exempt from that rule by name. The university's own quality
 metrics carry no provenance label, because the omission is the argument
@@ -49,9 +51,11 @@ showing that a run can become unrecoverable before the visible shortfall.
 I also made some bad calls during the visual pass. I initially reported three
 hero problems: it went almost black after a cycle, the gradient looked broken,
 and the size was wrong. Once the agent measured it properly, two of those
-reports were simply false. The gradient was present and the animation
-completed clean loops. Only the sizing problem was real: a resize listener was
-not firing, and replacing it with a `ResizeObserver` fixed it.
+reports were simply false. The gradient was present — measured at 11,10,7 near
+the top and 142,106,31 at eighty percent height — and the animation completed
+two clean loops with no black frame. Only the sizing problem was real: a
+resize listener was not firing, and replacing it with a `ResizeObserver` fixed
+it.
 
 A worse mistake was assuming that because deployed SHA [`a8b4732`](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-mukulsharma0260-alt/commit/a8b4732) matched local
 HEAD, I was testing the same thing. Four hero files were still uncommitted, so
@@ -61,11 +65,12 @@ before measuring anything.
 
 I also tried to revert `PageLayout` with `git checkout`, but restored it from
 the commit that had introduced the change. A duplicate font link went live
-even though I thought that step had been skipped. `check:chrome` caught it.
+even though I thought that step had been skipped. `check:chrome` caught what
+my description had missed.
 
 If I did this again, I would deploy on day one and include a
-local-versus-deployed check in the harness from the start. I spent too long
-polishing locally while a whole marked part of the assignment was still
-unverified.
+local-versus-deployed check in the harness from the start. I left 20% of the
+assignment sitting at zero while I polished a local site nobody else could
+verify.
 
 Baseline: [`a48ce1f`](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-mukulsharma0260-alt/commit/a48ce1f).
