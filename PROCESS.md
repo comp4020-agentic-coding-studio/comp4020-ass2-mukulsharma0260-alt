@@ -24,27 +24,26 @@ and structural requirements. I did not try to automate questions like whether
 a week was actually interesting or whether I would want to take the course
 myself. Those still needed a human read.
 
-The Event page came first at [`22aaea1`](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-mukulsharma0260-alt/commit/22aaea1), because every later page depends on
-what the course means by "the event". That decision caught one of the most
-useful mistakes in the whole build. A source described about 14 GW as peak
-demand, but a draft was beginning to use it as though it were installed
-renewable capacity. Nothing would have visibly broken if I had left it there,
-but it would have meant asking students to be precise about their assumptions
-while being careless with mine. The same thing happened with the 4.1% minimum:
-once the seeded generator produced about 0.9%, I removed the unsupported
-number and made the page derive the value from the trace instead ([`91ba7ca`](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-mukulsharma0260-alt/commit/91ba7ca)).
-Every number on the site is therefore either a boundary the course chose or
-an output of one labelled synthetic trace.
+The Event page came first at
+[`22aaea1`](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-mukulsharma0260-alt/commit/22aaea1):
+every later page depends on it. A source gave about 14 GW as peak demand; a
+draft used it as installed renewable capacity. That would have meant asking
+students to be precise about their assumptions while being careless with mine.
+The 4.1% minimum went the same way: the generator produced about 0.9%, so the
+page derives it from the trace
+([`91ba7ca`](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-mukulsharma0260-alt/commit/91ba7ca)).
+Every number on the site is therefore either a boundary the course chose or an
+output of one labelled synthetic trace.
 
 One block is exempt from that rule by name. The university's own quality
 metrics carry no provenance label, because the omission is the argument
 rather than an oversight.
 
-The three instruments at [`28086c7`](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-mukulsharma0260-alt/commit/28086c7) came from the same lesson I took from
-Assignment 1. Instead of asking only whether an interaction worked, I started
-asking whether it could be dropped unchanged into another course. The Dispatch
-Console was the clearest test: its point is not just moving controls, but
-showing that a run can become unrecoverable before the visible shortfall.
+The three instruments at
+[`28086c7`](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-mukulsharma0260-alt/commit/28086c7)
+ask more than whether an interaction works: whether it could be dropped
+unchanged into another course. The Dispatch Console shows a run can become
+unrecoverable before the visible shortfall.
 
 ## What I got wrong
 
