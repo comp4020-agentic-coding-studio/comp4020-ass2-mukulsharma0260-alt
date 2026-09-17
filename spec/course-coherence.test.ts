@@ -120,6 +120,78 @@ describe("check:stance — every week takes a position on the thesis", () => {
   });
 });
 
+// CLAUDE.md §3 requires three things of every teaching week. Two were already
+// enforced above: one distinguishable property (locked vocabulary, used once,
+// no slug inside another) and a declared stance. The third — that the page
+// EXPLICITLY SAYS how the week advances, complicates or challenges the thesis —
+// was held by hand on twelve pages, and the frontmatter label and the prose
+// heading were free to drift apart without anything noticing.
+//
+// This asserts the built page, not the source: the reader meets the heading,
+// not the frontmatter. Renaming week 6's stance without moving its heading now
+// breaks the build, and so does deleting the section outright.
+//
+// What this check deliberately does NOT do: judge whether the paragraph under
+// that heading argues its case, or whether two weeks are doing the same
+// conceptual job in different words. Both are read-and-decide problems, and a
+// word-overlap proxy is blind to the second by construction — "different
+// wording" is exactly what defeats it. Those stay human.
+describe("check:thesis-relation — every week states its relation, in the prose", () => {
+  const STANCES = ["advances", "complicates", "challenges"] as const;
+
+  it("renders a 'How this <stance> the thesis' section whose verb is the declared stance", () => {
+    const pages = new Map(builtPages());
+    const bad: string[] = [];
+    for (const w of weeks) {
+      const route = `/sessions/week-${String(w.meta?.week).padStart(2, "0")}/`;
+      const html = pages.get(route);
+      if (!html) {
+        bad.push(`${route}: not built`);
+        continue;
+      }
+      const text = textOf(html);
+      const found = STANCES.filter((s) =>
+        new RegExp(`How this ${s} the thesis`, "i").test(text),
+      );
+      if (found.length === 0) {
+        bad.push(
+          `${route}: no "How this <stance> the thesis" section — CLAUDE.md §3 requires the page to say how the week relates to the thesis`,
+        );
+        continue;
+      }
+      if (found.length > 1) {
+        bad.push(`${route}: claims ${found.length} stances at once (${found.join(", ")})`);
+        continue;
+      }
+      const declared = String(w.meta?.stance);
+      if (found[0] !== declared)
+        bad.push(
+          `${route}: heading says "${found[0]}" but stance: is "${declared}" — the label and the page disagree`,
+        );
+    }
+    expect(bad, bad.join("; ")).toEqual([]);
+  });
+
+  // The narrow, mechanical half of "a heading is a stance, not a topic label".
+  // It cannot tell whether a title carries a real tension — "Storage Is Two
+  // Problems Wearing One Name" passes and so would a dull sentence. It only
+  // stops the two degradations that need no judgement to spot: numbering the
+  // week in its own title, and titling a week with the name of its property.
+  it("never titles a week with its week number or with its own property", () => {
+    const bad: string[] = [];
+    for (const w of weeks) {
+      const title = String(w.title ?? "").trim();
+      const property = String(w.meta?.property ?? "").replace(/-/g, " ");
+      if (/^week\s*\d/i.test(title))
+        bad.push(`${w.id}: title "${title}" numbers the week instead of making a claim`);
+      const bare = title.toLowerCase().replace(/[^a-z\s]/g, "").trim();
+      if (bare === property.toLowerCase())
+        bad.push(`${w.id}: title "${title}" is its own property label, not a stance`);
+    }
+    expect(bad, bad.join("; ")).toEqual([]);
+  });
+});
+
 describe("check:ladder — the assessment chain is unbroken", () => {
   it("names the previous stage's produces as its own takes_input", () => {
     const bad: string[] = [];
