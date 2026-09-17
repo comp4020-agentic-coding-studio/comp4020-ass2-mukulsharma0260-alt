@@ -1,5 +1,5 @@
 ---
-title: Solar Helps, Until It Doesn't
+title: Solar Helps, Until Wind and Sun Fail Together
 description: "Wind and solar through a winter anticyclone, tested hour by hour rather than on annual averages."
 week: 6
 date: 2026-08-31
