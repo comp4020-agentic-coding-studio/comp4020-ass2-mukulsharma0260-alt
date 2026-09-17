@@ -138,3 +138,65 @@ export function classify(definition: EventDefinition): Classification {
 export function hourLabel(hour: number): string {
   return `day ${Math.floor(hour / 24) + 1}, ${String(hour % 24).padStart(2, "0")}:00`;
 }
+
+/** Number words up to twelve, so a sentence reads as prose rather than as a
+ *  readout. Beyond that the digit is clearer anyway. */
+const WORDS = [
+  "no",
+  "one",
+  "two",
+  "three",
+  "four",
+  "five",
+  "six",
+  "seven",
+  "eight",
+  "nine",
+  "ten",
+  "eleven",
+  "twelve",
+] as const;
+
+function countWord(n: number): string {
+  return WORDS[n] ?? String(n);
+}
+
+/** The chart's text alternative, derived from a classification.
+ *
+ *  This lives beside the classifier rather than in the component because it is
+ *  needed twice: once in the .astro frontmatter for the server-rendered figure,
+ *  and once in the client script that re-renders on input. The first version
+ *  wrote the opening sentence by hand in the markup and never updated it, so
+ *  the alternative went on saying "one period qualifies ... six rejected" while
+ *  the visible readout said zero found and seven rejected. A screen-reader user
+ *  got a confidently wrong answer from the same control a sighted user could
+ *  see was giving a different one.
+ *
+ *  Taking both from one function means the alternative cannot describe a state
+ *  the chart is not in. spec/dial-alt.test.ts pins the zero case. */
+export function describeClassification(
+  definition: EventDefinition,
+  classification: Classification,
+): string {
+  const { events, nearMisses, worst, totalEventHours } = classification;
+  const mixWord =
+    definition.sourceMix === "combined"
+      ? "wind and solar together"
+      : definition.sourceMix === "wind"
+        ? "wind alone"
+        : "solar alone";
+  const opening = `Combined wind and solar output across fourteen synthetic days, counting ${mixWord}, against a ${definition.thresholdPct}% threshold and a ${definition.minSpanHours}-hour minimum span.`;
+  const rejected = `${countWord(nearMisses.length)} shorter low ${nearMisses.length === 1 ? "period is" : "periods are"} rejected by the duration rule.`;
+
+  if (events.length === 0 || !worst) {
+    return `${opening} No period in the fortnight qualifies as an event under this definition. ${rejected}`;
+  }
+
+  const day = Math.floor(worst.start / 24) + 1;
+  const which =
+    events.length === 1
+      ? `One period qualifies as an event: a ${worst.span}-hour trough beginning on day ${day}, with output falling to ${worst.minPct.toFixed(1)}% of capacity.`
+      : `${countWord(events.length)} periods qualify as events, ${totalEventHours} hours of the fortnight in total. The longest runs ${worst.span} hours from day ${day}, with output falling to ${worst.minPct.toFixed(1)}% of capacity.`;
+
+  return `${opening} ${which} ${rejected}`;
+}
