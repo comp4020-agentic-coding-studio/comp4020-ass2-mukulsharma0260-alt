@@ -40,10 +40,27 @@ const evX = gx(EVENT_START_HOUR);
 const evW = gx(EVENT_START_HOUR + EVENT_LENGTH_HOURS) - evX;
 ---
 
+<!-- The probe is never shifted, so its left edge is the band's natural left
+     edge. BaseLayout's `hero` slot is the mechanism the hero uses to reach the
+     body grid's `full` line, and it is already occupied; inside .at-main's
+     subgrid `full` does not resolve. Measuring is exact where re-deriving the
+     theme's column maths would only be nearly right. -->
+<span class="ab-probe" aria-hidden="true"></span>
+
 <section class="ab" aria-labelledby="ab-title">
   <div class="ab-inner">
+    <!-- Full inner width, above the columns. At 44px "Then Thursday happened."
+         needs 531px and the 42fr column is 343px, so inside that column the
+         sentence overflowed it by 188px and ran into the chart's gutter —
+         text-wrap: nowrap reported two lines while hiding that. Spanning the
+         row keeps the specified size, the specified split and two honest
+         lines. -->
+    <h2 id="ab-title" class="ab-head">
+      <span class="ab-line">The average looked fine.</span>
+      <span class="ab-line">Then Thursday happened.</span>
+    </h2>
+
     <div class="ab-left">
-      <h2 id="ab-title" class="ab-head">The average looked fine.<br />Then Thursday happened.</h2>
       <p class="ab-figure">
         <span class="ab-value">{annual.value}{annual.unit}</span>
         <span class="ab-caption">{annual.label}</span>
@@ -71,54 +88,93 @@ const evW = gx(EVENT_START_HOUR + EVENT_LENGTH_HOURS) - evX;
         hours from day 8 — the event the annual figure does not mention.
       </figcaption>
     </figure>
-  </div>
 
-  <p class="ab-foot">
-    The same system, hour by hour. One number describes it. So does the other.
-  </p>
+    <p class="ab-foot">
+      The same system, hour by hour. One number describes it. So does the other.
+    </p>
+  </div>
 </section>
 
+<script is:inline>
+  (() => {
+    const set = () => {
+      const probe = document.querySelector(".ab-probe");
+      if (!probe) return;
+      const root = document.documentElement;
+      root.style.setProperty("--ab-edge", `${probe.getBoundingClientRect().left}px`);
+      root.style.setProperty("--ab-vw", `${root.clientWidth}px`);
+    };
+    set();
+    addEventListener("resize", set);
+    addEventListener("load", set);
+  })();
+</script>
+
 <style>
+  .ab-probe {
+    display: block;
+    height: 0;
+  }
+
   /* Full-bleed dark band. Breaks the cream column that otherwise runs
      uninterrupted from the masthead to the footer, which is what flattens the
      page's rhythm. */
   .ab {
     grid-column: full;
+    /* Pulled back to the viewport's left edge and given its exact width. The
+       fallbacks keep the band in its column if the script never runs. */
+    margin-inline-start: calc(-1 * var(--ab-edge, 0px));
+    width: var(--ab-vw, auto);
     margin-block: var(--at-spacing-xl);
-    padding: var(--at-spacing-xl) var(--at-gutter);
-    background: #0e0c08;
+    padding-block: clamp(40px, 5vw, 64px);
+    padding-inline: var(--at-gutter);
+    min-height: clamp(320px, 28vw, 420px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background: var(--ground);
     color: #f6efdd;
   }
 
   .ab-inner {
     display: grid;
-    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
-    gap: var(--at-spacing-xl);
+    grid-template-columns: minmax(0, 42fr) minmax(0, 58fr);
+    column-gap: 48px;
+    row-gap: 24px;
     align-items: center;
     max-width: var(--at-content-width);
     margin-inline: auto;
   }
 
+  /* One line per sentence. text-wrap: balance was redistributing the two
+     sentences across four lines, which broke them mid-clause. */
   .ab-head {
-    margin-block: 0 var(--at-spacing-lg);
-    font-size: clamp(24px, 3.1vw, 34px);
+    grid-column: 1 / -1;
+    margin-block: 0;
+    font-size: clamp(28px, 3.2vw, 44px);
     font-weight: 600;
-    line-height: 1.15;
+    line-height: 1.05;
     letter-spacing: -0.01em;
     color: #f6efdd;
-    text-wrap: balance;
+    text-wrap: nowrap;
   }
 
+  .ab-line {
+    display: block;
+  }
+
+  /* One unit, not three islands: gap rather than margins, so the number, its
+     label and its provenance note sit together under the headline. */
   .ab-figure {
     display: grid;
-    gap: var(--at-spacing-xs);
+    gap: 6px;
     margin: 0;
     justify-items: start;
   }
 
   .ab-value {
     font-family: var(--at-font-mono);
-    font-size: clamp(44px, 7vw, 68px);
+    font-size: clamp(36px, 4.4vw, 48px);
     font-weight: 500;
     line-height: 1;
     font-variant-numeric: tabular-nums;
@@ -141,7 +197,7 @@ const evW = gx(EVENT_START_HOUR + EVENT_LENGTH_HOURS) - evX;
   .ab-right svg {
     display: block;
     width: 100%;
-    height: 210px;
+    height: 176px;
   }
 
   .ab-area {
@@ -177,9 +233,12 @@ const evW = gx(EVENT_START_HOUR + EVENT_LENGTH_HOURS) - evX;
     text-anchor: middle;
   }
 
+  /* A row of the inner grid. As a sibling of .ab-inner it had its own
+     max-width and auto margins, which centred it against the full-bleed band
+     instead of against the columns above it. */
   .ab-foot {
-    max-width: var(--at-content-width);
-    margin: var(--at-spacing-lg) auto 0;
+    grid-column: 1 / -1;
+    margin: 0;
     font-size: var(--at-font-size-sm);
     color: rgb(246 239 221 / 72%);
   }

@@ -66,6 +66,33 @@ const text = label ?? DEFAULT_LABEL[kind];
     color: var(--at-text-secondary);
   }
 
+  /* On dark ground the light-surface treatments invert in importance: a cream
+     filled pill becomes the highest-contrast element on the panel, which puts
+     the eye on the provenance note rather than on the figure it qualifies. On
+     dark, every kind collapses to the same hairline footnote. The non-colour
+     cues that separate the three kinds still do their work on light ground,
+     where the badges carry the distinction.
+     .ab and .hero are the site's dark surfaces; badges on light ground are
+     untouched. */
+  :global(.ab) .prov,
+  :global(.hero) .prov {
+    padding: 0.15em 0.5em;
+    border: 1px solid rgb(255 255 255 / 18%);
+    border-radius: var(--at-border-radius);
+    background: transparent;
+    /* 50%, not lower. At 10px this is small text, so WCAG AA wants 4.5:1
+       against the #0b0a07 ground: 46% computes to 4.19:1 and 48% to exactly
+       4.50:1 before rounding. 50% gives 4.76:1 — the dimmest value that
+       clears it with room. axe passed the page at 46%, which is why the ratio
+       was computed by hand rather than taken on trust. The 18% hairline is
+       left as specified: it is decoration on a non-interactive element, and
+       the text carries the meaning. */
+    color: rgb(246 239 221 / 50%);
+    font-size: 10px;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+  }
+
   /* An empirical value with a provenance record behind it: solid edge with a
      thickened leading rule, borrowing the citation-bar idiom. The heavier
      inline-start edge is the non-colour cue that separates it from both

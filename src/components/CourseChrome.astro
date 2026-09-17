@@ -76,6 +76,11 @@ const evW = gx(EVENT_START_HOUR + EVENT_LENGTH_HOURS) - evX;
   :root {
     --ui: var(--at-font-body);
     --mono: var(--at-font-mono);
+    /* The dark ground. There was no token for this: the hero carried the
+       literal #0b0a07 and the argument band a different literal, #0e0c08, so
+       the site's two dark surfaces did not agree. This names the hero's value
+       and both now read from it. */
+    --ground: #0b0a07;
     /* A neutral rule. --at-border is --at-primary at 30%, i.e. gold, which is
        the course's accent — anything that must not speak in the course's voice
        cannot use it for its edges either. */
