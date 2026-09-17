@@ -76,12 +76,20 @@ const evW = gx(EVENT_START_HOUR + EVENT_LENGTH_HOURS) - evX;
   :root {
     --ui: var(--at-font-body);
     --mono: var(--at-font-mono);
+    /* A neutral rule. --at-border is --at-primary at 30%, i.e. gold, which is
+       the course's accent — anything that must not speak in the course's voice
+       cannot use it for its edges either. */
+    --rule: light-dark(rgb(26 22 17 / 20%), rgb(255 246 225 / 22%));
     --disp: "Fraunces", "Iowan Old Style", Georgia, serif;
     --serif: "Newsreader", Georgia, "Times New Roman", serif;
   }
 
-  /* Argument: all reading prose. */
-  .at-main :is(p, li, dd, blockquote, figcaption),
+  /* Argument: all reading prose — except the institution's own block, which
+     is not the course speaking. Newsreader there inverted the whole device:
+     the university's words were being read in the course's prose voice. The
+     exclusion lives here rather than as four overrides in the component, so a
+     fifth element added to that block cannot quietly inherit the wrong voice. */
+  .at-main :is(p, li, dd, blockquote, figcaption):not(.isnap *),
   .hero .hm-subtitle {
     font-family: var(--serif);
   }
@@ -89,7 +97,7 @@ const evW = gx(EVENT_START_HOUR + EVENT_LENGTH_HOURS) - evX;
   /* Display: headings, and the claims that behave like headings. The hero is
      rendered into BaseLayout's hero slot, so it sits outside .at-main and has
      to be named explicitly — it lost the display face when it moved. */
-  .at-main :is(h1, h2, h3, h4),
+  .at-main :is(h1, h2, h3, h4):not(.isnap *),
   .at-main .wk-claim,
   .hero .hm-title,
   .ab-head {

@@ -240,6 +240,36 @@ describe("check:figures — the institution's figures are exempt by name", () =>
     expect(bad, bad.join("; ")).toEqual([]);
   });
 
+  it("never lets the course's voice reach inside the snapshot", () => {
+    const snapshot = readFileSync(resolve("src/components/InstitutionalSnapshot.astro"), "utf8");
+    const chrome = readFileSync(resolve("src/components/CourseChrome.astro"), "utf8");
+    const problems: string[] = [];
+
+    // Nothing in the block may name the course's display or prose faces.
+    for (const token of ["--disp", "--serif", "Fraunces", "Newsreader"]) {
+      if (snapshot.includes(token))
+        problems.push(`InstitutionalSnapshot.astro names ${token} — only --ui and --mono belong here`);
+    }
+
+    // And the course's own rules must stop at the block, or its children
+    // inherit Newsreader from .at-main and the device inverts.
+    const voiceRules = chrome.match(/\.at-main :is\([^)]*\)[^{]*/g) ?? [];
+    if (voiceRules.length < 2)
+      problems.push("CourseChrome.astro: expected the prose and display rules to be found");
+    for (const rule of voiceRules) {
+      if (!rule.includes(":not(.isnap *)"))
+        problems.push(`CourseChrome.astro: "${rule.trim()}" does not exclude .isnap`);
+    }
+
+    // No gold: --at-border and --at-divider are both derived from --at-primary.
+    for (const token of ["--at-border:", "--at-border ", "var(--at-border)", "var(--at-divider)", "--at-primary"]) {
+      if (snapshot.includes(token))
+        problems.push(`InstitutionalSnapshot.astro uses ${token} — that resolves to the course's gold`);
+    }
+
+    expect(problems, problems.join("; ")).toEqual([]);
+  });
+
   it("allows only numerals that actually appear in the snapshot", () => {
     const file = join(resolve("dist"), "index.html");
     const html = existsSync(file) ? readFileSync(file, "utf8") : "";

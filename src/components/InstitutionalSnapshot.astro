@@ -52,16 +52,19 @@ const ROWS: { label: string; value: string; delta?: string }[] = [
   .isnap {
     margin-block: var(--at-spacing-xl);
     padding: var(--at-spacing-lg) var(--at-spacing-lg) var(--at-spacing-md);
-    border: 1px solid var(--at-border);
+    border: 1px solid var(--rule);
     border-radius: var(--at-border-radius);
     background: var(--at-bg-alt);
     font-family: var(--ui);
     color: var(--at-text);
   }
 
+  /* Declared, not inherited. CourseChrome excludes this block from the
+     course's prose and display faces; these say positively what it does use. */
   .isnap-org,
   .isnap-head {
     margin: 0;
+    font-family: var(--ui);
     font-size: var(--at-font-size-xs);
     letter-spacing: 0.04em;
     color: var(--at-text-secondary);
@@ -89,10 +92,11 @@ const ROWS: { label: string; value: string; delta?: string }[] = [
     align-items: baseline;
     gap: var(--at-spacing-sm);
     padding-block: 0.45rem;
-    border-block-start: 1px solid var(--at-divider);
+    border-block-start: 1px solid var(--rule);
   }
 
   .isnap-row dt {
+    font-family: var(--ui);
     font-size: var(--at-font-size-sm);
     color: var(--at-text-secondary);
   }
@@ -117,6 +121,7 @@ const ROWS: { label: string; value: string; delta?: string }[] = [
 
   .isnap-foot {
     margin: var(--at-spacing-md) 0 0;
+    font-family: var(--ui);
     font-size: var(--at-font-size-xs);
     color: var(--at-text-muted);
   }
