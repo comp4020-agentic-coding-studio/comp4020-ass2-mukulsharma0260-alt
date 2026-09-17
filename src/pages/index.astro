@@ -6,6 +6,7 @@ import { withBase } from "astro-theme-university/url";
 import ProvenanceTag from "../components/ProvenanceTag.astro";
 import CourseChrome from "../components/CourseChrome.astro";
 import HeroFarm from "../components/HeroFarm.astro";
+import InstitutionalSnapshot from "../components/InstitutionalSnapshot.astro";
 import ArgumentBand from "../components/ArgumentBand.astro";
 import TraceFigure from "../components/TraceFigure.astro";
 import { courseLevelLabel, courseMeta, courseName, courseSubtitle } from "../course-config";
@@ -92,6 +93,8 @@ const LADDER = [
   <ul class="course-tags" aria-label="Course tags">
     {courseMeta.tags.map((tag) => <li>{tag}</li>)}
   </ul>
+
+  <InstitutionalSnapshot />
 
   <p class="hm-lede">
     A period when wind and solar output are simultaneously low, for long enough

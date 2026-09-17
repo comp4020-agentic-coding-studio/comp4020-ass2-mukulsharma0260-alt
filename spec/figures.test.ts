@@ -195,6 +195,16 @@ const METADATA = [
   /\b\d+\s*GWh?\b/g, // the illustrative 1 GW / 1 GWh pairing, labelled as such in prose
 ];
 
+// Institutional metrics render unlabelled by design. Every course
+// figure resolves to a class; the university's do not. The omission
+// is the argument, so the check must not "fix" it.
+//
+// A named allowlist rather than excluding the block from the sweep: a silent
+// skip would also hide a course figure that drifted into the same markup, and
+// would leave no record of which values are exempt. These six are, by value,
+// and nothing else is. The next unclassed numeral on a swept page still fails.
+const INSTITUTIONAL_UNLABELLED = new Set(["4.6", "5", "0.2", "92.1", "1.4", "97.8", "87.4"]);
+
 /** Every numeral a figure record accounts for, as strings a reader would see. */
 const registered = new Set<string>(
   figures.flatMap((f) => {
@@ -203,6 +213,52 @@ const registered = new Set<string>(
     return vals.flatMap((v) => [String(v), v.toFixed(1), String(Math.round(v))]);
   }),
 );
+
+describe("check:figures — the institution's figures are exempt by name", () => {
+  const snapshotPages = ["/", "/about/"] as const;
+
+  it("renders the snapshot with no provenance badge on any page that carries it", () => {
+    const bad: string[] = [];
+    for (const route of snapshotPages) {
+      const file = join(
+        resolve("dist"),
+        route === "/" ? "index.html" : `${route.slice(1)}index.html`,
+      );
+      if (!existsSync(file)) {
+        bad.push(`${route}: not built`);
+        continue;
+      }
+      const html = readFileSync(file, "utf8");
+      const block = /<div class="isnap[\s\S]*?<\/dl>/.exec(html);
+      if (!block) {
+        bad.push(`${route}: no institutional snapshot rendered`);
+        continue;
+      }
+      if (/class="[^"]*\bprov\b/.test(block[0]))
+        bad.push(`${route}: the snapshot carries a provenance badge — the omission is the argument`);
+    }
+    expect(bad, bad.join("; ")).toEqual([]);
+  });
+
+  it("allows only numerals that actually appear in the snapshot", () => {
+    const file = join(resolve("dist"), "index.html");
+    const html = existsSync(file) ? readFileSync(file, "utf8") : "";
+    const block = /<div class="isnap[\s\S]*?<\/div>\s*<\/div>|<div class="isnap[\s\S]*?<\/p>\s*<\/div>/.exec(html);
+    const text = (block?.[0] ?? "").replace(/<[^>]+>/g, " ");
+    // 87.4 lives on /about/ only, so it is checked against that page.
+    const about = join(resolve("dist"), "about/index.html");
+    const aboutText = existsSync(about)
+      ? readFileSync(about, "utf8").replace(/<[^>]+>/g, " ")
+      : "";
+    const orphans = [...INSTITUTIONAL_UNLABELLED].filter(
+      (n) => !text.includes(n) && !aboutText.includes(n),
+    );
+    expect(
+      orphans,
+      `allowlisted but rendered nowhere: ${orphans.join(", ")} — the exemption is not a dumping ground`,
+    ).toEqual([]);
+  });
+});
 
 describe("check:figures — the scoped prose sweep", () => {
   it("accounts for every technical numeral on the pages it sweeps", () => {
@@ -235,6 +291,7 @@ describe("check:figures — the scoped prose sweep", () => {
 
       const unaccounted = [...new Set([...text.matchAll(/\b\d+(?:\.\d+)?\b/g)].map((m) => m[0]))]
         .filter((n) => !registered.has(n))
+        .filter((n) => !INSTITUTIONAL_UNLABELLED.has(n))
         .filter((n) => Number(n) > 1); // ordinals and bare counts carry no claim
 
       if (unaccounted.length)

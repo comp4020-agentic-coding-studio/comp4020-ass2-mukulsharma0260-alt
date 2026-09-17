@@ -1,0 +1,144 @@
+---
+// The university's own reporting, rendered as the university would render it.
+//
+// This component deliberately breaks every convention the rest of the site
+// keeps. It uses the theme's chrome surface and Public Sans rather than the
+// course's dark instrument panels and display face; it carries no
+// ProvenanceTag; it is followed by no caption, no tooltip and no commentary;
+// and the course never refers to it. Four figures about a course's quality
+// appear, aggregated, annual, and accountable to nothing on the page.
+//
+// That silence is the argument. A site that spends twelve weeks insisting that
+// an average is a poor description of reliability, and that every number must
+// resolve to a source or be labelled synthetic, sits underneath an institution
+// reporting a single satisfaction average with no provenance at all. Annotating
+// the block would turn the contradiction into a joke and let the reader off.
+// It is left standing.
+//
+// spec/figures.test.ts exempts these values by name and asserts the absence of
+// a badge here, so the omission cannot be mistaken for an oversight and cannot
+// be "fixed" by a later pass.
+
+const ROWS: { label: string; value: string; delta?: string }[] = [
+  { label: "STUDENT SATISFACTION", value: "4.6 / 5", delta: "▲ 0.2 on 2025" },
+  { label: "COURSE QUALITY INDEX", value: "92.1", delta: "▲ 1.4 on 2025" },
+  { label: "COMPLETION RATE", value: "97.8%" },
+  { label: "CONTINUOUS IMPROVEMENT STATUS", value: "On track" },
+];
+---
+
+<div class="isnap">
+  <p class="isnap-org">SLOP UNIVERSITY · SCHOOL OF CONTINUOUS IMPROVEMENT</p>
+  <p class="isnap-head">COURSE QUALITY SNAPSHOT · SLOP6246</p>
+
+  <dl class="isnap-rows">
+    {
+      ROWS.map((row) => (
+        <div class="isnap-row">
+          <dt>{row.label}</dt>
+          <dd class="isnap-val">{row.value}</dd>
+          {row.delta && <dd class="isnap-delta">{row.delta}</dd>}
+        </div>
+      ))
+    }
+  </dl>
+
+  <p class="isnap-foot">Aggregated across all enrolments. Reported annually.</p>
+</div>
+
+<style>
+  /* The chrome surface, not the course's --sunk or --deep panels. No gold, no
+     trough wash, no mono labels in the course's tracking. */
+  .isnap {
+    margin-block: var(--at-spacing-xl);
+    padding: var(--at-spacing-lg) var(--at-spacing-lg) var(--at-spacing-md);
+    border: 1px solid var(--at-border);
+    border-radius: var(--at-border-radius);
+    background: var(--at-bg-alt);
+    font-family: var(--ui);
+    color: var(--at-text);
+  }
+
+  .isnap-org,
+  .isnap-head {
+    margin: 0;
+    font-size: var(--at-font-size-xs);
+    letter-spacing: 0.04em;
+    color: var(--at-text-secondary);
+  }
+
+  .isnap-head {
+    margin-block-end: var(--at-spacing-md);
+    font-weight: 600;
+    color: var(--at-text);
+  }
+
+  .isnap-rows {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    gap: 0;
+    margin: 0;
+  }
+
+  /* Subgrid, so the value and change columns line up across rows that have a
+     change and rows that do not. */
+  .isnap-row {
+    display: grid;
+    grid-column: 1 / -1;
+    grid-template-columns: subgrid;
+    align-items: baseline;
+    gap: var(--at-spacing-sm);
+    padding-block: 0.45rem;
+    border-block-start: 1px solid var(--at-divider);
+  }
+
+  .isnap-row dt {
+    font-size: var(--at-font-size-sm);
+    color: var(--at-text-secondary);
+  }
+
+  .isnap-val,
+  .isnap-delta {
+    margin: 0;
+    font-family: var(--at-font-mono);
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+  }
+
+  .isnap-val {
+    font-size: var(--at-font-size-sm);
+    font-weight: 600;
+  }
+
+  .isnap-delta {
+    font-size: var(--at-font-size-xs);
+    color: var(--at-text-secondary);
+  }
+
+  .isnap-foot {
+    margin: var(--at-spacing-md) 0 0;
+    font-size: var(--at-font-size-xs);
+    color: var(--at-text-muted);
+  }
+
+  /* Three columns do not fit a phone. The label takes its own line and the
+     figures sit together under it, still right-aligned to the same edge. */
+  @media (width < 34rem) {
+    .isnap-rows {
+      grid-template-columns: minmax(0, 1fr) auto;
+    }
+
+    .isnap-row dt {
+      grid-column: 1 / -1;
+    }
+
+    .isnap-val {
+      grid-column: 1;
+      text-align: left;
+    }
+
+    .isnap-delta {
+      grid-column: 2;
+    }
+  }
+</style>
