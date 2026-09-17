@@ -61,6 +61,23 @@ describe("check:no-survey — one property per week, none shared, none spare", (
     expect(bad, bad.join("; ")).toEqual([]);
   });
 
+  // String inequality is not distinctness. "boundary" and "declared-boundary"
+  // are different strings, so the test above passed while two weeks were
+  // visibly filed under the same word — which is exactly the failure the
+  // /sessions/ index claims cannot happen ("no two own the same one"). A
+  // reader compares words, not identifiers, so the check has to as well.
+  it("keeps no property slug inside another", () => {
+    const bad: string[] = [];
+    for (const a of COURSE_PROPERTIES) {
+      for (const b of COURSE_PROPERTIES) {
+        if (a === b) continue;
+        if (b.includes(a))
+          bad.push(`"${a}" is a substring of "${b}" — a reader reads them as the same property`);
+      }
+    }
+    expect(bad, bad.join("; ")).toEqual([]);
+  });
+
   it("uses every property in the vocabulary exactly once", () => {
     const used = weeks.map((w) => String(w.meta?.property));
     const unused = COURSE_PROPERTIES.filter((p) => !used.includes(p));
