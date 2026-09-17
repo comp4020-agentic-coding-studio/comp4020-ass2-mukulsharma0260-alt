@@ -94,7 +94,7 @@ Why not that: Three consecutive reports of a fixed hero were all true of localho
 How I knew the result was right: Measuring the live URL reproduced the reported geometry to the pixel — x=270, w=900, `grid-column` computing to `inset-start / content-end` inside `.at-main`. That is now the standing order for anything about the rendered site: print local HEAD, the deployed SHA and `git status --porcelain` before measuring, and measure the deployed URL rather than the preview server.
 
 ## 2026-09-17 — The institution reports last, not first
-Commit: PENDING
+Commit: e143a24
 Obvious option: Leave the quality snapshot high on the homepage, third element down, where an institutional block would normally sit.
 Why not that: The block carries no provenance badge, and that omission is the whole argument. It only reads as an omission to someone who has already learned that every figure on this site declares whether it is course-defined or synthetic. Third element down, before the lede, the reader has learned nothing yet and four unlabelled numbers are just furniture — indistinguishable from the ordinary university boilerplate they are imitating.
 How I knew the result was right: Moved it to the end of the homepage, after "Where to go next" and before the footer, so the reader meets it having just read the argument and the ladder. Nothing else changed: same component, same content, no badge, no caption, no commentary. /about/ keeps it near the top, where the page is explaining what the course does and does not do, and the contrast lands immediately.

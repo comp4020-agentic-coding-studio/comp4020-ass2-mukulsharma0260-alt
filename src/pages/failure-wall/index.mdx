@@ -87,6 +87,11 @@ This wall carries last cohort's entries. Yours opens empty in Week 1.
 
   .fw-row {
     display: grid;
+    /* The wall claims the inset column, same as the week and assessment slot
+       grids, so the label column needs the same offset or HOUR 8 lands on the
+       gold rule. --at-content-inset is the token those grids use; the theme
+       zeroes it on phones, which is why this is not a 52px literal. */
+    padding-inline-start: var(--at-content-inset);
     grid-template-columns: minmax(5rem, 7rem) 1fr;
     gap: 0 var(--at-spacing-md);
     padding-block: var(--at-spacing-sm);
