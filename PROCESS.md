@@ -1,68 +1,71 @@
 # Process overview
 
+SLOP6246 *Dunkelflaute: Designing for the Week the Weather Stops* — a
+twelve-week postgraduate course built around one failure condition.
+
 ## How I got here
 
-The feedback on Assignment 1 was that my central concept — an M/M/1 queue —
-had not shaped the interaction strongly enough. The queue was present, but the
-site would have survived having it swapped out. That criticism set the whole
-approach here: pick one condition and let it structure everything, so that
-removing it would collapse the course rather than inconvenience it.
+The main thing I took from Assignment 1 was that having the right concept in
+the code is not enough. My M/M/1 queue worked, but the interaction was still
+quite generic. I realised I had treated the restaurant mostly as a setting
+around the model rather than something that should change how the interaction
+itself worked.
 
-A broad renewable course could only have been a survey; the drought bought an
-argument.
+For this assignment I wanted the opposite. I narrowed the course from
+renewable energy generally to one specific failure condition: Dunkelflaute.
+If that idea was removed, the weeks, assessments and interactions should stop
+making sense rather than just needing different labels.
 
-I wrote the rules before generating the course: [`506f058`](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-mukulsharma0260-alt/commit/506f058) the harness and
-design contract, [`c243652`](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-mukulsharma0260-alt/commit/c243652) the structural promises as tests, red against
-the untouched starter. What I chose to automate was anything a machine can
-check without judgement: the assessment weights, the week numbering, whether
-starter placeholder text still reaches a reader. What I kept for myself was
-everything a green test would have flattered me about. A test can enforce that
-twelve weeks carry twelve distinct properties; it cannot tell me whether week 8
-is interesting, or whether a prospective student would want to enrol.
+I set up the rules before generating most of the course. [`506f058`](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-mukulsharma0260-alt/commit/506f058) added the
+harness and design contract, and [`c243652`](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-mukulsharma0260-alt/commit/c243652) turned some of those decisions into
+tests while the starter content was still failing them. I automated the things
+that were objective: assessment weights, week numbering, placeholder content
+and structural requirements. I did not try to automate questions like whether
+a week was actually interesting or whether I would want to take the course
+myself. Those still needed a human read.
 
-The canonical definition at [`22aaea1`](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-mukulsharma0260-alt/commit/22aaea1) came first among content. Judging
-drafts against it caught two bad numbers: a ~14 GW *peak demand* figure reused
-as installed capacity, and a stated 4.1% minimum the generator actually
-produces at 0.9% — after which the page derives its synthetic values from the
-trace ([`91ba7ca`](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-mukulsharma0260-alt/commit/91ba7ca)).
+The Event page came first at [`22aaea1`](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-mukulsharma0260-alt/commit/22aaea1), because every later page depends on
+what the course means by "the event". That decision caught one of the most
+useful mistakes in the whole build. A source described about 14 GW as peak
+demand, but a draft was beginning to use it as though it were installed
+renewable capacity. Nothing would have visibly broken if I had left it there,
+but it would have meant asking students to be precise about their assumptions
+while being careless with mine. The same thing happened with the 4.1% minimum:
+once the seeded generator produced about 0.9%, I removed the unsupported
+number and made the page derive the value from the trace instead ([`91ba7ca`](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-mukulsharma0260-alt/commit/91ba7ca)).
 
-Every number is therefore a boundary the course chose or an output of one
-labelled synthetic trace. The one exemption is
-named in the check rather than hidden from it: the university's own quality
-snapshot is allowed through unlabelled, because a site that demands provenance
-of every course figure while the institution above it reports a bare
-satisfaction average is making its argument by the omission, and a check that
-"fixed" it would delete the point.
+One block is exempt from that rule by name. The university's own quality
+metrics carry no provenance label, because the omission is the argument
+rather than an oversight.
 
-The three instruments ([`28086c7`](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-mukulsharma0260-alt/commit/28086c7)) each carry a claim.
+The three instruments at [`28086c7`](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-mukulsharma0260-alt/commit/28086c7) came from the same lesson I took from
+Assignment 1. Instead of asking only whether an interaction worked, I started
+asking whether it could be dropped unchanged into another course. The Dispatch
+Console was the clearest test: its point is not just moving controls, but
+showing that a run can become unrecoverable before the visible shortfall.
 
-## What I got wrong, and what I changed
+## What I got wrong
 
-I was wrong about the hero. I reported three problems: it went almost black
-after one cycle, the gradient was broken, and the size was wrong. When the
-agent measured it properly, two of those claims fell apart. The gradient was
-there — measured at 11,10,7 near the top and 142,106,31 at eighty percent
-height — and the animation completed two clean loops with no black frame. The
-only real defect was sizing: the resize listener never fired. Replacing it with
-a ResizeObserver fixed that. It reminded me that seeing something once is not
-the same as proving it.
+I also made some bad calls during the visual pass. I initially reported three
+hero problems: it went almost black after a cycle, the gradient looked broken,
+and the size was wrong. Once the agent measured it properly, two of those
+reports were simply false. The gradient was present and the animation
+completed clean loops. Only the sizing problem was real: a resize listener was
+not firing, and replacing it with a `ResizeObserver` fixed it.
 
-The more uncomfortable mistake was reporting the wrong environment with
-confidence. The deployed SHA, [`a8b4732`](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-mukulsharma0260-alt/commit/a8b4732), matched my local HEAD, so I assumed
-localhost and the live site were equivalent. They were not: four hero files
-were still uncommitted. Three reports in a row were true locally and false
-live. I added a rule to `CLAUDE.md` after that: state local HEAD against
-deployed SHA before measuring anything.
+A worse mistake was assuming that because deployed SHA [`a8b4732`](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-mukulsharma0260-alt/commit/a8b4732) matched local
+HEAD, I was testing the same thing. Four hero files were still uncommitted, so
+three reports were true on localhost and false on the live site. After that I
+added a rule to `CLAUDE.md` to state local HEAD against the deployed SHA
+before measuring anything.
 
-One mistake was almost embarrassingly simple. I used `git checkout` to "revert"
-`PageLayout`, but the commit I restored from was the commit that introduced the
-change. I then reported the step as skipped while a duplicate font link
-actually went live. `check:chrome` caught what my description had missed.
+I also tried to revert `PageLayout` with `git checkout`, but restored it from
+the commit that had introduced the change. A duplicate font link went live
+even though I thought that step had been skipped. `check:chrome` caught it.
 
-If I did this again, I would deploy on day one. I left 20% of the assignment
-sitting at zero while I polished a local site nobody else could verify. I would
-also put a deployed-versus-local check in the first harness commit, not add it
-after three bad reports. Verification should have been part of the workflow
-from the start, not a repair after confidence failed.
+If I did this again, I would deploy on day one and include a
+local-versus-deployed check in the harness from the start. I spent too long
+polishing locally while a whole marked part of the assignment was still
+unverified.
 
 Baseline: [`a48ce1f`](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-mukulsharma0260-alt/commit/a48ce1f).
