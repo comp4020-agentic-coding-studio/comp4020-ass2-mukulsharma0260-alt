@@ -62,14 +62,33 @@ visibly failed yet.
 
 
 
-[WRITE THIS — ~85 words. I WAS WRONG: three hero defects reported, two
- did not exist, the agent measured and proved it. This goes FIRST.]
+## What I got wrong, and what I changed
 
-[WRITE THIS — ~65 words. Deployed SHA equalled local HEAD while four
- files were uncommitted; the HEAD-vs-deployed rule that followed.]
+I was wrong about the hero. I reported three problems: it went almost black
+after one cycle, the gradient was broken, and the size was wrong. When the
+agent measured it properly, two of those claims fell apart. The gradient was
+there — measured at 11,10,7 near the top and 142,106,31 at eighty percent
+height — and the animation completed two clean loops with no black frame. The
+only real defect was sizing: the resize listener never fired. Replacing it with
+a ResizeObserver fixed that. It reminded me that seeing something once is not
+the same as proving it.
 
-[WRITE THIS — ~50 words. The revert that reverted nothing.]
+The more uncomfortable mistake was reporting the wrong environment with
+confidence. The deployed SHA, [`a8b4732`](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-mukulsharma0260-alt/commit/a8b4732), matched my local HEAD, so I assumed
+localhost and the live site were equivalent. They were not: four hero files
+were still uncommitted. Three reports in a row were true locally and false
+live. I added a rule to `CLAUDE.md` after that: state local HEAD against
+deployed SHA before measuring anything.
 
-[WRITE THIS — ~60 words. What I would do differently.]
+One mistake was almost embarrassingly simple. I used `git checkout` to "revert"
+`PageLayout`, but the commit I restored from was the commit that introduced the
+change. I then reported the step as skipped while a duplicate font link
+actually went live. `check:chrome` caught what my description had missed.
+
+If I did this again, I would deploy on day one. I left 20% of the assignment
+sitting at zero while I polished a local site nobody else could verify. I would
+also put a deployed-versus-local check in the first harness commit, not add it
+after three bad reports. Verification should have been part of the workflow
+from the start, not a repair after confidence failed.
 
 Baseline: [`a48ce1f`](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-mukulsharma0260-alt/commit/a48ce1f).
