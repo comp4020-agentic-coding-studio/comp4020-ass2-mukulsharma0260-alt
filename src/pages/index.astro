@@ -94,8 +94,6 @@ const LADDER = [
     {courseMeta.tags.map((tag) => <li>{tag}</li>)}
   </ul>
 
-  <InstitutionalSnapshot />
-
   <p class="hm-lede">
     A period when wind and solar output are simultaneously low, for long enough
     that normal planning assumptions stop holding, is called a{" "}
@@ -284,6 +282,13 @@ const LADDER = [
       </Card>
     </CardGrid>
   </section>
+
+  <!-- Last on the page, not third. The block only works on a reader who has
+       already learned that every figure here declares where it came from; at
+       the top of the page they have not, and four unlabelled numbers read as
+       ordinary furniture. After twelve weeks of provenance tags they are
+       conspicuous. Still no badge, no caption, no commentary. -->
+  <InstitutionalSnapshot />
 </BaseLayout>
 
 <style>
