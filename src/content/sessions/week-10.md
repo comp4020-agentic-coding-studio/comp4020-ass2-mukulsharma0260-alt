@@ -23,9 +23,9 @@ between its skill and the time your system needs to act.
 
 Weeks 1 to 9 treat the event as something to be defined and survived. Week 10
 adds that it must also be *seen coming*, early enough for the response to
-matter — and that the actions with the longest lead times are usually the ones
-that help the most. Better forecasting does not automatically produce a better
-outcome, and a design defended on forecast quality alone is undefended.
+matter — and that an action is worth nothing if the forecast arrives after its
+lead time has expired. Better forecasting does not automatically produce a
+better outcome, and a design defended on forecast quality alone is undefended.
 
 ## In the session
 

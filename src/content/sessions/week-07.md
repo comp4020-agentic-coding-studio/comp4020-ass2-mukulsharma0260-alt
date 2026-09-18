@@ -23,11 +23,10 @@ system arrives at an event under-built.
 ## How this complicates the thesis
 
 Storage is the intuitive answer to a drought, and this week makes the answer
-conditional. A battery sized for the daily peak — the problem most storage is
-actually procured for — can be irrelevant to a multi-day event, because the
-binding constraint has changed from instantaneous delivery to total stored
-energy. The event does not just make storage more necessary; it changes which
-number matters.
+conditional. A battery sized for the daily peak — the problem a daily cycle
+poses — can be irrelevant to a multi-day event, because the binding constraint
+has changed from instantaneous delivery to total stored energy. The event does
+not just make storage more necessary; it changes which number matters.
 
 ## In the session
 
@@ -43,7 +42,8 @@ The slides are at [the week 7 deck](/decks/week-07/).
 
 [The event](/the-event/) is defined by a *span*, not a depth, and that is what
 makes duration the binding constraint. An event of the same depth lasting a
-fifth as long would be a storage problem most systems already solve.
+fifth as long would be a storage problem a daily-cycle battery is already
+sized for.
 
 ## What next week needs
 
