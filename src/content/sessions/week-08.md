@@ -36,6 +36,19 @@ what would you pay, per household per year, to keep it available?
 
 There is no correct figure. There are indefensible ones.
 
+## Its relationship to the canonical event
+
+A reserve is not sized against bad weather in general. It is sized against a
+span: how many hours it must be able to run, at what output, before the event
+releases the system. [The event](/the-event/) supplies both halves of that
+question, and neither is available without it — a reserve specified against an
+undefined event is a quantity with no units.
+
+That is what makes the number you are asked to put on reliability this week a
+real number rather than a gesture. You are not pricing resilience; you are
+pricing the hours named in the published definition, and the same definition is
+what lets somebody else price them differently and compare.
+
 ## What next week needs
 
 If nobody funds enough reserve, supply falls short, and shortage stops being an

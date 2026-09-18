@@ -34,6 +34,21 @@ two hours. You match each available action — securing fuel, deferring
 maintenance, pre-charging storage, calling demand response, shedding load —
 against the forecast that arrives in time to authorise it.
 
+## Its relationship to the canonical event
+
+Lead time has no meaning on its own — it is a measurement from a forecast to a
+moment, and the moment has to be specified. [The event](/the-event/) is what
+supplies it: onset is the hour the definition's threshold is first crossed for
+long enough to qualify, so every action in this week's exercise is timed
+against a point the course has already published rather than against a vague
+sense of deteriorating weather.
+
+This is also why the definition's span parameter reaches into operations rather
+than staying in the modelling. An event defined by a longer span declares its
+onset later, which shortens every lead time in the system at once and can move
+an action from available to unavailable without anything changing in the
+weather.
+
 ## What next week needs
 
 Everything so far has been about acting before and during the event. Afterwards
