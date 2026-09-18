@@ -11,18 +11,25 @@ quite generic. I realised I had treated the restaurant mostly as a setting
 around the model rather than something that should change how the interaction
 itself worked.
 
-For this assignment I wanted the opposite. I narrowed the course from
-renewable energy generally to one specific failure condition: Dunkelflaute.
-If that idea was removed, the weeks, assessments and interactions should stop
-making sense rather than just needing different labels.
+I had already taken a renewable-energy course in Semester 1, and Dunkelflaute
+appeared only briefly — roughly five minutes in one week before the course
+moved on. The problem seemed much bigger than the space it was given. For this
+assignment I wanted to do the opposite: take that one condition and see
+whether it could sustain an entire course. "Renewable energy" would have given
+me twelve familiar topics; Dunkelflaute gave me one failure condition that
+every week had to interrogate from a different angle. I started rejecting
+drafts if the same week or interaction could survive unchanged after swapping
+Dunkelflaute for another energy topic.
 
-I set up the rules before generating most of the course. [`506f058`](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-mukulsharma0260-alt/commit/506f058) added the
-harness and design contract, and [`c243652`](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-mukulsharma0260-alt/commit/c243652) turned some of those decisions into
-tests while the starter content was still failing them. I automated the things
-that were objective: assessment weights, week numbering, placeholder content
-and structural requirements. I did not try to automate questions like whether
-a week was actually interesting or whether I would want to take the course
-myself. Those still needed a human read.
+I set up the rules before generating most of the course.
+[`506f058`](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-mukulsharma0260-alt/commit/506f058)
+added the harness and design contract, and
+[`c243652`](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-mukulsharma0260-alt/commit/c243652)
+turned some of those decisions into tests while the starter content was still
+failing them. I automated the things that were objective: assessment weights,
+week numbering, placeholder content and structural requirements. I did not try
+to automate questions like whether a week was actually interesting or whether
+I would want to take the course myself.
 
 The Event page came first at
 [`22aaea1`](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-mukulsharma0260-alt/commit/22aaea1):
@@ -41,8 +48,7 @@ rather than an oversight.
 
 The three instruments at
 [`28086c7`](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-mukulsharma0260-alt/commit/28086c7)
-ask more than whether an interaction works: whether it could be dropped
-unchanged into another course. The Dispatch Console shows a run can become
+were built against that test. The Dispatch Console shows a run can become
 unrecoverable before the visible shortfall.
 
 ## What I got wrong
