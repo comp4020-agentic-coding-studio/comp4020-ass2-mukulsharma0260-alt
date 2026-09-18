@@ -336,12 +336,18 @@ const canonical = CANONICAL_DEFINITION;
     stroke-dasharray: 5 4;
   }
 
-  .dial-worst-mark {
+  /* These elements are created in script with createElementNS, so they carry
+     no data-astro-cid attribute and Astro's scoped selectors never match them.
+     Unmatched, an SVG element falls back to fill: black — which on a cream
+     ground reads as a deliberately inked chart and on a dark ground disappears.
+     :global() is the same mechanism .trough already uses in CourseChrome, and
+     .trough is why the dial's bands have always rendered correctly. */
+  :global(.dial-worst-mark) {
     stroke: var(--at-accent);
     stroke-width: 2.5;
   }
 
-  .dial-worst-label {
+  :global(.dial-worst-label) {
     font-family: var(--at-font-mono);
     font-size: 10px;
     font-weight: 600;

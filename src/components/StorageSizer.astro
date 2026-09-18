@@ -288,13 +288,19 @@ const geom = { W, PAD, H_TOP, H_BOT, WINDOW_HOURS, deficitMax, energyMax };
     stroke-width: 2;
   }
 
-  .sz-mark {
+  /* These elements are created in script with createElementNS, so they carry
+     no data-astro-cid attribute and Astro's scoped selectors never match them.
+     Unmatched, an SVG element falls back to fill: black — which on a cream
+     ground reads as a deliberately inked chart and on a dark ground disappears.
+     :global() is the same mechanism .trough already uses in CourseChrome, and
+     .trough is why the dial's bands have always rendered correctly. */
+  :global(.sz-mark) {
     stroke: var(--at-error);
     stroke-width: 2;
     stroke-dasharray: 4 3;
   }
 
-  .sz-mark-label {
+  :global(.sz-mark-label) {
     font-family: var(--at-font-mono);
     font-size: 10px;
     font-weight: 600;

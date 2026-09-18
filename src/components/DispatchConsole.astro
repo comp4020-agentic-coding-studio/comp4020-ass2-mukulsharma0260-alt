@@ -337,35 +337,41 @@ const POLICIES = [
 
   /* Stack layers differ by fill AND by outline, so the order is readable
      without depending on hue. */
-  .dc-supply { fill: var(--at-accent-soft); }
-  .dc-storage { fill: var(--at-accent); opacity: 0.55; }
-  .dc-reserve { fill: var(--at-tertiary); opacity: 0.6; }
-  .dc-short { fill: var(--at-error); }
+  /* These elements are created in script with createElementNS, so they carry
+     no data-astro-cid attribute and Astro's scoped selectors never match them.
+     Unmatched, an SVG element falls back to fill: black — which on a cream
+     ground reads as a deliberately inked chart and on a dark ground disappears.
+     :global() is the same mechanism .trough already uses in CourseChrome, and
+     .trough is why the dial's bands have always rendered correctly. */
+  :global(.dc-supply) { fill: var(--at-accent-soft); }
+  :global(.dc-storage) { fill: var(--at-accent); opacity: 0.55; }
+  :global(.dc-reserve) { fill: var(--at-tertiary); opacity: 0.6; }
+  :global(.dc-short) { fill: var(--at-error); }
 
-  .dc-demand {
+  :global(.dc-demand) {
     stroke: var(--at-text);
     stroke-width: 1.4;
     stroke-dasharray: 5 4;
   }
 
-  .dc-soc-line {
+  :global(.dc-soc-line) {
     fill: none;
     stroke: var(--at-accent);
     stroke-width: 2;
   }
 
-  .dc-mark-unrec {
+  :global(.dc-mark-unrec) {
     stroke: var(--at-text);
     stroke-width: 2;
     stroke-dasharray: 3 3;
   }
 
-  .dc-mark-short {
+  :global(.dc-mark-short) {
     stroke: var(--at-error);
     stroke-width: 2;
   }
 
-  .dc-mark-label {
+  :global(.dc-mark-label) {
     font-family: var(--at-font-mono);
     font-size: 9.5px;
     font-weight: 600;
