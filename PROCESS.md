@@ -1,8 +1,5 @@
 # Process overview
 
-SLOP6246 *Dunkelflaute: Designing for the Week the Weather Stops* — a
-twelve-week postgraduate course built around one failure condition.
-
 ## How I got here
 
 The main thing I took from Assignment 1 was that having the right concept in
@@ -56,8 +53,7 @@ unrecoverable before the visible shortfall.
 I also made some bad calls during the visual pass. I initially reported three
 hero problems: it went almost black after a cycle, the gradient looked broken,
 and the size was wrong. Once the agent measured it properly, two of those
-reports were simply false. The gradient was present — measured at 11,10,7 near
-the top and 142,106,31 at eighty percent height — and the animation completed
+reports were simply false. The gradient was present, and the animation completed
 two clean loops with no black frame. Only the sizing problem was real: a
 resize listener was not firing, and replacing it with a `ResizeObserver` fixed
 it.
@@ -68,14 +64,12 @@ three reports were true on localhost and false on the live site. After that I
 added a rule to `CLAUDE.md` to state local HEAD against the deployed SHA
 before measuring anything.
 
-I also tried to revert `PageLayout` with `git checkout`, but restored it from
-the commit that had introduced the change. A duplicate font link went live
-even though I thought that step had been skipped. `check:chrome` caught what
-my description had missed.
+I restored `PageLayout` from the commit that introduced the change I meant to
+revert, and shipped a duplicate font link while reporting the step as skipped.
+`check:chrome` caught what my description had missed.
 
-If I did this again, I would deploy on day one and include a
-local-versus-deployed check in the harness from the start. I left 20% of the
-assignment sitting at zero while I polished a local site nobody else could
-verify.
+I left 20% of the assignment sitting at zero while I polished a local site
+nobody else could verify. A green check is not proof: the model, the repo and
+the deployed site must agree with the claim.
 
 Baseline: [`a48ce1f`](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-mukulsharma0260-alt/commit/a48ce1f).
