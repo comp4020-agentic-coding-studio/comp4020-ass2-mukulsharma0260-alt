@@ -99,6 +99,10 @@ Hard rules. These matter more than fluency.
 - No number gets to be ambiguous about which of (a) or (b) it is.
 - **Exempt:** course metadata — week numbers, dates, marks, assessment
   percentages, UI labels.
+- **Exempt:** the fixed institutional snapshot values explicitly allowlisted in
+  `spec/figures.test.ts`; these are institutional chrome, not course evidence,
+  and are intentionally unlabelled. This is not a general exemption for
+  institutional numbers — only for the values that allowlist names.
 - If evidence is unavailable, **write qualitatively.** Fabricated precision is
   worse than an honest shape. "A multi-day lull" beats an invented "63 hours".
 - **Stop** rather than guess a figure to fill a sentence.
@@ -190,3 +194,10 @@ How to work with me, as distinct from what to build.
 - **Never re-derive context already held.**
 - **Cite only SHAs actually read.** Never predict one. A predicted SHA has
   already been wrong once in this repo (`bf47932`).
+- **Before measuring or reporting the deployed site**, state local HEAD, the
+  deployed SHA, and whether the working tree is clean. If HEAD and deployed
+  differ, or the tree is dirty, say so before interpreting any result. Never
+  use localhost measurements as evidence about the deployed site unless those
+  states are proven equivalent. SHA equality is not sufficient on its own: the
+  first instance of this failure had local HEAD equal to the deployed SHA with
+  four files uncommitted.

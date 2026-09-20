@@ -58,11 +58,12 @@ two clean loops with no black frame. Only the sizing problem was real: a
 resize listener was not firing, and replacing it with a `ResizeObserver` fixed
 it.
 
-A worse mistake was assuming that because deployed SHA [`a8b4732`](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-mukulsharma0260-alt/commit/a8b4732) matched local
-HEAD, I was testing the same thing. Four hero files were still uncommitted, so
-three reports were true on localhost and false on the live site. After that I
-added a rule to `CLAUDE.md` to state local HEAD against the deployed SHA
-before measuring anything.
+A worse mistake was assuming that because deployed SHA
+[`a8b4732`](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-mukulsharma0260-alt/commit/a8b4732)
+matched local HEAD, I was testing the same thing. Four hero files were still
+uncommitted, so three reports were true on localhost and false on the live
+site. That rule is now in `CLAUDE.md`: state local HEAD, deployed SHA and
+whether the tree is clean before measuring.
 
 I restored `PageLayout` from the commit that introduced the change I meant to
 revert, and shipped a duplicate font link while reporting the step as skipped.
